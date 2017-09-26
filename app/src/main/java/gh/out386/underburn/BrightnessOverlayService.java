@@ -1,11 +1,17 @@
 package gh.out386.underburn;
 
+import android.annotation.TargetApi;
 import android.app.Service;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
+import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -20,8 +26,9 @@ import android.widget.Toast;
 
 public class BrightnessOverlayService extends Service implements View.OnTouchListener, View.OnClickListener {
 
+    public static final String KEY_SB_HEIGHT = "statusbarHeight";
+    private static final int BUTTON_TOUCH_SLOP = 30;
     private View topLeftView;
-
     private Button overlayedButton;
     private float offsetX;
     private float offsetY;
@@ -30,6 +37,13 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     private boolean moving;
     private WindowManager wm;
     private DisplayMetrics display;
+    private boolean moveWasBrightness;
+    private float lastX;
+    private float lastY;
+    private Handler brightnessHandler = new Handler();
+    private BrightnessRunnable brightnessRunnable = new BrightnessRunnable();
+    private boolean brightnessUp;
+    private int statusbarHeight;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -42,6 +56,10 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
 
         wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
         int alertType;
+        statusbarHeight = PreferenceManager
+                .getDefaultSharedPreferences(getApplicationContext())
+                .getInt(KEY_SB_HEIGHT, 1);
+
         overlayedButton = new Button(this);
         overlayedButton.setText("Overlay button");
         overlayedButton.setOnTouchListener(this);
@@ -105,24 +123,22 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
             moving = false;
 
             int[] location = new int[2];
+            int[] l = new int[2];
             overlayedButton.getLocationOnScreen(location);
-
             originalXPos = location[0];
             originalYPos = location[1];
 
             offsetX = originalXPos - x;
+            lastX = x;
+            lastY = y;
             offsetY = originalYPos - y;
 
         } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
             int[] topLeftLocationOnScreen = new int[2];
             topLeftView.getLocationOnScreen(topLeftLocationOnScreen);
 
-            System.out.println("topLeftY=" + topLeftLocationOnScreen[1]);
-            System.out.println("originalY=" + originalYPos);
-
             float x = event.getRawX();
             float y = event.getRawY();
-
             WindowManager.LayoutParams params =
                     (WindowManager.LayoutParams) overlayedButton.getLayoutParams();
 
@@ -138,7 +154,26 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
 
             wm.updateViewLayout(overlayedButton, params);
             moving = true;
+            if (Math.abs(lastX - x) <= BUTTON_TOUCH_SLOP) {
+                if (Math.abs(lastY - y) > BUTTON_TOUCH_SLOP) {
+                    boolean brightnessUpNow = lastY - y >= 0;
+                    if (!moveWasBrightness || !(brightnessUpNow == brightnessUp)) {
+                        brightnessUp = brightnessUpNow;
+                        brightnessHandler.removeCallbacks(brightnessRunnable);
+                        brightnessHandler.post(brightnessRunnable);
+                        moveWasBrightness = true;
+                    }
+                }
+            }
         } else if (event.getAction() == MotionEvent.ACTION_UP) {
+            if (moveWasBrightness) {
+                brightnessHandler.removeCallbacks(brightnessRunnable);
+                moveWasBrightness = false;
+                WindowManager.LayoutParams params =
+                        (WindowManager.LayoutParams) overlayedButton.getLayoutParams();
+                params.y = originalYPos - statusbarHeight;
+                wm.updateViewLayout(overlayedButton, params);
+            }
             if (moving) {
                 if (event.getRawX() <= display.widthPixels / 2) {
                     WindowManager.LayoutParams params =
@@ -164,4 +199,56 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         Toast.makeText(this, "Overlay button click event", Toast.LENGTH_SHORT).show();
     }
 
+    @TargetApi(Build.VERSION_CODES.M)
+    public void setBrightnessCompat(int brightness) {
+        if (brightness < 0 || brightness > 255)
+            return;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (Settings.System.canWrite(getApplicationContext()))
+                setBrightness(brightness);
+            else
+                requestSettingsPermission();
+        } else
+            setBrightness(brightness);
+    }
+
+    @TargetApi(Build.VERSION_CODES.M)
+    private void requestSettingsPermission() {
+        Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_WRITE_SETTINGS);
+        intent.setData(Uri.parse("package:" + getApplicationContext().getPackageName()));
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+    }
+
+    public int getBrightness() {
+        ContentResolver cResolver = getApplicationContext().getContentResolver();
+        int brightness;
+        try {
+            brightness = Settings.System.getInt(cResolver, Settings.System.SCREEN_BRIGHTNESS);
+        } catch (Settings.SettingNotFoundException e) {
+            return -1;
+        }
+        return brightness;
+    }
+
+    private void setBrightness(int brightness) {
+        ContentResolver cResolver = getApplicationContext().getContentResolver();
+        Settings.System.putInt(cResolver, Settings.System.SCREEN_BRIGHTNESS, brightness);
+    }
+
+    private class BrightnessRunnable implements Runnable {
+        @Override
+        public void run() {
+            int br = getBrightness();
+            int changeBy;
+            // As brightness decreases faster at lower levels on most devices
+            if (br <= 50)
+                changeBy = 1;
+            else
+                changeBy = 7;
+
+            setBrightnessCompat(getBrightness() + (brightnessUp ? changeBy : -changeBy));
+            brightnessHandler.postDelayed(this, 50);
+        }
+    }
 }
