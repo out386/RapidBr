@@ -17,20 +17,15 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.Toast;
+import android.widget.ImageView;
 
-/**
- * Created by J on 9/26/2017.
- */
-
-public class BrightnessOverlayService extends Service implements View.OnTouchListener, View.OnClickListener {
+public class BrightnessOverlayService extends Service implements View.OnTouchListener {
 
     public static final String KEY_SB_HEIGHT = "statusbarHeight";
-    private static final int BUTTON_TOUCH_SLOP = 30;
+    private static final int BUTTON_TOUCH_SLOP = 20;
     private static final int BRIGHTNESS_CHANGE_FACTOR = 30;
     private View topLeftView;
-    private Button overlayedButton;
+    private ImageView brightnessSlider;
     private float offsetX;
     private float offsetY;
     private int originalXPos;
@@ -62,10 +57,13 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
                 .getDefaultSharedPreferences(getApplicationContext())
                 .getInt(KEY_SB_HEIGHT, 1);
 
-        overlayedButton = new Button(this);
-        overlayedButton.setText("Overlay button");
-        overlayedButton.setOnTouchListener(this);
-        overlayedButton.setOnClickListener(this);
+        brightnessSlider = new ImageView(this);
+        final float scale = getResources().getDisplayMetrics().density;
+        int pixels = (int) (64 * scale + 0.5f);
+        //brightnessSlider.setLayoutParams(new ViewGroup.LayoutParams(2, 2));
+        brightnessSlider.setScaleType(ImageView.ScaleType.FIT_XY);
+        brightnessSlider.setImageResource(R.drawable.ic_overlay_brightness);
+        brightnessSlider.setOnTouchListener(this);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             alertType = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
@@ -73,8 +71,8 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
             alertType = WindowManager.LayoutParams.TYPE_PHONE;
 
         WindowManager.LayoutParams params = new WindowManager
-                .LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.WRAP_CONTENT,
+                .LayoutParams(pixels,
+                pixels,
                 alertType,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
                         | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
@@ -83,9 +81,9 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
 
         display = this.getResources().getDisplayMetrics();
 
-        params.x = display.widthPixels - overlayedButton.getWidth();
+        params.x = 0;
         params.y = 300;
-        wm.addView(overlayedButton, params);
+        wm.addView(brightnessSlider, params);
 
         topLeftView = new View(this);
         WindowManager.LayoutParams topLeftParams = new WindowManager.LayoutParams(
@@ -107,10 +105,10 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (overlayedButton != null) {
-            wm.removeView(overlayedButton);
+        if (brightnessSlider != null) {
+            wm.removeView(brightnessSlider);
             wm.removeView(topLeftView);
-            overlayedButton = null;
+            brightnessSlider = null;
             topLeftView = null;
         }
     }
@@ -125,8 +123,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
             moving = false;
 
             int[] location = new int[2];
-            int[] l = new int[2];
-            overlayedButton.getLocationOnScreen(location);
+            brightnessSlider.getLocationOnScreen(location);
             originalXPos = location[0];
             originalYPos = location[1];
 
@@ -142,7 +139,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
             float x = event.getRawX();
             float y = event.getRawY();
             WindowManager.LayoutParams params =
-                    (WindowManager.LayoutParams) overlayedButton.getLayoutParams();
+                    (WindowManager.LayoutParams) brightnessSlider.getLayoutParams();
 
             int newX = (int) (offsetX + x);
             int newY = (int) (offsetY + y);
@@ -154,16 +151,16 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
             params.x = newX - (topLeftLocationOnScreen[0]);
             params.y = newY - (topLeftLocationOnScreen[1]);
 
-            wm.updateViewLayout(overlayedButton, params);
+            wm.updateViewLayout(brightnessSlider, params);
             moving = true;
 
-            if (Math.abs(lastX - x) <= BUTTON_TOUCH_SLOP) {
-                float movedBy = Math.abs(lastY - y);
-                if (movedBy > BUTTON_TOUCH_SLOP) {
-                    brightnessChangeBy = (int) (movedBy / BRIGHTNESS_CHANGE_FACTOR);
-                    boolean brightnessUpNow = lastY - y >= 0;
-                    if (!moveWasBrightness || !(brightnessUpNow == brightnessUp)) {
-                        brightnessUp = brightnessUpNow;
+            float movedBy = Math.abs(lastY - y);
+            if (movedBy > BUTTON_TOUCH_SLOP) {
+                brightnessChangeBy = (int) (movedBy / BRIGHTNESS_CHANGE_FACTOR);
+                boolean brightnessUpNow = lastY - y >= 0;
+                if (!moveWasBrightness || !(brightnessUpNow == brightnessUp)) {
+                    brightnessUp = brightnessUpNow;
+                    if (Math.abs(lastX - x) <= BUTTON_TOUCH_SLOP) {
                         brightnessHandler.removeCallbacks(brightnessRunnable);
                         brightnessHandler.post(brightnessRunnable);
                         moveWasBrightness = true;
@@ -175,33 +172,28 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
                 brightnessHandler.removeCallbacks(brightnessRunnable);
                 moveWasBrightness = false;
                 WindowManager.LayoutParams params =
-                        (WindowManager.LayoutParams) overlayedButton.getLayoutParams();
+                        (WindowManager.LayoutParams) brightnessSlider.getLayoutParams();
                 params.y = originalYPos - statusbarHeight;
-                wm.updateViewLayout(overlayedButton, params);
+                wm.updateViewLayout(brightnessSlider, params);
             }
             if (moving) {
                 if (event.getRawX() <= display.widthPixels / 2) {
                     WindowManager.LayoutParams params =
-                            (WindowManager.LayoutParams) overlayedButton.getLayoutParams();
+                            (WindowManager.LayoutParams) brightnessSlider.getLayoutParams();
                     params.x = 0;
-                    wm.updateViewLayout(overlayedButton, params);
+                    wm.updateViewLayout(brightnessSlider, params);
                 } else {
                     WindowManager.LayoutParams params =
-                            (WindowManager.LayoutParams) overlayedButton.getLayoutParams();
-                    params.x = display.widthPixels - overlayedButton.getWidth();
+                            (WindowManager.LayoutParams) brightnessSlider.getLayoutParams();
+                    params.x = display.widthPixels - brightnessSlider.getWidth();
 
-                    wm.updateViewLayout(overlayedButton, params);
+                    wm.updateViewLayout(brightnessSlider, params);
                 }
                 return true;
             }
         }
 
         return false;
-    }
-
-    @Override
-    public void onClick(View v) {
-        Toast.makeText(this, "Overlay button click event", Toast.LENGTH_SHORT).show();
     }
 
     @TargetApi(Build.VERSION_CODES.M)
