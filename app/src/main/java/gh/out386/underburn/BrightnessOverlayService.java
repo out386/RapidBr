@@ -28,6 +28,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
 
     public static final String KEY_SB_HEIGHT = "statusbarHeight";
     private static final int BUTTON_TOUCH_SLOP = 30;
+    private static final int BRIGHTNESS_CHANGE_FACTOR = 30;
     private View topLeftView;
     private Button overlayedButton;
     private float offsetX;
@@ -44,6 +45,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     private BrightnessRunnable brightnessRunnable = new BrightnessRunnable();
     private boolean brightnessUp;
     private int statusbarHeight;
+    private int brightnessChangeBy;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -154,8 +156,11 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
 
             wm.updateViewLayout(overlayedButton, params);
             moving = true;
+
             if (Math.abs(lastX - x) <= BUTTON_TOUCH_SLOP) {
-                if (Math.abs(lastY - y) > BUTTON_TOUCH_SLOP) {
+                float movedBy = Math.abs(lastY - y);
+                if (movedBy > BUTTON_TOUCH_SLOP) {
+                    brightnessChangeBy = (int) (movedBy / BRIGHTNESS_CHANGE_FACTOR);
                     boolean brightnessUpNow = lastY - y >= 0;
                     if (!moveWasBrightness || !(brightnessUpNow == brightnessUp)) {
                         brightnessUp = brightnessUpNow;
@@ -201,9 +206,11 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
 
     @TargetApi(Build.VERSION_CODES.M)
     public void setBrightnessCompat(int brightness) {
-        if (brightness < 0 || brightness > 255)
-            return;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (brightness < 0)
+            setBrightnessCompat(0);
+        else if (brightness > 255)
+            setBrightnessCompat(255);
+        else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (Settings.System.canWrite(getApplicationContext()))
                 setBrightness(brightness);
             else
@@ -239,15 +246,8 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     private class BrightnessRunnable implements Runnable {
         @Override
         public void run() {
-            int br = getBrightness();
-            int changeBy;
-            // As brightness decreases faster at lower levels on most devices
-            if (br <= 50)
-                changeBy = 1;
-            else
-                changeBy = 7;
-
-            setBrightnessCompat(getBrightness() + (brightnessUp ? changeBy : -changeBy));
+            int newbr = getBrightness() + (brightnessUp ? brightnessChangeBy : -brightnessChangeBy);
+            setBrightnessCompat(newbr);
             brightnessHandler.postDelayed(this, 50);
         }
     }
