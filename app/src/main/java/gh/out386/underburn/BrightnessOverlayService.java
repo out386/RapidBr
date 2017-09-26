@@ -4,7 +4,9 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
+import android.os.Build;
 import android.os.IBinder;
+import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -27,6 +29,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     private int originalYPos;
     private boolean moving;
     private WindowManager wm;
+    private DisplayMetrics display;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -38,26 +41,40 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         super.onCreate();
 
         wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
-
+        int alertType;
         overlayedButton = new Button(this);
         overlayedButton.setText("Overlay button");
         overlayedButton.setOnTouchListener(this);
-        //overlayedButton.setBackgroundColor(0x55fe4444);
         overlayedButton.setOnClickListener(this);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            alertType = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
+        else
+            alertType = WindowManager.LayoutParams.TYPE_PHONE;
 
         WindowManager.LayoutParams params = new WindowManager
                 .LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.TYPE_SYSTEM_ALERT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                alertType,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
                         | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
                 PixelFormat.TRANSLUCENT);
         params.gravity = Gravity.START | Gravity.TOP;
-        params.x = 0;
-        params.y = 0;
+
+        display = this.getResources().getDisplayMetrics();
+
+        params.x = display.widthPixels - overlayedButton.getWidth();
+        params.y = 300;
         wm.addView(overlayedButton, params);
 
         topLeftView = new View(this);
-        WindowManager.LayoutParams topLeftParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.TYPE_SYSTEM_ALERT, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL, PixelFormat.TRANSLUCENT);
+        WindowManager.LayoutParams topLeftParams = new WindowManager.LayoutParams(
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                alertType,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                        | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                PixelFormat.TRANSLUCENT);
         topLeftParams.gravity = Gravity.START | Gravity.TOP;
         topLeftParams.x = 0;
         topLeftParams.y = 0;
@@ -100,13 +117,14 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
             int[] topLeftLocationOnScreen = new int[2];
             topLeftView.getLocationOnScreen(topLeftLocationOnScreen);
 
-            System.out.println("topLeftY="+topLeftLocationOnScreen[1]);
-            System.out.println("originalY="+originalYPos);
+            System.out.println("topLeftY=" + topLeftLocationOnScreen[1]);
+            System.out.println("originalY=" + originalYPos);
 
             float x = event.getRawX();
             float y = event.getRawY();
 
-            WindowManager.LayoutParams params = (WindowManager.LayoutParams) overlayedButton.getLayoutParams();
+            WindowManager.LayoutParams params =
+                    (WindowManager.LayoutParams) overlayedButton.getLayoutParams();
 
             int newX = (int) (offsetX + x);
             int newY = (int) (offsetY + y);
@@ -122,6 +140,18 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
             moving = true;
         } else if (event.getAction() == MotionEvent.ACTION_UP) {
             if (moving) {
+                if (event.getRawX() <= display.widthPixels / 2) {
+                    WindowManager.LayoutParams params =
+                            (WindowManager.LayoutParams) overlayedButton.getLayoutParams();
+                    params.x = 0;
+                    wm.updateViewLayout(overlayedButton, params);
+                } else {
+                    WindowManager.LayoutParams params =
+                            (WindowManager.LayoutParams) overlayedButton.getLayoutParams();
+                    params.x = display.widthPixels - overlayedButton.getWidth();
+
+                    wm.updateViewLayout(overlayedButton, params);
+                }
                 return true;
             }
         }
