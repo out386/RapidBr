@@ -100,6 +100,13 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         topLeftParams.height = 0;
         wm.addView(topLeftView, topLeftParams);
 
+        // Handler instead of startDelay to prevent slider width from being 0
+        new Handler().postDelayed(() -> brightnessSlider.animate()
+                .translationX(-(brightnessSlider.getWidth() / 2F))
+                .setDuration(500)
+                .alpha(0.5F)
+                .start(), 1000);
+
     }
 
     @Override
@@ -131,6 +138,12 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
             lastX = x;
             lastY = y;
             offsetY = originalYPos - y;
+
+            brightnessSlider.animate()
+                    .alpha(1)
+                    .setDuration(250)
+                    .translationX(0)
+                    .start();
 
         } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
             int[] topLeftLocationOnScreen = new int[2];
@@ -168,29 +181,34 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
                 }
             }
         } else if (event.getAction() == MotionEvent.ACTION_UP) {
+            WindowManager.LayoutParams params =
+                    (WindowManager.LayoutParams) brightnessSlider.getLayoutParams();
             if (moveWasBrightness) {
                 brightnessHandler.removeCallbacks(brightnessRunnable);
                 moveWasBrightness = false;
-                WindowManager.LayoutParams params =
-                        (WindowManager.LayoutParams) brightnessSlider.getLayoutParams();
                 params.y = originalYPos - statusbarHeight;
-                wm.updateViewLayout(brightnessSlider, params);
             }
-            if (moving) {
-                if (event.getRawX() <= display.widthPixels / 2) {
-                    WindowManager.LayoutParams params =
-                            (WindowManager.LayoutParams) brightnessSlider.getLayoutParams();
-                    params.x = 0;
-                    wm.updateViewLayout(brightnessSlider, params);
-                } else {
-                    WindowManager.LayoutParams params =
-                            (WindowManager.LayoutParams) brightnessSlider.getLayoutParams();
-                    params.x = display.widthPixels - brightnessSlider.getWidth();
+            int finalPos;
+            if (event.getRawX() <= display.widthPixels / 2) {
+                params.x = 0;
+                finalPos = -(brightnessSlider.getWidth() / 2);
+            } else {
+                params.x = display.widthPixels - brightnessSlider.getWidth();
+                finalPos = (brightnessSlider.getWidth() / 2);
+            }
 
-                    wm.updateViewLayout(brightnessSlider, params);
-                }
+            new Handler().postDelayed(() -> brightnessSlider.animate()
+                    .alpha(0.5F)
+                    .setDuration(500)
+                    .translationX(finalPos)
+                    .start(), 1000);
+
+
+            if (moving) {
+                wm.updateViewLayout(brightnessSlider, params);
                 return true;
             }
+            wm.updateViewLayout(brightnessSlider, params);
         }
 
         return false;
