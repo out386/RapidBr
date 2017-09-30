@@ -5,6 +5,7 @@ import android.app.Service;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.PixelFormat;
 import android.net.Uri;
 import android.os.Build;
@@ -14,6 +15,7 @@ import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -24,6 +26,9 @@ import android.widget.ImageView;
 public class BrightnessOverlayService extends Service implements View.OnTouchListener {
 
     public static final String KEY_SB_HEIGHT = "statusbarHeight";
+    public static final String KEY_OVERLAY_X = "overlayX";
+    public static final String KEY_OVERLAY_Y = "overlayY";
+
     private static final int BUTTON_TOUCH_SLOP = 15;
     private static final int BRIGHTNESS_CHANGE_FACTOR = 30;
     private View topLeftView;
@@ -47,6 +52,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     private boolean brightnessUp;
     private int statusbarHeight;
     private int brightnessChangeBy;
+    private SharedPreferences prefs;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -59,8 +65,9 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
 
         wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
         int alertType;
-        statusbarHeight = PreferenceManager
-                .getDefaultSharedPreferences(getApplicationContext())
+        prefs = PreferenceManager
+                .getDefaultSharedPreferences(getApplicationContext());
+        statusbarHeight = prefs
                 .getInt(KEY_SB_HEIGHT, 1);
 
         brightnessSlider = new ImageView(this);
@@ -86,8 +93,9 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
 
         display = this.getResources().getDisplayMetrics();
 
-        params.x = 0;
-        params.y = 300;
+        int sliderX = prefs.getInt(KEY_OVERLAY_X, 0);
+        params.x = sliderX;
+        params.y = prefs.getInt(KEY_OVERLAY_Y, 300);
         wm.addView(brightnessSlider, params);
 
         topLeftView = new View(this);
@@ -109,7 +117,8 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         new Handler().postDelayed(() -> {
             if (brightnessSlider != null)
                 brightnessSlider.animate()
-                        .translationX(-(brightnessSlider.getWidth() / 2F))
+                        .translationX(
+                                (brightnessSlider.getWidth() / 2F) * (sliderX <= 10 ? -1 : 1)) //Move button left or right
                         .setDuration(500)
                         .alpha(0.5F)
                         .start();
@@ -121,6 +130,14 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     public void onDestroy() {
         super.onDestroy();
         if (brightnessSlider != null) {
+            int[] location = new int[2];
+            brightnessSlider.getLocationOnScreen(location);
+            int xPos = location[0];
+            int yPos = location[1];
+            prefs.edit()
+                    .putInt(KEY_OVERLAY_X, xPos)
+                    .putInt(KEY_OVERLAY_Y, yPos - statusbarHeight)
+                    .apply();
             wm.removeView(brightnessSlider);
             wm.removeView(topLeftView);
             brightnessSlider = null;
