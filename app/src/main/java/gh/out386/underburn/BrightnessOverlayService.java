@@ -302,11 +302,12 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
 
         @Override
         public void run() {
-            brightnessSlider.animate()
-                    .alpha(alpha)
-                    .setDuration(250)
-                    .translationX(translateX)
-                    .start();
+            if (brightnessSlider != null)
+                brightnessSlider.animate()
+                        .alpha(alpha)
+                        .setDuration(250)
+                        .translationX(translateX)
+                        .start();
         }
 
         TranslateRunnable set(float alpha, float translateX) {
