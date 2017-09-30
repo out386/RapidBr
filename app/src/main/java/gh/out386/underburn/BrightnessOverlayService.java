@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
@@ -17,12 +18,13 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 
 public class BrightnessOverlayService extends Service implements View.OnTouchListener {
 
     public static final String KEY_SB_HEIGHT = "statusbarHeight";
-    private static final int BUTTON_TOUCH_SLOP = 20;
+    private static final int BUTTON_TOUCH_SLOP = 40;
     private static final int BRIGHTNESS_CHANGE_FACTOR = 30;
     private View topLeftView;
     private ImageView brightnessSlider;
@@ -33,11 +35,13 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     private boolean moving;
     private WindowManager wm;
     private DisplayMetrics display;
-    private boolean moveWasBrightness;
+    private boolean moveWasBrightness = true;
     private float lastX;
     private float lastY;
     private Handler brightnessHandler = new Handler();
+    private Handler scaleHandler = new Handler();
     private BrightnessRunnable brightnessRunnable = new BrightnessRunnable();
+    private ScaleRunnable scaleRunnable = new ScaleRunnable();
     private boolean brightnessUp;
     private int statusbarHeight;
     private int brightnessChangeBy;
@@ -107,6 +111,12 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
                 .alpha(0.5F)
                 .start(), 1000);
 
+        /*brightnessSlider.setOnLongClickListener(view -> {
+            Log.i("TAG", "onCreate: not brightness");
+            moveWasBrightness = false;
+            return false;
+        });*/
+
     }
 
     @Override
@@ -145,6 +155,9 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
                     .translationX(0)
                     .start();
 
+            scaleHandler.removeCallbacks(scaleRunnable);
+            scaleHandler.postDelayed(scaleRunnable, 600);
+
         } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
             int[] topLeftLocationOnScreen = new int[2];
             topLeftView.getLocationOnScreen(topLeftLocationOnScreen);
@@ -168,25 +181,29 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
             moving = true;
 
             float movedBy = Math.abs(lastY - y);
-            if (movedBy > BUTTON_TOUCH_SLOP) {
+            if (movedBy > BUTTON_TOUCH_SLOP || Math.abs(lastX - x) > BUTTON_TOUCH_SLOP) {
                 brightnessChangeBy = (int) (movedBy / BRIGHTNESS_CHANGE_FACTOR);
                 boolean brightnessUpNow = lastY - y >= 0;
-                if (!moveWasBrightness || !(brightnessUpNow == brightnessUp)) {
+                if (moveWasBrightness) {// || !(brightnessUpNow == brightnessUp)) {
                     brightnessUp = brightnessUpNow;
-                    if (Math.abs(lastX - x) <= BUTTON_TOUCH_SLOP) {
+                    scaleHandler.removeCallbacks(scaleRunnable);
+                    //if (moveWasBrightness) {//Math.abs(lastX - x) <= BUTTON_TOUCH_SLOP) {
                         brightnessHandler.removeCallbacks(brightnessRunnable);
                         brightnessHandler.post(brightnessRunnable);
-                        moveWasBrightness = true;
-                    }
+                    //}
                 }
             }
         } else if (event.getAction() == MotionEvent.ACTION_UP) {
             WindowManager.LayoutParams params =
                     (WindowManager.LayoutParams) brightnessSlider.getLayoutParams();
+            scaleHandler.removeCallbacks(scaleRunnable);
             if (moveWasBrightness) {
                 brightnessHandler.removeCallbacks(brightnessRunnable);
-                moveWasBrightness = false;
+                //moveWasBrightness = false;
                 params.y = originalYPos - statusbarHeight;
+            } else {
+                moveWasBrightness = true;
+                scaleSlider(false);
             }
             int finalPos;
             if (event.getRawX() <= display.widthPixels / 2) {
@@ -260,5 +277,32 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
             setBrightnessCompat(newbr);
             brightnessHandler.postDelayed(this, 50);
         }
+    }
+
+    private class ScaleRunnable implements Runnable {
+        @Override
+        public void run() {
+            moveWasBrightness = false;
+            Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+            v.vibrate(150);
+            scaleSlider(true);
+        }
+    }
+
+    private void scaleSlider(boolean scaleUp) {
+        float factor;
+        if (scaleUp) {
+            factor = 1.5F;
+            brightnessSlider.setImageResource(R.drawable.ic_overlay_brightness_move);
+        } else {
+            factor = 1;
+            brightnessSlider.setImageResource(R.drawable.ic_overlay_brightness);
+        }
+        brightnessSlider.animate()
+                .setDuration(250)
+                .scaleY(factor)
+                .scaleX(factor)
+                .setInterpolator(new DecelerateInterpolator())
+                .start();
     }
 }
