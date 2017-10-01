@@ -307,7 +307,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         public void run() {
             moveWasBrightness = false;
             Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-            v.vibrate(150);
+            v.vibrate(100);
             scaleSlider(true);
         }
     }
