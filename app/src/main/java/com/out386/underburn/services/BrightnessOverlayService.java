@@ -1,4 +1,4 @@
-package gh.out386.underburn;
+package com.out386.underburn.services;
 
 import android.annotation.TargetApi;
 import android.app.Service;
@@ -15,13 +15,14 @@ import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
+
+import com.out386.underburn.R;
 
 public class BrightnessOverlayService extends Service implements View.OnTouchListener {
 
