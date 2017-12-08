@@ -6,7 +6,9 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.graphics.PixelFormat;
+import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
@@ -29,6 +31,10 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     public static final String KEY_SB_HEIGHT = "statusbarHeight";
     public static final String KEY_OVERLAY_X = "overlayX";
     public static final String KEY_OVERLAY_Y = "overlayY";
+    public static final String KEY_OVERLAY_BUTTON_COLOUR = "floatingColour";
+    public static final String KEY_OVERLAY_BUTTON_ALPHA = "overlayButtonAlpha";
+    public static final int DEF_OVERLAY_BUTTON_COLOUR = 0x4A4A4A;
+    public static final int DEF_OVERLAY_BUTTON_ALPHA = 50;
 
     private static final int BUTTON_TOUCH_SLOP = 15;
     private static final int BRIGHTNESS_CHANGE_FACTOR = 30;
@@ -54,6 +60,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     private int statusbarHeight;
     private int brightnessChangeBy;
     private SharedPreferences prefs;
+    private float imageAlpha;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -71,11 +78,20 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         statusbarHeight = prefs
                 .getInt(KEY_SB_HEIGHT, 1);
 
+        int imageTintColour = prefs.getInt(KEY_OVERLAY_BUTTON_COLOUR, DEF_OVERLAY_BUTTON_COLOUR);
+        imageAlpha = prefs.getInt(KEY_OVERLAY_BUTTON_ALPHA, DEF_OVERLAY_BUTTON_ALPHA);
+        imageAlpha /= 100F;
+
         brightnessSlider = new ImageView(this);
         final float scale = getResources().getDisplayMetrics().density;
         int pixels = (int) (64 * scale + 0.5f);
+        ColorStateList csl = ColorStateList.valueOf(imageTintColour)
+                .withAlpha(0xFF);
+
         brightnessSlider.setScaleType(ImageView.ScaleType.FIT_XY);
         brightnessSlider.setImageResource(R.drawable.ic_overlay_brightness);
+        brightnessSlider.setImageTintMode(PorterDuff.Mode.SRC_ATOP);
+        brightnessSlider.setImageTintList(csl);
         brightnessSlider.setOnTouchListener(this);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
@@ -121,7 +137,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
                         .translationX(
                                 (brightnessSlider.getWidth() / 2F) * (sliderX <= 10 ? -1 : 1)) //Move button left or right
                         .setDuration(500)
-                        .alpha(0.5F)
+                        .alpha(imageAlpha)
                         .start();
         }, 1000);
 
@@ -225,7 +241,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
             }
 
             translateHandler.removeCallbacks(translateRunnable);
-            translateHandler.postDelayed(translateRunnable.set(0.5F, finalPos), 1000);
+            translateHandler.postDelayed(translateRunnable.set(imageAlpha, finalPos), 1000);
 
 
             if (moving) {
