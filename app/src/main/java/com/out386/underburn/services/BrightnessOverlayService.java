@@ -2,9 +2,11 @@ package com.out386.underburn.services;
 
 import android.annotation.TargetApi;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.PixelFormat;
@@ -16,15 +18,19 @@ import android.os.IBinder;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 
 import com.out386.underburn.R;
+import com.out386.underburn.tools.Utils;
 
 public class BrightnessOverlayService extends Service implements View.OnTouchListener {
 
@@ -33,6 +39,8 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     public static final String KEY_OVERLAY_Y = "overlayY";
     public static final String KEY_OVERLAY_BUTTON_COLOUR = "floatingColour";
     public static final String KEY_OVERLAY_BUTTON_ALPHA = "overlayButtonAlpha";
+    public static final String KEY_SCREEN_DIM_AMOUNT = "screenDimAmount";
+    public static final String ACTION_SCREEN_DIM_AMOUNT = "actionScreenDimAmount";
     public static final int DEF_OVERLAY_BUTTON_COLOUR = 0x4A4A4A;
     public static final int DEF_OVERLAY_BUTTON_ALPHA = 50;
 
@@ -40,6 +48,8 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     private static final int BRIGHTNESS_CHANGE_FACTOR = 60;
     private View topLeftView;
     private ImageView brightnessSlider;
+    private View dimView;
+    private WindowManager.LayoutParams dimViewParams;
     private float offsetX;
     private float offsetY;
     private int originalXPos;
@@ -61,6 +71,17 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     private int brightnessChangeBy;
     private SharedPreferences prefs;
     private float imageAlpha;
+    private int alertType;
+    public static float screenDimAmount = 0.0f;
+    private BroadcastReceiver screenDimReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            float amount = intent.getFloatExtra(KEY_SCREEN_DIM_AMOUNT, 0.0f);
+            if (amount > 0.8f)
+                amount = 0.8f; // Prevent things from getting too dark
+            setDimmerBrightness(amount);
+        }
+    };
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -76,21 +97,24 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
                 .getDefaultSharedPreferences(getApplicationContext());
         statusbarHeight = prefs
                 .getInt(KEY_SB_HEIGHT, 1);
-
+        screenDimAmount = prefs.getInt(KEY_SCREEN_DIM_AMOUNT, 0) / 100f;
         imageAlpha = prefs.getInt(KEY_OVERLAY_BUTTON_ALPHA, DEF_OVERLAY_BUTTON_ALPHA);
         imageAlpha /= 100F;
 
         display = this.getResources().getDisplayMetrics();
         int sliderX = prefs.getInt(KEY_OVERLAY_X, 0);
         // As there's a new type in O
-        int alertType;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             alertType = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
         else
-            alertType = WindowManager.LayoutParams.TYPE_PHONE;
+            alertType = WindowManager.LayoutParams.TYPE_SYSTEM_ERROR;
 
         setupBrightnessButton(sliderX, alertType);
         setupReferenceView(alertType);
+        if (screenDimAmount > 0.0f)
+            setupDimmerView();
+        LocalBroadcastManager.getInstance(getApplicationContext())
+                .registerReceiver(screenDimReceiver, new IntentFilter(ACTION_SCREEN_DIM_AMOUNT));
 
         // Handler instead of startDelay to prevent slider width from being 0
         new Handler().postDelayed(() -> {
@@ -132,13 +156,36 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         wm.addView(brightnessSlider, params);
     }
 
+    private void setupDimmerView() {
+        int max = Math.max(Utils.getRealWidth(this),
+                Utils.getRealHeight(this));
+
+        dimView = new View(this);
+        dimView.setLayoutParams(
+                new ViewGroup.LayoutParams(0, 0));
+        dimViewParams = new WindowManager
+                .LayoutParams(max, max, alertType,
+                (WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+                        | WindowManager.LayoutParams.FLAG_DIM_BEHIND
+                        | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                        | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+                        | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
+                        & 0xFFFFFF7F
+                        & 0xFFDFFFFF,
+                PixelFormat.OPAQUE);
+        dimViewParams.dimAmount = screenDimAmount;
+
+        wm.addView(dimView, dimViewParams);
+    }
+
     private void setupReferenceView(int alertType) {
         topLeftView = new View(this);
         WindowManager.LayoutParams topLeftParams = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 alertType,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+                        | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
                         | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
                 PixelFormat.TRANSLUCENT);
         topLeftParams.gravity = Gravity.START | Gravity.TOP;
@@ -152,6 +199,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     @Override
     public void onDestroy() {
         super.onDestroy();
+        screenDimAmount = 0.0f;
         if (brightnessSlider != null) {
             int[] location = new int[2];
             brightnessSlider.getLocationOnScreen(location);
@@ -166,11 +214,14 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
             brightnessSlider = null;
             topLeftView = null;
         }
+        LocalBroadcastManager.getInstance(getApplicationContext())
+                .unregisterReceiver(screenDimReceiver);
+        if (dimView != null)
+            wm.removeView(dimView);
     }
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             float x = event.getRawX();
             float y = event.getRawY();
@@ -261,15 +312,15 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     }
 
     @TargetApi(Build.VERSION_CODES.M)
-    public void setBrightnessCompat(int brightness) {
+    private void setBrightnessCompat(int brightness) {
         if (brightness < 0)
             setBrightnessCompat(0);
         else if (brightness > 255)
             setBrightnessCompat(255);
         else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (Settings.System.canWrite(getApplicationContext()))
+            if (Settings.System.canWrite(getApplicationContext())) {
                 setBrightness(brightness);
-            else
+            } else
                 requestSettingsPermission();
         } else
             setBrightness(brightness);
@@ -283,7 +334,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         startActivity(intent);
     }
 
-    public int getBrightness() {
+    private int getBrightness() {
         ContentResolver cResolver = getApplicationContext().getContentResolver();
         int brightness;
         try {
@@ -336,7 +387,6 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     }
 
     private class TranslateRunnable implements Runnable {
-
         float alpha;
         float translateX;
 
@@ -356,4 +406,15 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
             return this;
         }
     }
+
+    private void setDimmerBrightness(float amount) {
+        screenDimAmount = amount;
+        if (dimView != null) {
+            Log.i("dim", "setDimmerBrightness: " + amount);
+            dimViewParams.dimAmount = screenDimAmount;
+            wm.updateViewLayout(dimView, dimViewParams);
+        } else
+            setupDimmerView();
+    }
+
 }
