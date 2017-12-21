@@ -37,7 +37,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     public static final int DEF_OVERLAY_BUTTON_ALPHA = 50;
 
     private static final int BUTTON_TOUCH_SLOP = 15;
-    private static final int BRIGHTNESS_CHANGE_FACTOR = 30;
+    private static final int BRIGHTNESS_CHANGE_FACTOR = 60;
     private View topLeftView;
     private ImageView brightnessSlider;
     private float offsetX;
@@ -321,7 +321,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         public void run() {
             int newbr = getBrightness() + (brightnessUp ? brightnessChangeBy : -brightnessChangeBy);
             setBrightnessCompat(newbr);
-            brightnessHandler.postDelayed(this, 150);
+            brightnessHandler.postDelayed(this, 250);
         }
     }
 
