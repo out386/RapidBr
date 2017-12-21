@@ -72,32 +72,51 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         super.onCreate();
 
         wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
-        int alertType;
         prefs = PreferenceManager
                 .getDefaultSharedPreferences(getApplicationContext());
         statusbarHeight = prefs
                 .getInt(KEY_SB_HEIGHT, 1);
 
-        int imageTintColour = prefs.getInt(KEY_OVERLAY_BUTTON_COLOUR, DEF_OVERLAY_BUTTON_COLOUR);
         imageAlpha = prefs.getInt(KEY_OVERLAY_BUTTON_ALPHA, DEF_OVERLAY_BUTTON_ALPHA);
         imageAlpha /= 100F;
 
-        brightnessSlider = new ImageView(this);
-        final float scale = getResources().getDisplayMetrics().density;
-        int pixels = (int) (64 * scale + 0.5f);
-        ColorStateList csl = ColorStateList.valueOf(imageTintColour)
-                .withAlpha(0xFF);
+        display = this.getResources().getDisplayMetrics();
+        int sliderX = prefs.getInt(KEY_OVERLAY_X, 0);
+        // As there's a new type in O
+        int alertType;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            alertType = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
+        else
+            alertType = WindowManager.LayoutParams.TYPE_PHONE;
 
+        setupBrightnessButton(sliderX, alertType);
+        setupReferenceView(alertType);
+
+        // Handler instead of startDelay to prevent slider width from being 0
+        new Handler().postDelayed(() -> {
+            if (brightnessSlider != null)
+                brightnessSlider.animate()
+                        .translationX(
+                                (brightnessSlider.getWidth() / 2F) * (sliderX <= 10 ? -1 : 1)) //Move button left or right
+                        .setDuration(500)
+                        .alpha(imageAlpha)
+                        .start();
+        }, 1000);
+
+    }
+
+    private void setupBrightnessButton(int sliderX, int alertType) {
+        final float scale = getResources().getDisplayMetrics().density;
+        int buttonImageTintColour = prefs.getInt(KEY_OVERLAY_BUTTON_COLOUR, DEF_OVERLAY_BUTTON_COLOUR);
+        int pixels = (int) (64 * scale + 0.5f);
+        ColorStateList csl = ColorStateList.valueOf(buttonImageTintColour)
+                .withAlpha(0xFF);
+        brightnessSlider = new ImageView(this);
         brightnessSlider.setScaleType(ImageView.ScaleType.FIT_XY);
         brightnessSlider.setImageResource(R.drawable.ic_overlay_brightness);
         brightnessSlider.setImageTintMode(PorterDuff.Mode.SRC_ATOP);
         brightnessSlider.setImageTintList(csl);
         brightnessSlider.setOnTouchListener(this);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-            alertType = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
-        else
-            alertType = WindowManager.LayoutParams.TYPE_PHONE;
 
         WindowManager.LayoutParams params = new WindowManager
                 .LayoutParams(pixels,
@@ -108,13 +127,12 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
                 PixelFormat.TRANSLUCENT);
         params.gravity = Gravity.START | Gravity.TOP;
 
-        display = this.getResources().getDisplayMetrics();
-
-        int sliderX = prefs.getInt(KEY_OVERLAY_X, 0);
         params.x = sliderX;
         params.y = prefs.getInt(KEY_OVERLAY_Y, 300);
         wm.addView(brightnessSlider, params);
+    }
 
+    private void setupReferenceView(int alertType) {
         topLeftView = new View(this);
         WindowManager.LayoutParams topLeftParams = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
@@ -129,18 +147,6 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         topLeftParams.width = 0;
         topLeftParams.height = 0;
         wm.addView(topLeftView, topLeftParams);
-
-        // Handler instead of startDelay to prevent slider width from being 0
-        new Handler().postDelayed(() -> {
-            if (brightnessSlider != null)
-                brightnessSlider.animate()
-                        .translationX(
-                                (brightnessSlider.getWidth() / 2F) * (sliderX <= 10 ? -1 : 1)) //Move button left or right
-                        .setDuration(500)
-                        .alpha(imageAlpha)
-                        .start();
-        }, 1000);
-
     }
 
     @Override
