@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.net.Uri;
@@ -157,23 +158,32 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     }
 
     private void setupDimmerView() {
-        int max = Math.max(Utils.getRealWidth(this),
-                Utils.getRealHeight(this));
-
         dimView = new View(this);
-        dimView.setLayoutParams(
-                new ViewGroup.LayoutParams(0, 0));
-        dimViewParams = new WindowManager
-                .LayoutParams(max, max, alertType,
-                (WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
-                        | WindowManager.LayoutParams.FLAG_DIM_BEHIND
-                        | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-                        | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
-                        | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
-                        & 0xFFFFFF7F
-                        & 0xFFDFFFFF,
-                PixelFormat.OPAQUE);
-        dimViewParams.dimAmount = screenDimAmount;
+        dimView.setBackgroundColor(Color.BLACK);
+        if (alertType == WindowManager.LayoutParams.TYPE_SYSTEM_ERROR) {
+            dimViewParams = new WindowManager
+                    .LayoutParams(0, 0, alertType,
+                    (WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+                            | WindowManager.LayoutParams.FLAG_DIM_BEHIND
+                            | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                            | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+                            | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
+                            & 0xFFFFFF7F
+                            & 0xFFDFFFFF,
+                    PixelFormat.OPAQUE);
+            dimViewParams.dimAmount = screenDimAmount;
+        } else {
+            int max = Math.max(Utils.getRealWidth(this),
+                    Utils.getRealHeight(this)) + 200;
+            dimViewParams = new WindowManager
+                    .LayoutParams(max, max, alertType,
+                    (WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+                            | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                            | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+                            | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS),
+                    PixelFormat.TRANSPARENT);
+            dimView.setAlpha(screenDimAmount);
+        }
 
         wm.addView(dimView, dimViewParams);
     }
@@ -410,8 +420,10 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     private void setDimmerBrightness(float amount) {
         screenDimAmount = amount;
         if (dimView != null) {
-            Log.i("dim", "setDimmerBrightness: " + amount);
-            dimViewParams.dimAmount = screenDimAmount;
+            if (alertType == WindowManager.LayoutParams.TYPE_SYSTEM_ERROR)
+                dimViewParams.dimAmount = screenDimAmount;
+            else
+                dimView.setAlpha(screenDimAmount);
             wm.updateViewLayout(dimView, dimViewParams);
         } else
             setupDimmerView();
