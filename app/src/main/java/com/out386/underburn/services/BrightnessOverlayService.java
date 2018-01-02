@@ -21,17 +21,16 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 
 import com.out386.underburn.R;
-import com.out386.underburn.tools.Utils;
+import com.out386.underburn.tools.BasicUtils;
+import com.out386.underburn.tools.DimenUtils;
 
 public class BrightnessOverlayService extends Service implements View.OnTouchListener {
 
@@ -173,8 +172,8 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
                     PixelFormat.OPAQUE);
             dimViewParams.dimAmount = screenDimAmount;
         } else {
-            int max = Math.max(Utils.getRealWidth(this),
-                    Utils.getRealHeight(this)) + 200;
+            int max = Math.max(DimenUtils.getRealWidth(this),
+                    DimenUtils.getRealHeight(this)) + 200;
             dimViewParams = new WindowManager
                     .LayoutParams(max, max, alertType,
                     (WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
