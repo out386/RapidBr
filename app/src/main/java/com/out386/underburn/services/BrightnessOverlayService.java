@@ -45,7 +45,8 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     public static final int DEF_OVERLAY_BUTTON_ALPHA = 50;
 
     private static final int BUTTON_TOUCH_SLOP = 15;
-    private static final int BRIGHTNESS_CHANGE_FACTOR = 60;
+    private static final int BRIGHTNESS_CHANGE_FACTOR = 20;
+    private static final int BRIGHTNESS_CHANGE_FACTOR_LOW = 40;
     private View topLeftView;
     private ImageView brightnessSlider;
     private View dimView;
@@ -58,6 +59,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     private WindowManager wm;
     private DisplayMetrics display;
     private boolean moveWasBrightness = true;
+    private boolean isBrightnessHandlerActive = false;
     private float lastX;
     private float lastY;
     private Handler brightnessHandler = new Handler();
@@ -68,7 +70,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     private TranslateRunnable translateRunnable = new TranslateRunnable();
     private boolean brightnessUp;
     private int statusbarHeight;
-    private int brightnessChangeBy;
+    private float brightnessMovedBy;
     private SharedPreferences prefs;
     private float imageAlpha;
     private int alertType;
@@ -277,13 +279,16 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
 
             float movedBy = Math.abs(lastY - y);
             if (movedBy > BUTTON_TOUCH_SLOP || Math.abs(lastX - x) > BUTTON_TOUCH_SLOP) {
-                brightnessChangeBy = (int) (movedBy / BRIGHTNESS_CHANGE_FACTOR);
+                brightnessMovedBy = movedBy;
+
                 boolean brightnessUpNow = lastY - y >= 0;
                 if (moveWasBrightness) {
                     brightnessUp = brightnessUpNow;
                     scaleHandler.removeCallbacks(scaleRunnable);
-                    brightnessHandler.removeCallbacks(brightnessRunnable);
-                    brightnessHandler.post(brightnessRunnable);
+                    if (!isBrightnessHandlerActive) {
+                        isBrightnessHandlerActive = true;
+                        brightnessHandler.post(brightnessRunnable);
+                    }
                 }
             }
         } else if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -291,6 +296,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
                     (WindowManager.LayoutParams) brightnessSlider.getLayoutParams();
             scaleHandler.removeCallbacks(scaleRunnable);
             if (moveWasBrightness) {
+                isBrightnessHandlerActive = false;
                 brightnessHandler.removeCallbacks(brightnessRunnable);
                 params.y = originalYPos - statusbarHeight;
             } else {
@@ -379,9 +385,21 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     private class BrightnessRunnable implements Runnable {
         @Override
         public void run() {
-            int newbr = getBrightness() + (brightnessUp ? brightnessChangeBy : -brightnessChangeBy);
+            int currentBrightness = getBrightness();
+            int brightnessChangeDelay;
+            int brightnessChangeBy;
+            if (currentBrightness <= 25) {   // Because screen brightness does not change linearly in most devices.
+                brightnessChangeBy = (int) (brightnessMovedBy / BRIGHTNESS_CHANGE_FACTOR_LOW);
+                brightnessChangeDelay = 250;
+            } else {
+                brightnessChangeDelay = 150;
+                brightnessChangeBy = (int) (brightnessMovedBy / BRIGHTNESS_CHANGE_FACTOR);
+            }
+
+            brightnessChangeBy = brightnessChangeBy == 0 ? 1 : brightnessChangeBy;  // Because a 0 change makes it look like the slider got stuck
+            int newbr = currentBrightness + (brightnessUp ? brightnessChangeBy : -brightnessChangeBy);
             setBrightnessCompat(newbr);
-            brightnessHandler.postDelayed(this, 250);
+            brightnessHandler.postDelayed(this, brightnessChangeDelay);
         }
     }
 
