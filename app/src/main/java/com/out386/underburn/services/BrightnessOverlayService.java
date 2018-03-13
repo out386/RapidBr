@@ -209,13 +209,13 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         screenDimAmount = 0.0f;
         if (brightnessSlider != null) {
             int[] location = new int[2];
             brightnessSlider.getLocationOnScreen(location);
             int xPos = location[0];
             int yPos = location[1];
+            // TODO: yPos will get changed in action down, but if service is shut down before action up, it will not be what it should. Fix this.
             prefs.edit()
                     .putInt(KEY_OVERLAY_X, xPos)
                     .putInt(KEY_OVERLAY_Y, yPos - statusbarHeight)
@@ -229,6 +229,9 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
                 .unregisterReceiver(screenDimReceiver);
         if (dimView != null)
             wm.removeView(dimView);
+        if (brightnessHandler != null && brightnessRunnable != null)
+            brightnessHandler.removeCallbacksAndMessages(null);
+        super.onDestroy();
     }
 
     @Override
