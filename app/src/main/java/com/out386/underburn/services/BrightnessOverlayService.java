@@ -34,7 +34,6 @@ import com.out386.underburn.tools.DimenUtils;
 
 public class BrightnessOverlayService extends Service implements View.OnTouchListener {
 
-    public static final String KEY_SB_HEIGHT = "statusbarHeight";
     public static final String KEY_OVERLAY_X = "overlayX";
     public static final String KEY_OVERLAY_Y = "overlayY";
     public static final String KEY_OVERLAY_BUTTON_COLOUR = "floatingColour";
@@ -69,7 +68,6 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     private ScaleRunnable scaleRunnable = new ScaleRunnable();
     private TranslateRunnable translateRunnable = new TranslateRunnable();
     private boolean brightnessUp;
-    private int statusbarHeight;
     private float brightnessMovedBy;
     private SharedPreferences prefs;
     private float imageAlpha;
@@ -97,8 +95,6 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
         prefs = PreferenceManager
                 .getDefaultSharedPreferences(getApplicationContext());
-        statusbarHeight = prefs
-                .getInt(KEY_SB_HEIGHT, 1);
         screenDimAmount = prefs.getInt(KEY_SCREEN_DIM_AMOUNT, 0) / 100f;
         imageAlpha = prefs.getInt(KEY_OVERLAY_BUTTON_ALPHA, DEF_OVERLAY_BUTTON_ALPHA);
         imageAlpha /= 100F;
@@ -213,12 +209,14 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         if (brightnessSlider != null) {
             int[] location = new int[2];
             brightnessSlider.getLocationOnScreen(location);
+            int[] topLeftLocationOnScreen = new int[2];
+            topLeftView.getLocationOnScreen(topLeftLocationOnScreen);
             int xPos = location[0];
             int yPos = location[1];
             // TODO: yPos will get changed in action down, but if service is shut down before action up, it will not be what it should. Fix this.
             prefs.edit()
                     .putInt(KEY_OVERLAY_X, xPos)
-                    .putInt(KEY_OVERLAY_Y, yPos - statusbarHeight)
+                    .putInt(KEY_OVERLAY_Y, yPos - topLeftLocationOnScreen[1])
                     .apply();
             wm.removeView(brightnessSlider);
             wm.removeView(topLeftView);
@@ -299,9 +297,11 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
                     (WindowManager.LayoutParams) brightnessSlider.getLayoutParams();
             scaleHandler.removeCallbacks(scaleRunnable);
             if (moveWasBrightness) {
+                int[] topLeftLocationOnScreen = new int[2];
+                topLeftView.getLocationOnScreen(topLeftLocationOnScreen);
                 isBrightnessHandlerActive = false;
                 brightnessHandler.removeCallbacks(brightnessRunnable);
-                params.y = originalYPos - statusbarHeight;
+                params.y = originalYPos - topLeftLocationOnScreen[1];
             } else {
                 moveWasBrightness = true;
                 scaleSlider(false);
