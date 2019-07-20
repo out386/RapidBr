@@ -372,11 +372,10 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         float factor;
         if (scaleUp) {
             factor = 1.5F;
-            brightnessSlider.setImageResource(R.drawable.ic_overlay_brightness_move);
         } else {
             factor = 1;
-            brightnessSlider.setImageResource(R.drawable.ic_overlay_brightness);
         }
+        brightnessSlider.setImageResource(R.drawable.ic_overlay_brightness);
         brightnessSlider.animate()
                 .setDuration(250)
                 .scaleY(factor)
