@@ -272,10 +272,6 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
                 return false;
             }
 
-            params.x = newX - (topLeftLocationOnScreen[0]);
-            params.y = newY - (topLeftLocationOnScreen[1]);
-
-            wm.updateViewLayout(brightnessSlider, params);
             moving = true;
 
             float movedBy = Math.abs(lastY - y);
@@ -290,8 +286,13 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
                         isBrightnessHandlerActive = true;
                         brightnessHandler.post(brightnessRunnable);
                     }
+                } else {
+                    params.x = newX - (topLeftLocationOnScreen[0]);
                 }
             }
+            params.y = newY - (topLeftLocationOnScreen[1]);
+
+            wm.updateViewLayout(brightnessSlider, params);
         } else if (event.getAction() == MotionEvent.ACTION_UP) {
             WindowManager.LayoutParams params =
                     (WindowManager.LayoutParams) brightnessSlider.getLayoutParams();
