@@ -40,7 +40,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     public static final String KEY_OVERLAY_BUTTON_ALPHA = "overlayButtonAlpha";
     public static final String KEY_SCREEN_DIM_AMOUNT = "screenDimAmount";
     public static final String ACTION_SCREEN_DIM_AMOUNT = "actionScreenDimAmount";
-    public static final int DEF_OVERLAY_BUTTON_COLOUR = 0x4A4A4A;
+    public static final int DEF_OVERLAY_BUTTON_COLOUR = 0x0288D1;
     public static final int DEF_OVERLAY_BUTTON_ALPHA = 50;
 
     private static final int BUTTON_TOUCH_SLOP = 15;
@@ -280,7 +280,12 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
 
                 boolean brightnessUpNow = lastY - y >= 0;
                 if (moveWasBrightness) {
-                    brightnessSlider.setRotation((originalYPos - newY) / 2f);
+                    // Comments are overrated.
+                    if (originalXPos <= display.widthPixels / 2) {
+                        brightnessSlider.setRotation(-(originalYPos - newY) / 2f);
+                    } else {
+                        brightnessSlider.setRotation((originalYPos - newY) / 2f);
+                    }
                     brightnessUp = brightnessUpNow;
                     scaleHandler.removeCallbacks(scaleRunnable);
                     if (!isBrightnessHandlerActive) {
