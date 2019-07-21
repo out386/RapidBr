@@ -280,6 +280,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
 
                 boolean brightnessUpNow = lastY - y >= 0;
                 if (moveWasBrightness) {
+                    brightnessSlider.setRotation((originalYPos - newY) / 2f);
                     brightnessUp = brightnessUpNow;
                     scaleHandler.removeCallbacks(scaleRunnable);
                     if (!isBrightnessHandlerActive) {
@@ -294,6 +295,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
 
             wm.updateViewLayout(brightnessSlider, params);
         } else if (event.getAction() == MotionEvent.ACTION_UP) {
+            brightnessSlider.setRotation(0);
             WindowManager.LayoutParams params =
                     (WindowManager.LayoutParams) brightnessSlider.getLayoutParams();
             scaleHandler.removeCallbacks(scaleRunnable);
