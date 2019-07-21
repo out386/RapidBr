@@ -295,22 +295,25 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
 
             wm.updateViewLayout(brightnessSlider, params);
         } else if (event.getAction() == MotionEvent.ACTION_UP) {
+            float xToSnap;
             brightnessSlider.setRotation(0);
             WindowManager.LayoutParams params =
                     (WindowManager.LayoutParams) brightnessSlider.getLayoutParams();
             scaleHandler.removeCallbacks(scaleRunnable);
             if (moveWasBrightness) {
+                xToSnap = originalXPos;
                 int[] topLeftLocationOnScreen = new int[2];
                 topLeftView.getLocationOnScreen(topLeftLocationOnScreen);
                 isBrightnessHandlerActive = false;
                 brightnessHandler.removeCallbacks(brightnessRunnable);
                 params.y = originalYPos - topLeftLocationOnScreen[1];
             } else {
+                xToSnap = event.getRawX();
                 moveWasBrightness = true;
                 scaleSlider(false);
             }
             int finalPos;
-            if (event.getRawX() <= display.widthPixels / 2) {
+            if (xToSnap <= display.widthPixels / 2) {
                 params.x = 0;
                 finalPos = -(brightnessSlider.getWidth() / 2);
             } else {
