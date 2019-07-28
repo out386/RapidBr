@@ -2,4 +2,8 @@
     <string name="app_name">RapidBr</string>
     <string name="app_name1">Rapid</string>
     <string name="app_name2">Br</string>
+    <string name="sett_main_scheduler">scheduled start</string>
+    <string name="sett_main_blacklist">app blacklist</string>
+    <string name="sett_main_filter">screen filter</string>
+    <string name="sett_main_color">button color</string>
 </resources>

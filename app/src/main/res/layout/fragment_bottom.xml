@@ -17,11 +17,12 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
+        app:image="@drawable/ic_sett_schedule"
         app:image_tint="@color/icGreen"
         app:layout_constraintEnd_toStartOf="@+id/guideline"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:text="schedule auto start" />
+        app:text="@string/sett_main_scheduler" />
 
     <com.out386.rapidbr.bottomview.CardLayout
         android:id="@+id/cardLayout2"
@@ -30,34 +31,40 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
+        app:image="@drawable/ic_sett_color"
+        app:image_tint="@color/icBlue"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/guideline"
         app:layout_constraintTop_toTopOf="parent"
-        app:text="Blacklisted Apps" />
+        app:text="@string/sett_main_color" />
 
     <com.out386.rapidbr.bottomview.CardLayout
         android:id="@+id/cardLayout3"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="8dp"
+        app:image="@drawable/ic_sett_blacklist"
+        app:image_tint="@color/icYellow"
         app:layout_constraintEnd_toStartOf="@+id/guideline"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/cardLayout"
-        app:text="schedule auto start" />
+        app:text="@string/sett_main_blacklist" />
 
     <com.out386.rapidbr.bottomview.CardLayout
         android:id="@+id/cardLayout4"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="8dp"
+        app:image="@drawable/ic_sett_filter"
+        app:image_tint="@color/icPink"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/guideline"
         app:layout_constraintTop_toBottomOf="@+id/cardLayout2"
-        app:text="Blacklisted Apps" />
+        app:text="@string/sett_main_filter" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline"
