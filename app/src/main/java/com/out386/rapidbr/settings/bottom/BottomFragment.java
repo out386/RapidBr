@@ -22,11 +22,16 @@ package com.out386.rapidbr.settings.bottom;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
 import com.out386.rapidbr.R;
 
@@ -38,13 +43,15 @@ public class BottomFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_bottom, container, false);
+        View v = inflater.inflate(R.layout.fragment_bottom, container, false);
+        setViewListeners(v);
+        return v;
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         if (context instanceof OnBottomFragEvent) {
             mListener = (OnBottomFragEvent) context;
@@ -52,6 +59,14 @@ public class BottomFragment extends Fragment {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
         }
+    }
+
+    private void setViewListeners(View root) {
+        NavController navController = Navigation.findNavController(getActivity(), R.id.bottom_view);
+        CardLayout schedulerCard = root.findViewById(R.id.scheduler_card);
+
+        schedulerCard.setOnClickListener(view ->
+                navController.navigate(R.id.action_bottom_to_scheduler));
     }
 
     @Override

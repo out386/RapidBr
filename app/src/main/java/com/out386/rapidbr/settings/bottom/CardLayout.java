@@ -28,6 +28,7 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RippleDrawable;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -38,6 +39,8 @@ import androidx.core.graphics.ColorUtils;
 import com.out386.rapidbr.R;
 
 public class CardLayout extends RelativeLayout {
+
+    private Runnable clickRunnable;
 
     public CardLayout(Context context) {
         this(context, null);
@@ -58,6 +61,7 @@ public class CardLayout extends RelativeLayout {
 
     public void init(AttributeSet attrs) {
         inflate(getContext(), R.layout.view_settings_card, this);
+        clickRunnable = super::performClick;
         ImageView image = findViewById(R.id.settings_card_image);
         TextView text = findViewById(R.id.settings_card_text);
         RelativeLayout root = findViewById(R.id.settings_card_root);
@@ -78,6 +82,18 @@ public class CardLayout extends RelativeLayout {
         image.setImageTintList(imageTintList);
         root.setBackground(getRipple(resources, theme, imageTint));
         text.setText(textStr);
+    }
+
+    @Override
+    public boolean performClick() {
+        // Let the ripple animation complete
+        getHandler().postDelayed(clickRunnable, 150);
+        return true;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return super.onTouchEvent(event);
     }
 
     private RippleDrawable getRipple(Resources resources, Resources.Theme theme, int imageTint) {

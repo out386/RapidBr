@@ -114,7 +114,6 @@ public class MainActivity extends AppCompatActivity implements BottomFragment.On
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
                 .replace(R.id.topView, new TopFragment())
-                .replace(R.id.bottom_view, new BottomFragment())
                 .commit();
     }
 
