@@ -28,12 +28,14 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.FragmentManager;
 
+import com.google.android.material.appbar.AppBarLayout;
 import com.out386.rapidbr.settings.bottom.BottomFragment;
 import com.out386.rapidbr.settings.top.TopFragment;
 
@@ -50,12 +52,13 @@ public class MainActivity extends AppCompatActivity implements BottomFragment.On
 
     private void setupViews() {
         View decorView = getWindow().getDecorView();
-        FrameLayout bottomViewTopPadding = findViewById(R.id.bottom_view_top_padding);
+        AppBarLayout appBarLayout = findViewById(R.id.app_bar_layout);
         FrameLayout topView = findViewById(R.id.topView);
         FrameLayout bottomView = findViewById(R.id.bottom_view);
-        LinearLayout toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         ViewGroup.LayoutParams toolbarParams = toolbar.getLayoutParams();
-        ViewGroup.LayoutParams bottomViewTopPaddingParams = bottomViewTopPadding.getLayoutParams();
+        CoordinatorLayout.LayoutParams appBarParams =
+                (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
 
         decorView.setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
@@ -69,9 +72,9 @@ public class MainActivity extends AppCompatActivity implements BottomFragment.On
 
             toolbarParams.height = (actionbarHeight > -1 ? actionbarHeight : toolbarParams.height) +
                     topInset;
-            bottomViewTopPaddingParams.height += toolbarParams.height;
+            appBarParams.setMargins(0, toolbarParams.height, 0, 0);
 
-            bottomViewTopPadding.setLayoutParams(bottomViewTopPaddingParams);
+            appBarLayout.setLayoutParams(appBarParams);
             toolbar.setLayoutParams(toolbarParams);
 
             toolbar.setPadding(leftInset, 0, rightInset, 0);
