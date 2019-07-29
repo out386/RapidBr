@@ -1,0 +1,3 @@
+[submodule "timerangepicker"]
+	path = timerangepicker
+	url = git@github.com:dvird/timerangepicker.git
