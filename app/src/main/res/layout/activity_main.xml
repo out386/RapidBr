@@ -29,7 +29,7 @@
     <FrameLayout
         android:id="@+id/topView"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="220dp"
         android:background="@color/colorPrimary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -52,7 +52,7 @@
             <FrameLayout
                 android:id="@+id/bottom_view_top_padding"
                 android:layout_width="match_parent"
-                android:layout_height="200dp" />
+                android:layout_height="220dp" />
 
             <FrameLayout
                 android:id="@+id/bottom_view"
