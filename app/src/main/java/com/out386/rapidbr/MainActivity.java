@@ -34,8 +34,8 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 
-import com.out386.rapidbr.bottomview.BottomFragment;
-import com.out386.rapidbr.topview.TopFragment;
+import com.out386.rapidbr.settings.bottom.BottomFragment;
+import com.out386.rapidbr.settings.top.TopFragment;
 
 public class MainActivity extends AppCompatActivity implements BottomFragment.OnBottomFragEvent {
 

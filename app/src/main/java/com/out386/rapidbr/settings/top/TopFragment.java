@@ -1,4 +1,4 @@
-package com.out386.rapidbr.topview;
+package com.out386.rapidbr.settings.top;
 
 /*
  * Copyright (C) 2019 Ritayan Chakraborty <ritayanout@gmail.com>

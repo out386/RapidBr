@@ -1,4 +1,4 @@
-package com.out386.rapidbr.bottomview;
+package com.out386.rapidbr.settings.bottom;
 
 /*
  * Copyright (C) 2019 Ritayan Chakraborty <ritayanout@gmail.com>
