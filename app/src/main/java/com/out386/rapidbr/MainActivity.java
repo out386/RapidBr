@@ -30,16 +30,20 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.appbar.AppBarLayout;
-import com.out386.rapidbr.settings.bottom.BottomFragment;
+import com.out386.rapidbr.settings.OnNavigationListener;
 import com.out386.rapidbr.settings.top.TopFragment;
 
-public class MainActivity extends AppCompatActivity implements BottomFragment.OnBottomFragEvent {
+public class MainActivity extends AppCompatActivity implements OnNavigationListener {
+    private static final String KEY_CURRENTLY_MAIN_FRAG = "CURRENTLY_MAIN_FRAG";
+    private boolean isCurrentlyMainFrag = true;
+    private AppBarLayout appBarLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,11 +52,25 @@ public class MainActivity extends AppCompatActivity implements BottomFragment.On
         setupViews();
         if (savedInstanceState == null)
             setFragments();
+        else {
+            isCurrentlyMainFrag =
+                    savedInstanceState.getBoolean(KEY_CURRENTLY_MAIN_FRAG, true);
+            if (isCurrentlyMainFrag)
+                onMainFragment();
+            else
+                onAltFragment();
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        outState.putBoolean(KEY_CURRENTLY_MAIN_FRAG, isCurrentlyMainFrag);
+        super.onSaveInstanceState(outState);
     }
 
     private void setupViews() {
         View decorView = getWindow().getDecorView();
-        AppBarLayout appBarLayout = findViewById(R.id.app_bar_layout);
+        appBarLayout = findViewById(R.id.app_bar_layout);
         FrameLayout topView = findViewById(R.id.topView);
         FrameLayout bottomView = findViewById(R.id.bottom_view);
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -121,7 +139,14 @@ public class MainActivity extends AppCompatActivity implements BottomFragment.On
     }
 
     @Override
-    public void onItemTapped() {
+    public void onAltFragment() {
+        isCurrentlyMainFrag = false;
+        appBarLayout.setExpanded(false);
+    }
 
+    @Override
+    public void onMainFragment() {
+        isCurrentlyMainFrag = true;
+        appBarLayout.setExpanded(true);
     }
 }

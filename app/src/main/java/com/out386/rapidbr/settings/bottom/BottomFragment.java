@@ -32,10 +32,11 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.out386.rapidbr.R;
+import com.out386.rapidbr.settings.OnNavigationListener;
 
 public class BottomFragment extends Fragment {
 
-    private OnBottomFragEvent mListener;
+    private OnNavigationListener listener;
 
     public BottomFragment() {
     }
@@ -51,11 +52,11 @@ public class BottomFragment extends Fragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        if (context instanceof OnBottomFragEvent) {
-            mListener = (OnBottomFragEvent) context;
+        if (context instanceof OnNavigationListener) {
+            listener = (OnNavigationListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement OnNavigationListener");
         }
     }
 
@@ -63,17 +64,25 @@ public class BottomFragment extends Fragment {
         NavController navController = Navigation.findNavController(getActivity(), R.id.bottom_view);
         CardLayout schedulerCard = root.findViewById(R.id.scheduler_card);
 
-        schedulerCard.setOnClickListener(view ->
-                navController.navigate(R.id.action_bottom_to_scheduler));
+        setClickListener(navController, schedulerCard, R.id.action_bottom_to_scheduler);
+    }
+
+    private void setClickListener(NavController navController, View target, int actionRes) {
+        target.setOnClickListener(view -> {
+            listener.onAltFragment();
+            navController.navigate(actionRes);
+        });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        listener.onMainFragment();
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
-    }
-
-    public interface OnBottomFragEvent {
-        void onItemTapped();
+        listener = null;
     }
 }
