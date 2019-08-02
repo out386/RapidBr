@@ -1,2 +1,0 @@
-include ':app', ':timesliderrangepicker'
-project(':timesliderrangepicker').projectDir = new File('timerangepicker/timesliderrangepicker')
