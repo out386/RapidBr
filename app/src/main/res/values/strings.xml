@@ -6,7 +6,10 @@
     <string name="sett_main_blacklist">app blacklist</string>
     <string name="sett_main_filter">screen filter</string>
     <string name="sett_main_color">button color</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="sett_sched_desc">You can have RapidBr automatically start up and shut down depending on the time.</string>
+    <string name="sett_sched_enable">Enable scheduler</string>
+    <string name="sett_sched_start_title">Start time</string>
+    <string name="sett_sched_start_desc">Start RapidBr every day at this time: %s.</string>
+    <string name="sett_sched_stop_title">Stop time</string>
+    <string name="sett_sched_stop_desc">Stop RapidBr every day at this time: %s.</string>
 </resources>

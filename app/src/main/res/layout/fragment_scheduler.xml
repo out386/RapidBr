@@ -1,26 +1,117 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".settings.bottom.SchedulerFragment">
+    android:padding="20dp"
+    tools:context=".settings.bottom.scheduler.SchedulerFragment">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-    <com.timesliderrangepicker.library.TimeSliderRangePicker
-        android:id="@+id/timeSliderRangePicker"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:padding="40dp"
-        app:arc_color_am="@color/icGreen"
-        app:arc_color_pm="@color/icGreen"
-        app:arc_dash_size="20dp"
-        app:border_color="#3F484F"
-        app:border_thickness="20dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:thumb_size="28dp" />
+        <TextView
+            android:id="@+id/textView"
+            style="@style/GeneralHeaderText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/sett_main_scheduler" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            style="@style/GeneralBodyText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/sett_sched_desc" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/card"
+            android:padding="20dp">
+
+            <TextView
+                android:id="@+id/sched_enable_text"
+                style="@style/GeneralSubHeaderText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/sett_sched_enable"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Switch
+                android:id="@+id/sched_enable_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <LinearLayout
+                android:id="@+id/sched_start"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/sched_enable_text">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="20dp"
+                    android:background="@color/cardStroke" />
+
+                <TextView
+                    style="@style/GeneralSubHeaderText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/sett_sched_start_title" />
+
+                <TextView
+                    android:id="@+id/sched_start_desc"
+                    style="@style/GeneralBodyText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="@string/sett_sched_start_desc" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/sched_stop"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/sched_start">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="20dp"
+                    android:background="@color/cardStroke" />
+
+                <TextView
+                    style="@style/GeneralSubHeaderText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="0dp"
+                    android:text="@string/sett_sched_stop_title" />
+
+                <TextView
+                    android:id="@+id/sched_stop_desc"
+                    style="@style/GeneralBodyText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="0dp"
+                    tools:text="@string/sett_sched_stop_desc" />
+
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>

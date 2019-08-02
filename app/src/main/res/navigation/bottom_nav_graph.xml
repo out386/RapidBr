@@ -20,7 +20,7 @@
     </fragment>
     <fragment
         android:id="@+id/schedulerFragment"
-        android:name="com.out386.rapidbr.settings.bottom.SchedulerFragment"
+        android:name="com.out386.rapidbr.settings.bottom.scheduler.SchedulerFragment"
         android:label="fragment_scheduler"
         tools:layout="@layout/fragment_scheduler" />
 </navigation>

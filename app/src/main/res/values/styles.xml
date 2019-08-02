@@ -15,4 +15,23 @@
         <item name="android:textSize">15sp</item>
     </style>
 
+    <style name="GeneralBodyText" parent="TextAppearance.AppCompat">
+        <item name="android:fontFamily">@font/quicksand_medium</item>
+        <item name="android:textColor">@color/textSub</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="GeneralSubHeaderText" parent="TextAppearance.AppCompat">
+        <item name="android:fontFamily">@font/quicksand_medium</item>
+        <item name="android:textColor">@color/textHeaderSub</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="GeneralHeaderText" parent="TextAppearance.AppCompat">
+        <item name="android:fontFamily">@font/kanit</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@color/textWhite</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
 </resources>

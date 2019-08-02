@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#1D1D1D</color>
-    <color name="colorPrimaryDark">#C46666</color>
-    <color name="colorAccent">#D81B60</color>
+    <color name="colorPrimaryDark">#000000</color>
+    <color name="colorAccent">#2196F3</color>
     <color name="windowBackground">#171717</color>
     <color name="toolbarText1">#E64A19</color>
     <color name="toolbarText2">#FFFFFF</color>
@@ -10,7 +10,7 @@
     <color name="textWhite">#FFFFFF</color>
     <color name="textTopNotRunning">#FFAB91</color>
     <color name="textTopRunning">#2196F3</color>
-    <color name="textHeaderSub">#DFDFDF</color>
+    <color name="textHeaderSub">#FFFFFF</color>
     <color name="textSub">#ACACAC</color>
     <color name="rippleColor">#33ACACAC</color>
     <color name="cardStroke">#383838</color>
