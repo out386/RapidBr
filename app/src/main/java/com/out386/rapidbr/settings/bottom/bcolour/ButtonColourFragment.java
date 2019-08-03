@@ -21,21 +21,24 @@ package com.out386.rapidbr.settings.bottom.bcolour;
  */
 
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.out386.rapidbr.R;
-import com.out386.rapidbr.utils.SizeUtils;
 
 public class ButtonColourFragment extends Fragment {
 
@@ -49,9 +52,10 @@ public class ButtonColourFragment extends Fragment {
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_button_colour, container, false);
 
-        int columnCount = SizeUtils.getRecyclerColumnCount(getContext(), 70);
         prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        NestedScrollView recyclerRoot = v.findViewById(R.id.button_recycler_parent);
         RecyclerView recyclerView = v.findViewById(R.id.button_recycler);
+        int columnCount = getRecyclerColumnCount(getContext(), recyclerRoot, recyclerRoot, 70);
         GridLayoutManager layoutManager = new GridLayoutManager(getContext(), columnCount);
 
         int[] colours = getResources().getIntArray(R.array.obutton_colours);
@@ -69,5 +73,13 @@ public class ButtonColourFragment extends Fragment {
         public void onItemChanged(int colour) {
             Toast.makeText(getContext(), String.valueOf(colour), Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private int getRecyclerColumnCount(Context context, View parent, View child, int dpWidth) {
+        int totalPadding = parent.getPaddingRight() + parent.getPaddingLeft()
+                + child.getPaddingRight() + child.getPaddingLeft();
+        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        float screenWidth = (displayMetrics.widthPixels - totalPadding) / displayMetrics.density;
+        return Math.round(screenWidth / dpWidth);
     }
 }

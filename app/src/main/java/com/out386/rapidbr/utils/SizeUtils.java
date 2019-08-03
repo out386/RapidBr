@@ -21,16 +21,9 @@ package com.out386.rapidbr.utils;
  */
 
 import android.content.Context;
-import android.util.DisplayMetrics;
 
 public class SizeUtils {
     public static int dpToPx(Context context, float dp) {
         return (int) (dp * context.getResources().getDisplayMetrics().density);
-    }
-
-    public static int getRecyclerColumnCount(Context context, int dpWidth) {
-        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-        float screenWidth = displayMetrics.widthPixels / displayMetrics.density;
-        return Math.round(screenWidth / dpWidth);
     }
 }
