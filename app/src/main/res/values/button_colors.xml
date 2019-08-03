@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="obutton_blue_bright">#29B6F6</color>
+    <color name="obutton_green_bright">#66BB6A</color>
+    <color name="obutton_yellow_bright">#FFEE58</color>
+    <color name="obutton_red_bright">#EF5350</color>
+    <color name="obutton_pink_bright">#EC407A</color>
+    <color name="obutton_purple_bright">#7E57C2</color>
+    <color name="obutton_gray_bright">#BDBDBD</color>
+
+    <color name="obutton_blue">#2397CC</color>
+    <color name="obutton_green">#4F9252</color>
+    <color name="obutton_yellow">#CEC048</color>
+    <color name="obutton_red">#C54441</color>
+    <color name="obutton_pink">#C03463</color>
+    <color name="obutton_purple">#604294</color>
+    <color name="obutton_gray">#949494</color>
+
+    <color name="obutton_blue_dim">#28779B</color>
+    <color name="obutton_green_dim">#416B43</color>
+    <color name="obutton_yellow_dim">#ACA146</color>
+    <color name="obutton_red_dim">#974442</color>
+    <color name="obutton_pink_dim">#A03E5F</color>
+    <color name="obutton_purple_dim">#57417C</color>
+    <color name="obutton_gray_dim">#686868</color>
+</resources>

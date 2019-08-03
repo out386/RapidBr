@@ -63,8 +63,10 @@ public class BottomFragment extends Fragment {
     private void setViewListeners(View root) {
         NavController navController = Navigation.findNavController(getActivity(), R.id.bottom_view);
         CardLayout schedulerCard = root.findViewById(R.id.scheduler_card);
+        CardLayout colourCard = root.findViewById(R.id.color_card);
 
         setClickListener(navController, schedulerCard, R.id.action_bottom_to_scheduler);
+        setClickListener(navController, colourCard, R.id.action_bottom_to_buttonColour);
     }
 
     private void setClickListener(NavController navController, View target, int actionRes) {

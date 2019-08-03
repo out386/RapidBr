@@ -17,4 +17,6 @@
     <color name="icBlue">#29B6F6</color>
     <color name="icYellow">#B9AD3B</color>
     <color name="icPink">#EC407A</color>
+    <color name="strokeWhite">#FFFFFF</color>
+    <color name="fillWhiteTransparent">#CFFFFFFF</color>
 </resources>

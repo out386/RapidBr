@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="obutton_blue_bright">Blue 1</string>
+    <string name="obutton_green_bright">Green 1</string>
+    <string name="obutton_yellow_bright">Yellow 1</string>
+    <string name="obutton_red_bright">Red 1</string>
+    <string name="obutton_pink_bright">Pink 1</string>
+    <string name="obutton_purple_bright">Purple 1</string>
+    <string name="obutton_gray_bright">Gray 1</string>
+    <string name="obutton_blue">Blue 2</string>
+    <string name="obutton_green">Green 2</string>
+    <string name="obutton_yellow">Yellow 2</string>
+    <string name="obutton_red">Red 2</string>
+    <string name="obutton_pink">Pink 2</string>
+    <string name="obutton_purple">Purple 2</string>
+    <string name="obutton_gray">Gray 2</string>
+    <string name="obutton_blue_dim">Blue 3</string>
+    <string name="obutton_green_dim">Green 3</string>
+    <string name="obutton_yellow_dim">Yellow 3</string>
+    <string name="obutton_red_dim">Red 3</string>
+    <string name="obutton_pink_dim">Pink 3</string>
+    <string name="obutton_purple_dim">Purple 3</string>
+    <string name="obutton_gray_dim">Gray 3</string>
+</resources>

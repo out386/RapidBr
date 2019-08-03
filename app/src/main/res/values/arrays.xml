@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="obutton_colours">
+        <item>@color/obutton_blue_bright</item>
+        <item>@color/obutton_blue</item>
+        <item>@color/obutton_blue_dim</item>
+        <item>@color/obutton_green_bright</item>
+        <item>@color/obutton_green</item>
+        <item>@color/obutton_green_dim</item>
+        <item>@color/obutton_yellow_bright</item>
+        <item>@color/obutton_yellow</item>
+        <item>@color/obutton_yellow_dim</item>
+        <item>@color/obutton_red_bright</item>
+        <item>@color/obutton_red</item>
+        <item>@color/obutton_red_dim</item>
+        <item>@color/obutton_pink_bright</item>
+        <item>@color/obutton_pink</item>
+        <item>@color/obutton_pink_dim</item>
+        <item>@color/obutton_purple_bright</item>
+        <item>@color/obutton_purple</item>
+        <item>@color/obutton_purple_dim</item>
+        <item>@color/obutton_gray_bright</item>
+        <item>@color/obutton_gray</item>
+        <item>@color/obutton_gray_dim</item>
+    </array>
+
+</resources>
