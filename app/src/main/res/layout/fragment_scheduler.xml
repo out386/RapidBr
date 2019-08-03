@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="20dp"
+    android:padding="@dimen/edge_padding"
     tools:context=".settings.bottom.scheduler.SchedulerFragment">
 
     <LinearLayout
@@ -28,9 +28,9 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="@dimen/edge_padding_internal"
             android:background="@drawable/card"
-            android:padding="20dp">
+            android:padding="@dimen/edge_padding_internal">
 
             <TextView
                 android:id="@+id/sched_enable_text"
@@ -59,8 +59,8 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:layout_marginTop="20dp"
-                    android:layout_marginBottom="20dp"
+                    android:layout_marginTop="@dimen/edge_padding_internal"
+                    android:layout_marginBottom="@dimen/edge_padding_internal"
                     android:background="@color/cardStroke" />
 
                 <TextView
@@ -89,15 +89,14 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:layout_marginTop="20dp"
-                    android:layout_marginBottom="20dp"
+                    android:layout_marginTop="@dimen/edge_padding_internal"
+                    android:layout_marginBottom="@dimen/edge_padding_internal"
                     android:background="@color/cardStroke" />
 
                 <TextView
                     style="@style/GeneralSubHeaderText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingTop="0dp"
                     android:text="@string/sett_sched_stop_title" />
 
                 <TextView
@@ -105,7 +104,6 @@
                     style="@style/GeneralBodyText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="0dp"
                     tools:text="@string/sett_sched_stop_desc" />
 
             </LinearLayout>

@@ -7,10 +7,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingStart="10dp"
-        android:paddingTop="16dp"
-        android:paddingEnd="10dp"
-        android:paddingBottom="16dp">
+        android:padding="@dimen/edge_padding">
 
         <!--Why use a Recycler for just 4-5 items?-->
 
@@ -18,8 +15,6 @@
             android:id="@+id/scheduler_card"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             app:image="@drawable/ic_sett_schedule"
             app:image_tint="@color/icGreen"
@@ -33,8 +28,6 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
             app:image="@drawable/ic_sett_color"
             app:image_tint="@color/icBlue"
             app:layout_constraintEnd_toEndOf="parent"
@@ -46,7 +39,6 @@
             android:id="@+id/blacklist_card"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="8dp"
             app:image="@drawable/ic_sett_blacklist"
@@ -62,7 +54,6 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginTop="16dp"
-            android:layout_marginEnd="8dp"
             app:image="@drawable/ic_sett_filter"
             app:image_tint="@color/icPink"
             app:layout_constraintEnd_toEndOf="parent"

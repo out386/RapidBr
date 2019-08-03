@@ -119,12 +119,12 @@ public class MainActivity extends AppCompatActivity implements OnNavigationListe
         int appName1Length = getString(R.string.app_name1).length();
         SpannableString toolbarString = new SpannableString(appName);
         toolbarString.setSpan(
-                new ForegroundColorSpan(getResources().getColor(R.color.toolbarText1)),
+                new ForegroundColorSpan(getResources().getColor(R.color.colorAccent, getTheme())),
                 0,
                 appName1Length,
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         toolbarString.setSpan(
-                new ForegroundColorSpan(getResources().getColor(R.color.toolbarText2)),
+                new ForegroundColorSpan(getResources().getColor(R.color.toolbarText2, getTheme())),
                 appName1Length,
                 appName.length(),
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
