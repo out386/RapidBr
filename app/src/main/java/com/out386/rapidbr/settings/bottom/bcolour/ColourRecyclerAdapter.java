@@ -27,6 +27,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.out386.rapidbr.R;
 import com.out386.rapidbr.utils.SizeUtils;
 
 public class ColourRecyclerAdapter extends
@@ -34,7 +35,7 @@ public class ColourRecyclerAdapter extends
 
     private int[] colours;
     private int strokeWidth;
-    private int size;
+    private float size;
     private ColourItem currentColour;
     private OnItemChangedListener listener;
 
@@ -42,7 +43,7 @@ public class ColourRecyclerAdapter extends
         this.colours = colours;
         this.listener = listener;
         strokeWidth = SizeUtils.dpToPx(context, 1);
-        size = SizeUtils.dpToPx(context, 70);
+        size = context.getResources().getDimension(R.dimen.button_colour_item_size);
     }
 
     @NonNull

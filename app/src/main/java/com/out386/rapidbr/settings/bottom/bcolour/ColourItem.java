@@ -62,10 +62,10 @@ public class ColourItem extends RelativeLayout {
         check.setScaleY(0);
     }
 
-    public void setColour(int colour, int strokeWidth, int size) {
+    public void setColour(int colour, int strokeWidth, float size) {
         this.colour = colour;
         this.strokeWidth = strokeWidth;
-        this.size = size;
+        this.size = (int) size;
         setColour(false);
     }
 

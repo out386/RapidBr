@@ -26,7 +26,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,7 +54,9 @@ public class ButtonColourFragment extends Fragment {
         prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         NestedScrollView recyclerRoot = v.findViewById(R.id.button_recycler_parent);
         RecyclerView recyclerView = v.findViewById(R.id.button_recycler);
-        int columnCount = getRecyclerColumnCount(getContext(), recyclerRoot, recyclerRoot, 70);
+        float itemSize = getResources().getDimension(R.dimen.button_colour_item_size);
+        int columnCount = getRecyclerColumnCount(
+                getContext(), recyclerRoot, recyclerRoot, itemSize);
         GridLayoutManager layoutManager = new GridLayoutManager(getContext(), columnCount);
 
         int[] colours = getResources().getIntArray(R.array.obutton_colours);
@@ -75,11 +76,11 @@ public class ButtonColourFragment extends Fragment {
         }
     }
 
-    private int getRecyclerColumnCount(Context context, View parent, View child, int dpWidth) {
+    private int getRecyclerColumnCount(Context context, View parent, View child, float pxWidth) {
         int totalPadding = parent.getPaddingRight() + parent.getPaddingLeft()
                 + child.getPaddingRight() + child.getPaddingLeft();
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-        float screenWidth = (displayMetrics.widthPixels - totalPadding) / displayMetrics.density;
-        return Math.round(screenWidth / dpWidth);
+        int screenWidth = displayMetrics.widthPixels - totalPadding;
+        return Math.round(screenWidth / pxWidth);
     }
 }
