@@ -132,11 +132,11 @@ public class SchedulerFragment extends Fragment {
             return; // Eh.
 
         schedStart.setOnClickListener(view ->
-                new TimePickerFragment(true, R.string.sett_sched_start_title, getActivity())
+                new TimePickerFragment(true, getActivity())
                         .show(fragmentManager, null));
 
         schedStop.setOnClickListener(view ->
-                new TimePickerFragment(false, R.string.sett_sched_stop_title, getActivity())
+                new TimePickerFragment(false, getActivity())
                         .show(fragmentManager, null));
     }
 

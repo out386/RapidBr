@@ -24,6 +24,7 @@ import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.app.TimePickerDialog.OnTimeSetListener;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -33,6 +34,8 @@ import android.widget.TimePicker;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 
+import com.out386.rapidbr.R;
+
 public class TimePickerFragment extends DialogFragment implements OnTimeSetListener {
     static final String KEY_SCHEDULER_START_HOUR = "KEY_SCHEDULER_START_HOUR";
     static final String KEY_SCHEDULER_START_MINUTE = "KEY_SCHEDULER_START_MINUTE";
@@ -41,10 +44,12 @@ public class TimePickerFragment extends DialogFragment implements OnTimeSetListe
 
     private TimePickerDialog timePicker;
     private SharedPreferences prefs;
+    private Context context;
     private boolean isStart;
 
-    TimePickerFragment(boolean isStart, int title, Context context) {
+    TimePickerFragment(boolean isStart, Context context) {
         this.isStart = isStart;
+        this.context = context;
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
         int hour;
         int minute;
@@ -59,7 +64,16 @@ public class TimePickerFragment extends DialogFragment implements OnTimeSetListe
 
         timePicker = new TimePickerDialog(context, TimePickerFragment.this,
                 hour, minute, DateFormat.is24HourFormat(context));
-        timePicker.setTitle(context.getResources().getString(title));
+
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        int accent = context.getResources().getColor(R.color.colorAccent, context.getTheme());
+
+        timePicker.getButton(DialogInterface.BUTTON_POSITIVE).setTextColor(accent);
+        timePicker.getButton(DialogInterface.BUTTON_NEGATIVE).setTextColor(accent);
     }
 
     @NonNull
