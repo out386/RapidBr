@@ -32,12 +32,10 @@ import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -49,7 +47,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.mikepenz.fastadapter.FastAdapter;
 import com.mikepenz.fastadapter.IAdapter;
 import com.mikepenz.fastadapter.adapters.ItemAdapter;
@@ -87,6 +84,7 @@ public class BlacklistFragment extends Fragment implements
     private ItemAdapter<AppProfilesAppsItem> itemAdapter;
     private FastAdapter<AppProfilesAppsItem> fastAdapter;
     private RecyclerView recyclerView;
+    private Button addButton;
     private LinearLayoutManager layoutManager;
     private Parcelable layoutManagerState;
     private CheckBox appBrightnessCheckbox;
@@ -114,7 +112,7 @@ public class BlacklistFragment extends Fragment implements
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_blacklist, container, false);
-        Button addButton = v.findViewById(R.id.blacklist_add_button);
+        addButton = v.findViewById(R.id.blacklist_add_button);
         noApps = v.findViewById(R.id.blacklist_no_apps_text);
         recyclerView = v.findViewById(R.id.blacklist_recycler);
         layoutManager = new LinearLayoutManager(getContext());
@@ -157,9 +155,30 @@ public class BlacklistFragment extends Fragment implements
         } else if (itemAdapter.getAdapterItems() == null || itemAdapter.getAdapterItems().size() == 0)
             fetchApps(null);
 
+        setupButtonScroll();
         return v;
     }
 
+    private void setupButtonScroll() {
+        int animTime = getResources().getInteger(android.R.integer.config_mediumAnimTime);
+        recyclerView.clearOnScrollListeners();
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                if (dy < 5) {
+                    addButton.animate()
+                            .setDuration(animTime)
+                            .translationY(0);
+                } else if (dy > 5) {
+                    addButton.animate()
+                            .setDuration(animTime)
+                            .translationY(addButton.getHeight() << 1);
+                }
+            }
+        });
+    }
 
     /**
      * Hides the RecyclerView and shows a TextView if there are no selected apps
@@ -194,7 +213,8 @@ public class BlacklistFragment extends Fragment implements
     }
 
     /**
-     * Clears the RecyclerView adapter and sets the parameter list to it. Can be called on a background thread.
+     * Clears the RecyclerView adapter and sets the parameter list to it. Can be called on a
+     * background thread.
      *
      * @param apps The List of apps to show in the RecyclerView
      */
@@ -215,8 +235,8 @@ public class BlacklistFragment extends Fragment implements
     }
 
     /**
-     * Called by the Activity when an app is picked on the app picker fragment.
-     * Adds the item to the RecyclerView adapter if it does not already exist.
+     * Called by the Activity when an app is picked on the app picker fragment. Adds the item to the
+     * RecyclerView adapter if it does not already exist.
      *
      * @param item The app item that was picked in the picker fragment
      */
@@ -254,7 +274,8 @@ public class BlacklistFragment extends Fragment implements
      * Manages loading a list app items on a background thread. Can read from saved data on disk.
      * Sets icons to the items, and calls {@link #setListData(List)}
      *
-     * @param allAppItems If null, attempts to read the list from disk. Else sets icons to this list.
+     * @param allAppItems If null, attempts to read the list from disk. Else sets icons to this
+     *                    list.
      */
     private void fetchApps(ArrayList<AppProfilesAppsItem> allAppItems) {
         Context context = getContext();

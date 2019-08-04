@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingStart="@dimen/edge_padding"
@@ -11,30 +10,29 @@
         style="@style/GeneralHeaderText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
         android:layout_marginTop="@dimen/edge_padding"
-        android:text="@string/sett_main_blacklist"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:text="@string/sett_main_blacklist" />
 
     <TextView
         android:id="@+id/blacklist_desc"
         style="@style/GeneralBodyText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/sett_blacklist_desc"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/blacklist_title" />
+        android:layout_below="@id/blacklist_title"
+        android:layout_alignParentStart="true"
+        android:text="@string/sett_blacklist_desc" />
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/blacklist_desc"
+        android:layout_alignParentStart="true"
         android:layout_marginTop="@dimen/edge_padding_internal"
         android:layout_marginBottom="@dimen/edge_padding_internal"
         android:background="@drawable/card"
-        android:padding="@dimen/edge_padding_internal"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/blacklist_desc"
-        app:layout_constraintBottom_toTopOf="@+id/blacklist_add_button">
+        android:padding="@dimen/edge_padding_internal">
 
         <TextView
             android:id="@+id/blacklist_enable_text"
@@ -85,11 +83,10 @@
         android:id="@+id/blacklist_add_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
         android:layout_marginBottom="@dimen/edge_padding"
         android:drawableStart="@drawable/ic_add"
-        android:text="@string/sett_blacklist_add_apps"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:text="@string/sett_blacklist_add_apps" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</RelativeLayout>
