@@ -7,7 +7,10 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/edge_padding">
+        android:layout_marginTop="@dimen/edge_padding"
+        android:layout_marginBottom="@dimen/edge_padding"
+        android:paddingStart="@dimen/edge_padding"
+        android:paddingEnd="@dimen/edge_padding">
 
         <!--Why use a Recycler for just 4-5 items?-->
 
