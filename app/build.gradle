@@ -25,8 +25,12 @@ android {
 dependencies {
     implementation 'androidx.appcompat:appcompat:1.1.0-rc01'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta2'
-    implementation 'com.google.android.material:material:1.1.0-alpha08'
+    implementation 'com.google.android.material:material:1.1.0-alpha09'
     implementation 'androidx.navigation:navigation-fragment:2.0.0'
     implementation 'androidx.navigation:navigation-ui:2.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.0.0'
+    implementation "com.mikepenz:fastadapter:3.3.1"
+    implementation 'com.mikepenz:fastadapter-commons:3.3.1'
+    implementation 'com.mikepenz:fastadapter-extensions:3.3.1'
+    implementation 'com.afollestad.material-dialogs:core:0.9.6.0'
 }

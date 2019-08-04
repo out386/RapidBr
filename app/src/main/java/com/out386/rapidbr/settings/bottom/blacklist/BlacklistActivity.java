@@ -1,0 +1,212 @@
+package com.out386.rapidbr.settings.bottom.blacklist;
+
+/*
+ * Copyright (C) 2019 Ritayan Chakraborty <ritayanout@gmail.com>
+ *
+ * This file is part of RapidBr
+ *
+ * RapidBr is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * RapidBr is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with RapidBr.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+import android.app.AppOpsManager;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.os.Bundle;
+import android.provider.Settings;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
+import android.view.MenuItem;
+import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
+import com.out386.rapidbr.R;
+import com.out386.rapidbr.settings.bottom.blacklist.picker.AppProfileActivityListener;
+import com.out386.rapidbr.settings.bottom.blacklist.picker.BlacklistPickerFragment;
+import com.out386.rapidbr.settings.bottom.blacklist.picker.BlacklistPickerItem;
+import com.out386.rapidbr.utils.GenericDialogFragment;
+
+import static android.app.AppOpsManager.MODE_ALLOWED;
+import static android.app.AppOpsManager.OPSTR_GET_USAGE_STATS;
+
+public class BlacklistActivity extends AppCompatActivity implements AppProfileActivityListener {
+
+    private static final String APP_FRAGMENT_TAG = "appFragment";
+    private static final String KEY_BLOCK_BACK = "isSaveNeeded";
+
+    private boolean isSaveNeeded = false;
+    private BlacklistFragment appFragment;
+    private GenericDialogFragment dialog;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_blacklist);
+
+        if (savedInstanceState == null) {
+            appFragment = new BlacklistFragment();
+            changeFragment(appFragment, APP_FRAGMENT_TAG, false);
+        } else {
+            isSaveNeeded = savedInstanceState.getBoolean(KEY_BLOCK_BACK);
+            appFragment = (BlacklistFragment) getSupportFragmentManager().findFragmentByTag(APP_FRAGMENT_TAG);
+            if (appFragment == null)
+                appFragment = new BlacklistFragment();
+        }
+
+        setupToolbarText();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putBoolean(KEY_BLOCK_BACK, isSaveNeeded);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onShowPicker() {
+        isSaveNeeded = false;
+        changeFragment(new BlacklistPickerFragment(), null, true);
+    }
+
+    @Override
+    public void onAppPicked(BlacklistPickerItem item) {
+        if (appFragment != null)
+            appFragment.onAppPicked(item);
+        onBackPressed();
+        isSaveNeeded = true;
+    }
+
+    @Override
+    public void onAppChanged() {
+        isSaveNeeded = true;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        int permissionCode = checkUsagePermission();
+        if (permissionCode == 0 || permissionCode == -1)
+            showPermissionDialog(permissionCode);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (!isSaveNeeded)
+            super.onBackPressed();
+        else {
+            if (appFragment != null)
+                appFragment.onSaveNeeded();
+            isSaveNeeded = false; // Outside above "if" just in case appFragment somehow became null.
+            onBackPressed();    // Better to not save than get the user stuck
+        }
+    }
+
+    private void setupToolbarText() {
+        TextView toolbarTV = findViewById(R.id.blacklist_toolbarText);
+        String appName = getString(R.string.app_name);
+        int appName1Length = getString(R.string.app_name1).length();
+        SpannableString toolbarString = new SpannableString(appName);
+        toolbarString.setSpan(
+                new ForegroundColorSpan(getResources().getColor(R.color.colorAccent, getTheme())),
+                0,
+                appName1Length,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        toolbarString.setSpan(
+                new ForegroundColorSpan(getResources().getColor(R.color.toolbarText2, getTheme())),
+                appName1Length,
+                appName.length(),
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        toolbarTV.setText(toolbarString);
+    }
+
+    private void changeFragment(Fragment fragment, String tag, boolean addToBackStack) {
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager()
+                .beginTransaction();
+
+        if (fragment instanceof BlacklistPickerFragment)
+            fragmentTransaction
+                    .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left,
+                            R.anim.slide_in_left, R.anim.slide_out_right);
+        // AppProfilesAppsFragment is only used once, when the activity starts, so not adding animations for that.
+
+        fragmentTransaction
+                .replace(R.id.app_blacklist_frame, fragment, tag);
+        if (addToBackStack)
+            fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+    }
+
+    /**
+     * @return 0 if this app does not have Usage access, 1 if it does, -1 if it can't be granted that permission
+     */
+    private int checkUsagePermission() {
+        Context context = getApplicationContext();
+        PackageManager pm = context.getPackageManager();
+
+        Intent launchIntent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
+        if (launchIntent.resolveActivity(pm) == null)
+            return -1;
+
+        AppOpsManager appOps = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
+        if (appOps == null)
+            return -1;
+
+        ApplicationInfo info;
+        try {
+            info = pm.getApplicationInfo(context.getPackageName(), 0);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();    // Waaaaaaooow
+            return -1;
+        }
+
+        int mode = appOps.checkOpNoThrow(OPSTR_GET_USAGE_STATS, info.uid, context.getPackageName());
+        return mode == MODE_ALLOWED ? 1 : 0;
+    }
+
+    private void showPermissionDialog(int code) {
+        FragmentManager manager = getSupportFragmentManager();
+
+        if (dialog != null)
+            dialog.dismiss();
+
+        dialog = GenericDialogFragment.newInstance()
+                .setDialogCancelable(false);
+
+        if (code == 0) {
+            dialog.setTitle(getString(R.string.sett_blacklist_no_usage_access_title))
+                    .setMessage(getString(R.string.sett_blacklist_no_usage_access))
+                    .setOnPositiveButtonTappedListener(() -> startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)));
+        } else if (code == -1) {
+            dialog.setTitle(getString(R.string.sett_blacklist_usage_access_unsupported))
+                    .setMessage(getString(R.string.sett_blacklist_usage_access_unsupported_title));
+        }
+        dialog.show(manager, null);
+    }
+}

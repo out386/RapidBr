@@ -11,4 +11,15 @@
     </string>
     <string name="sett_blacklist_usage_access_unsupported_title">Feature unavailable</string>
     <string name="sett_blacklist_add_apps">Add Apps</string>
+    <string name="sett_blacklist_on_stop">Stop RapidBr on app start</string>
+    <string name="sett_blacklist_unchanged">Brightness unchanged</string>
+    <string name="sett_blacklist_changed">Set brightness to %d %%</string>
+    <string name="sett_blacklist_loading">Working…</string>
+    <string name="sett_blacklist_help_title">About profiles</string>
+    <string name="sett_blacklist_help_text">Profiles only work if Underburn is already running.
+        Swipe an item left or right to delete it. Changes are automatically saved.
+    </string>
+    <string name="sett_blacklist_behaviour_dialog_desc">Pause RapidBr when this app starts</string>
+    <string name="sett_blacklist_brightness_unchanged">Do not change brightness when this app starts</string>
+    <string name="sett_blacklist_set_brightness">Set brightness to %d%% when this app starts</string>
 </resources>

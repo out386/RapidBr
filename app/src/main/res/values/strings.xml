@@ -2,6 +2,7 @@
     <string name="app_name">RapidBr</string>
     <string name="app_name1">Rapid</string>
     <string name="app_name2">Br</string>
+    <string name="ok">OK</string>
     <string name="sett_main_scheduler">scheduled start</string>
     <string name="sett_main_blacklist">app blacklist</string>
     <string name="sett_main_filter">screen filter</string>
@@ -16,4 +17,5 @@
     <string name="sett_blacklist_desc">Pause and resume RapidBr based on which app is currently
         open. Use this if you do not use Tasker integration.</string>
     <string name="sett_blacklist_enable">Enable app blacklist</string>
+    <string name="sett_blacklist_pick_prompt">Tap an app below to add it to the blacklist</string>
 </resources>

@@ -27,13 +27,14 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_marginTop="@dimen/edge_padding_internal"
         android:layout_marginBottom="@dimen/edge_padding_internal"
         android:background="@drawable/card"
         android:padding="@dimen/edge_padding_internal"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/blacklist_desc">
+        app:layout_constraintTop_toBottomOf="@+id/blacklist_desc"
+        app:layout_constraintBottom_toTopOf="@+id/blacklist_add_button">
 
         <TextView
             android:id="@+id/blacklist_enable_text"
