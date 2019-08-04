@@ -74,6 +74,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationListe
         FrameLayout topView = findViewById(R.id.topView);
         FrameLayout bottomView = findViewById(R.id.bottom_view);
         Toolbar toolbar = findViewById(R.id.toolbar);
+        FrameLayout.LayoutParams topViewParams = (FrameLayout.LayoutParams) topView.getLayoutParams();
         ViewGroup.LayoutParams toolbarParams = toolbar.getLayoutParams();
         CoordinatorLayout.LayoutParams appBarParams =
                 (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
@@ -90,10 +91,15 @@ public class MainActivity extends AppCompatActivity implements OnNavigationListe
 
             toolbarParams.height = (actionbarHeight > -1 ? actionbarHeight : toolbarParams.height) +
                     topInset;
-            appBarParams.setMargins(0, toolbarParams.height, 0, 0);
 
-            appBarLayout.setLayoutParams(appBarParams);
+            CoordinatorLayout.LayoutParams appBarParamsNew =
+                    new CoordinatorLayout.LayoutParams(appBarParams.width,
+                            appBarParams.height + toolbarParams.height);
+            topViewParams.setMargins(0, toolbarParams.height, 0, 0);
+
+            appBarLayout.setLayoutParams(appBarParamsNew);
             toolbar.setLayoutParams(toolbarParams);
+            topView.setLayoutParams(topViewParams);
 
             toolbar.setPadding(leftInset, 0, rightInset, 0);
             topView.setPadding(leftInset, 0, rightInset, 0);

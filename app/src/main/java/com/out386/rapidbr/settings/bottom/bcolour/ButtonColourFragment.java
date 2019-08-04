@@ -69,18 +69,18 @@ public class ButtonColourFragment extends Fragment {
         return v;
     }
 
-    private class OnColourChangedListener implements ColourRecyclerAdapter.OnItemChangedListener {
-        @Override
-        public void onItemChanged(int colour) {
-            Toast.makeText(getContext(), String.valueOf(colour), Toast.LENGTH_SHORT).show();
-        }
-    }
-
     private int getRecyclerColumnCount(Context context, View parent, View child, float pxWidth) {
         int totalPadding = parent.getPaddingRight() + parent.getPaddingLeft()
                 + child.getPaddingRight() + child.getPaddingLeft();
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
         int screenWidth = displayMetrics.widthPixels - totalPadding;
         return Math.round(screenWidth / pxWidth);
+    }
+
+    private class OnColourChangedListener implements ColourRecyclerAdapter.OnItemChangedListener {
+        @Override
+        public void onItemChanged(int colour) {
+            Toast.makeText(getContext(), String.valueOf(colour), Toast.LENGTH_SHORT).show();
+        }
     }
 }
