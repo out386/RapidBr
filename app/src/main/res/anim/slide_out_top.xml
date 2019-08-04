@@ -3,6 +3,11 @@
     android:shareInterpolator="false">
     <translate
         android:duration="@android:integer/config_shortAnimTime"
-        android:fromXDelta="0%"
-        android:toXDelta="100%" />
+        android:fromYDelta="0%"
+        android:toYDelta="-12.5%" />
+
+    <alpha
+        android:duration="@android:integer/config_shortAnimTime"
+        android:fromAlpha="1"
+        android:toAlpha="0" />
 </set>
