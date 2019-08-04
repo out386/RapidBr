@@ -21,6 +21,7 @@ package com.out386.rapidbr;
  */
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
@@ -109,6 +110,13 @@ public class MainActivity extends AppCompatActivity implements OnNavigationListe
             return insets.consumeSystemWindowInsets();
         });
         setupToolbarText();
+
+        // Without this, the bottom fragment won't scroll fully.
+        appBarLayout.setExpanded(false, false);
+        new Handler()
+                .postDelayed(() -> appBarLayout.setExpanded(true, false),
+                        250
+                );
     }
 
     private int getActionbarHeight() {
