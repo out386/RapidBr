@@ -12,4 +12,5 @@
     <string name="sett_sched_start_desc">Start RapidBr every day at this time: %s.</string>
     <string name="sett_sched_stop_title">Stop time</string>
     <string name="sett_sched_stop_desc">Stop RapidBr every day at this time: %s.</string>
+    <string name="sett_br_colour_desc">Set the color of the floating brightness icon.</string>
 </resources>

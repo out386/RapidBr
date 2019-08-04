@@ -29,7 +29,6 @@ import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.widget.NestedScrollView;
@@ -41,6 +40,8 @@ import com.out386.rapidbr.R;
 
 public class ButtonColourFragment extends Fragment {
 
+    private static final String KEY_BR_ICON_COLOUR = "br_icon_colour";
+
     private SharedPreferences prefs;
 
     public ButtonColourFragment() {
@@ -50,21 +51,28 @@ public class ButtonColourFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_button_colour, container, false);
+        Context context = requireContext();
 
         prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         NestedScrollView recyclerRoot = v.findViewById(R.id.button_recycler_parent);
         RecyclerView recyclerView = v.findViewById(R.id.button_recycler);
+
         float itemSize = getResources().getDimension(R.dimen.button_colour_item_size);
-        int columnCount = getRecyclerColumnCount(
-                getContext(), recyclerRoot, recyclerRoot, itemSize);
+        int columnCount = getRecyclerColumnCount(context, recyclerRoot, recyclerRoot, itemSize);
         GridLayoutManager layoutManager = new GridLayoutManager(getContext(), columnCount);
 
         int[] colours = getResources().getIntArray(R.array.obutton_colours);
+        int defColour = prefs.getInt(KEY_BR_ICON_COLOUR,
+                getResources().getColor(R.color.obutton_blue, context.getTheme()));
 
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(new ColourRecyclerAdapter(getContext(),
-                new OnColourChangedListener(), colours));
+        recyclerView.setAdapter(
+                new ColourRecyclerAdapter(getContext(),
+                        new OnColourChangedListener(),
+                        colours,
+                        defColour)
+        );
 
         return v;
     }
@@ -80,7 +88,9 @@ public class ButtonColourFragment extends Fragment {
     private class OnColourChangedListener implements ColourRecyclerAdapter.OnItemChangedListener {
         @Override
         public void onItemChanged(int colour) {
-            Toast.makeText(getContext(), String.valueOf(colour), Toast.LENGTH_SHORT).show();
+            prefs.edit()
+                    .putInt(KEY_BR_ICON_COLOUR, colour)
+                    .apply();
         }
     }
 }

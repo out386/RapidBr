@@ -17,13 +17,15 @@
             style="@style/GeneralHeaderText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/edge_padding"/>
+            android:layout_marginTop="@dimen/edge_padding"
+            android:text="@string/sett_main_color" />
 
         <TextView
             style="@style/GeneralBodyText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/edge_padding_internal" />
+            android:layout_marginBottom="@dimen/edge_padding_internal"
+            android:text="@string/sett_br_colour_desc" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/button_recycler"

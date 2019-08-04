@@ -21,7 +21,11 @@
 
         <action
             android:id="@+id/action_bottom_to_buttonColour"
-            app:destination="@id/buttonColourFragment" />
+            app:destination="@id/buttonColourFragment"
+            app:enterAnim="@anim/slide_in_bottom"
+            app:exitAnim="@anim/slide_out_top"
+            app:popEnterAnim="@anim/slide_in_top"
+            app:popExitAnim="@anim/slide_out_bottom" />
 
     </fragment>
 

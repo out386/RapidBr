@@ -34,16 +34,19 @@ public class ColourRecyclerAdapter extends
         RecyclerView.Adapter<ColourRecyclerAdapter.ColorViewHolder> {
 
     private int[] colours;
+    private int defColour;
     private int strokeWidth;
     private float size;
     private ColourItem currentColour;
     private OnItemChangedListener listener;
 
-    ColourRecyclerAdapter(Context context, OnItemChangedListener listener, int[] colours) {
+    ColourRecyclerAdapter(Context context, OnItemChangedListener listener, int[] colours,
+                          int defColour) {
         this.colours = colours;
         this.listener = listener;
         strokeWidth = SizeUtils.dpToPx(context, 1);
         size = context.getResources().getDimension(R.dimen.button_colour_item_size);
+        this.defColour = defColour;
     }
 
     @NonNull
@@ -56,12 +59,31 @@ public class ColourRecyclerAdapter extends
     @Override
     public void onBindViewHolder(@NonNull ColorViewHolder holder, int position) {
         holder.colorView.setColour(colours[position], strokeWidth, size);
-        holder.colorView.setOnClickListener(new OnColourClickListener());
+        holder.colorView.setOnClickListener(view -> setCurrentColour(view, true));
+
+        if (colours[position] == defColour)
+            setCurrentColour(holder.colorView, false);
     }
 
     @Override
     public int getItemCount() {
         return colours.length;
+    }
+
+    private void setCurrentColour(View view, boolean callListener) {
+        ColourItem colourItem = (ColourItem) view;
+        if (currentColour == null) {
+            colourItem.setChecked(true);
+            currentColour = colourItem;
+            if (callListener)
+                listener.onItemChanged(currentColour.getColour());
+        } else if (currentColour != colourItem) {
+            currentColour.setChecked(false);
+            colourItem.setChecked(true);
+            currentColour = colourItem;
+            if (callListener)
+                listener.onItemChanged(currentColour.getColour());
+        }
     }
 
     interface OnItemChangedListener {
@@ -74,23 +96,6 @@ public class ColourRecyclerAdapter extends
         ColorViewHolder(@NonNull ColourItem itemView) {
             super(itemView);
             colorView = itemView;
-        }
-    }
-
-    class OnColourClickListener implements View.OnClickListener {
-        @Override
-        public void onClick(View v) {
-            ColourItem view = (ColourItem) v;
-            if (currentColour == null) {
-                view.setChecked(true);
-                currentColour = view;
-                listener.onItemChanged(currentColour.getColour());
-            } else if (currentColour != view) {
-                currentColour.setChecked(false);
-                view.setChecked(true);
-                currentColour = view;
-                listener.onItemChanged(currentColour.getColour());
-            }
         }
     }
 }
