@@ -51,9 +51,9 @@ public class MainActivity extends AppCompatActivity implements OnNavigationListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setupViews();
-        if (savedInstanceState == null)
+        if (savedInstanceState == null) {
             setFragments();
-        else {
+        } else {
             isCurrentlyMainFrag =
                     savedInstanceState.getBoolean(KEY_CURRENTLY_MAIN_FRAG, true);
             if (isCurrentlyMainFrag)
@@ -61,6 +61,11 @@ public class MainActivity extends AppCompatActivity implements OnNavigationListe
             else
                 onAltFragment();
         }
+
+        if (isCurrentlyMainFrag)
+            fixScrolling(false);
+        else
+            fixScrolling(true);
     }
 
     @Override
@@ -110,11 +115,13 @@ public class MainActivity extends AppCompatActivity implements OnNavigationListe
             return insets.consumeSystemWindowInsets();
         });
         setupToolbarText();
+    }
 
+    private void fixScrolling(boolean finallyCollapsed) {
         // Without this, the bottom fragment won't scroll fully.
-        appBarLayout.setExpanded(false, false);
+        appBarLayout.setExpanded(finallyCollapsed, false);
         new Handler()
-                .postDelayed(() -> appBarLayout.setExpanded(true, false),
+                .postDelayed(() -> appBarLayout.setExpanded(!finallyCollapsed, false),
                         250
                 );
     }
