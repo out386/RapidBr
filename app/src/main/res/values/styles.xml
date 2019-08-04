@@ -1,12 +1,21 @@
 <resources>
 
-    <style name="AppTheme" parent="Theme.MaterialComponents.NoActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:windowBackground">@color/windowBackground</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="buttonStyle">@style/ButtonStyle</item>
+    </style>
+
+    <style name="ButtonStyle" parent="Widget.AppCompat.Button">
+        <item name="android:background">@drawable/button_rounded_bg</item>
+        <item name="android:paddingStart">@dimen/edge_padding_internal</item>
+        <item name="android:paddingEnd">@dimen/edge_padding_internal</item>
+        <item name="android:fontFamily">@font/quicksand_medium</item>
+        <item name="android:drawablePadding">@dimen/edge_padding</item>
     </style>
 
     <style name="TopViewSmallText" parent="TextAppearance.AppCompat">

@@ -3,6 +3,8 @@
     <color name="colorPrimary">#1D1D1D</color>
     <color name="colorPrimaryDark">#000000</color>
     <color name="colorAccent">#E64A19</color>
+    <color name="colorAccentTransparent">#3FE64A19</color>
+    <color name="colorAccentSemiTransparent">#80E64A19</color>
     <color name="windowBackground">#171717</color>
     <color name="toolbarText2">#FFFFFF</color>
     <color name="transparent">#00FFFFFF</color>

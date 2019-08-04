@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sett_blacklist_no_apps">Get started by adding an app from the button below.</string>
+    <string name="sett_blacklist_no_usage_access">This feature needs Usage access.
+        You have to enable access for this app through Settings.
+        Tap "OK", and allow the permission for this app.
+    </string>
+    <string name="sett_blacklist_no_usage_access_title">Permission required</string>
+    <string name="sett_blacklist_usage_access_unsupported">This feature needs Usage access.
+        But your ROM does not support it. So, this feature will not work on your ROM.
+    </string>
+    <string name="sett_blacklist_usage_access_unsupported_title">Feature unavailable</string>
+    <string name="sett_blacklist_add_apps">Add Apps</string>
+</resources>

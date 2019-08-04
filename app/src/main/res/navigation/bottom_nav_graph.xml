@@ -26,6 +26,13 @@
             app:exitAnim="@anim/slide_out_top"
             app:popEnterAnim="@anim/slide_in_top"
             app:popExitAnim="@anim/slide_out_bottom" />
+        <action
+            android:id="@+id/action_bottom_to_blacklist"
+            app:destination="@id/blacklistFragment"
+            app:enterAnim="@anim/slide_in_bottom"
+            app:exitAnim="@anim/slide_out_top"
+            app:popEnterAnim="@anim/slide_in_top"
+            app:popExitAnim="@anim/slide_out_bottom" />
 
     </fragment>
 
@@ -40,5 +47,10 @@
         android:name="com.out386.rapidbr.settings.bottom.bcolour.ButtonColourFragment"
         android:label="fragment_button_colour"
         tools:layout="@layout/fragment_button_colour" />
+    <fragment
+        android:id="@+id/blacklistFragment"
+        android:name="com.out386.rapidbr.settings.bottom.blacklist.BlacklistFragment"
+        android:label="fragment_blacklist"
+        tools:layout="@layout/fragment_blacklist" />
 
 </navigation>
