@@ -22,11 +22,15 @@ package com.out386.rapidbr.settings.bottom.blacklist;
 
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
 import com.out386.rapidbr.R;
 
@@ -40,7 +44,14 @@ public class BlacklistFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_blacklist, container, false);
+        View v = inflater.inflate(R.layout.fragment_blacklist, container, false);
+        Button addButton = v.findViewById(R.id.blacklist_add_button);
+        addButton.setOnClickListener(view ->
+                // The delay is to let the ripple animation complete
+                new Handler().postDelayed(() -> {
+                    NavController navController = Navigation.findNavController(view);
+                }, 150));
+        return v;
     }
 
 }

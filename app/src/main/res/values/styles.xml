@@ -16,6 +16,7 @@
         <item name="android:paddingEnd">@dimen/edge_padding_internal</item>
         <item name="android:fontFamily">@font/quicksand_medium</item>
         <item name="android:drawablePadding">@dimen/edge_padding</item>
+        <item name="android:foreground">@drawable/button_ripple</item>
     </style>
 
     <style name="TopViewSmallText" parent="TextAppearance.AppCompat">
