@@ -29,7 +29,6 @@ import android.content.pm.ResolveInfo;
 import java.util.List;
 import java.util.TreeMap;
 
-import static com.out386.rapidbr.settings.bottom.blacklist.PackageUtils.checkAppAvailableForProfiles;
 import static com.out386.rapidbr.settings.bottom.blacklist.PackageUtils.getAppName;
 import static com.out386.rapidbr.settings.bottom.blacklist.PackageUtils.getIcon;
 
@@ -38,7 +37,7 @@ public class BlacklistPickerRunnable implements Runnable {
     private PackageManager packageManager;
     private LoadProfilesPickerAppsListener listener;
 
-    public BlacklistPickerRunnable(Context context, LoadProfilesPickerAppsListener listener) {
+    BlacklistPickerRunnable(Context context, LoadProfilesPickerAppsListener listener) {
         this.context = context;
         this.packageManager = context.getPackageManager();
         this.listener = listener;
@@ -62,9 +61,10 @@ public class BlacklistPickerRunnable implements Runnable {
                     resolveInfo.activityInfo.applicationInfo
             );
 
-            if (!apps.containsKey(name) &&
-                    checkAppAvailableForProfiles(resolveInfo.activityInfo.packageName)) {
+            boolean isAppBlacklistable =
+                    !context.getPackageName().equals(resolveInfo.activityInfo.packageName);
 
+            if (!apps.containsKey(name) && isAppBlacklistable) {
                 apps.put(name,
                         new BlacklistPickerItem.Builder()
                                 .withName(name)
@@ -81,6 +81,6 @@ public class BlacklistPickerRunnable implements Runnable {
     }
 
     public interface LoadProfilesPickerAppsListener {
-        public void onAppsLoaded(TreeMap<String, BlacklistPickerItem> apps);
+        void onAppsLoaded(TreeMap<String, BlacklistPickerItem> apps);
     }
 }

@@ -47,14 +47,16 @@ public class BlacklistPickerFragment extends Fragment implements OnClickListener
 
     private ItemAdapter<BlacklistPickerItem> itemAdapter;
     private ProgressDialog progressDialog;
+    private BlacklistActivityListener listener;
 
     public BlacklistPickerFragment() {
 
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        listener = (BlacklistActivityListener) context;
     }
 
     @Override
@@ -76,9 +78,7 @@ public class BlacklistPickerFragment extends Fragment implements OnClickListener
 
     @Override
     public boolean onClick(View v, IAdapter<BlacklistPickerItem> adapter, BlacklistPickerItem item, int position) {
-        AppProfileActivityListener listener = ((AppProfileActivityListener) getActivity());
-        if (listener != null)
-            listener.onAppPicked(item);
+        listener.onAppPicked(item);
         return true;
     }
 
@@ -104,6 +104,7 @@ public class BlacklistPickerFragment extends Fragment implements OnClickListener
         progressDialog = new ProgressDialog(context);
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage(getResources().getString(R.string.sett_blacklist_loading));
+        progressDialog.setCancelable(false);
         progressDialog.show();
 
         BlacklistPickerRunnable loadAppsRunnable =

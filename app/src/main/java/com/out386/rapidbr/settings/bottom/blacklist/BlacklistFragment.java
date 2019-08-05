@@ -56,9 +56,9 @@ import com.mikepenz.fastadapter_extensions.drag.SimpleDragCallback;
 import com.mikepenz.fastadapter_extensions.swipe.SimpleSwipeCallback;
 import com.mikepenz.fastadapter_extensions.swipe.SimpleSwipeDragCallback;
 import com.out386.rapidbr.R;
-import com.out386.rapidbr.settings.bottom.blacklist.io.LoadProfilesAppsRunnable;
-import com.out386.rapidbr.settings.bottom.blacklist.io.WriteProfilesAppsRunnable;
-import com.out386.rapidbr.settings.bottom.blacklist.picker.AppProfileActivityListener;
+import com.out386.rapidbr.settings.bottom.blacklist.io.ReadBlacklistRunnable;
+import com.out386.rapidbr.settings.bottom.blacklist.io.WriteBlacklistRunnable;
+import com.out386.rapidbr.settings.bottom.blacklist.picker.BlacklistActivityListener;
 import com.out386.rapidbr.settings.bottom.blacklist.picker.BlacklistPickerItem;
 import com.out386.rapidbr.utils.GenericDialogFragment;
 
@@ -72,8 +72,8 @@ import static com.out386.rapidbr.settings.bottom.blacklist.PackageUtils.pickerTo
 import static com.out386.rapidbr.utils.ViewUtils.animateView;
 
 public class BlacklistFragment extends Fragment implements
-        OnClickListener<AppProfilesAppsItem>, ItemTouchCallback,
-        SimpleSwipeCallback.ItemSwipeCallback, AppProfileFragmentListener {
+        OnClickListener<BlacklistAppsItem>, ItemTouchCallback,
+        SimpleSwipeCallback.ItemSwipeCallback, BlacklistFragmentListener {
 
     public static final String FILE_APP_PROFILES_APPS_LIST = "profilesAppsList";
     private static final String KEY_NEW_APP_ITEM_LIST = "newAppItemList";
@@ -81,18 +81,18 @@ public class BlacklistFragment extends Fragment implements
     private static final String KEY_APP_HELP_SHOWN = "profilesHelpShown";
     private static boolean isWriting = false;
 
-    private ItemAdapter<AppProfilesAppsItem> itemAdapter;
-    private FastAdapter<AppProfilesAppsItem> fastAdapter;
+    private ItemAdapter<BlacklistAppsItem> itemAdapter;
+    private FastAdapter<BlacklistAppsItem> fastAdapter;
     private RecyclerView recyclerView;
     private Button addButton;
     private LinearLayoutManager layoutManager;
     private Parcelable layoutManagerState;
-    private CheckBox appBrightnessCheckbox;
     private TextView appBrightness;
     private TextView noApps;
     private SeekBar appBrightnessSeekbar;
     private LinearLayout appBrightnessRootHolder;
     private ExecutorService loadAppsExecutor;
+    private SharedPreferences prefs;
 
     public BlacklistFragment() {
     }
@@ -109,7 +109,13 @@ public class BlacklistFragment extends Fragment implements
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater,
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        prefs = PreferenceManager.getDefaultSharedPreferences(context);
+    }
+
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_blacklist, container, false);
         addButton = v.findViewById(R.id.blacklist_add_button);
@@ -117,8 +123,9 @@ public class BlacklistFragment extends Fragment implements
         recyclerView = v.findViewById(R.id.blacklist_recycler);
         layoutManager = new LinearLayoutManager(getContext());
 
-        Drawable deleteDrawable = ContextCompat.getDrawable(getContext(), R.drawable.ic_delete);
-        int deleteColour = ContextCompat.getColor(getContext(), R.color.blacklistDelete);
+        Context context = requireContext();
+        Drawable deleteDrawable = ContextCompat.getDrawable(context, R.drawable.ic_delete);
+        int deleteColour = ContextCompat.getColor(context, R.color.blacklistDelete);
         SimpleDragCallback touchCallback = new SimpleSwipeDragCallback(
                 this,
                 this,
@@ -139,17 +146,17 @@ public class BlacklistFragment extends Fragment implements
         addButton.setOnClickListener(view ->
                 // The delay is to let the ripple animation complete
                 new Handler().postDelayed(() -> {
-                    AppProfileActivityListener listener = ((AppProfileActivityListener) getActivity());
+                    BlacklistActivityListener listener = ((BlacklistActivityListener) getActivity());
                     if (listener != null)
                         listener.onShowPicker();
-                }, 150)
+                }, 200)
         );
 
         if (savedInstanceState != null) {
             layoutManagerState = savedInstanceState.getParcelable(KEY_LAYOUT_MANAGER_STATE);
             //noinspection unchecked
-            ArrayList<AppProfilesAppsItem> allAppItems =
-                    (ArrayList<AppProfilesAppsItem>) savedInstanceState
+            ArrayList<BlacklistAppsItem> allAppItems =
+                    (ArrayList<BlacklistAppsItem>) savedInstanceState
                             .getSerializable(KEY_NEW_APP_ITEM_LIST);
             fetchApps(allAppItems);
         } else if (itemAdapter.getAdapterItems() == null || itemAdapter.getAdapterItems().size() == 0)
@@ -199,7 +206,7 @@ public class BlacklistFragment extends Fragment implements
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putSerializable(KEY_NEW_APP_ITEM_LIST,
-                (ArrayList<AppProfilesAppsItem>) itemAdapter.getAdapterItems()
+                (ArrayList<BlacklistAppsItem>) itemAdapter.getAdapterItems()
         );
         if (layoutManager != null)
             outState.putParcelable(KEY_LAYOUT_MANAGER_STATE, layoutManager.onSaveInstanceState());
@@ -207,8 +214,8 @@ public class BlacklistFragment extends Fragment implements
     }
 
     @Override
-    public boolean onClick(View v, IAdapter<AppProfilesAppsItem> adapter, AppProfilesAppsItem item, int position) {
-        setupDialog(position, item.getAppName(), item.getStartUnderburn(), item.getBrightness());
+    public boolean onClick(View v, IAdapter<BlacklistAppsItem> adapter, BlacklistAppsItem item, int position) {
+        setupDialog(position, item.getAppName(), item.getBrightness());
         return true;
     }
 
@@ -218,7 +225,7 @@ public class BlacklistFragment extends Fragment implements
      *
      * @param apps The List of apps to show in the RecyclerView
      */
-    private void setListData(List<AppProfilesAppsItem> apps) {
+    private void setListData(List<BlacklistAppsItem> apps) {
         Activity activity = getActivity();
         if (activity != null)
             activity.runOnUiThread(() -> {
@@ -242,18 +249,13 @@ public class BlacklistFragment extends Fragment implements
      */
     @Override
     public void onAppPicked(BlacklistPickerItem item) {
-        Context context = getContext();
-        if (context != null) {
-            // Will always be true
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-            if (!prefs.getBoolean(KEY_APP_HELP_SHOWN, false)) {
-                prefs.edit()
-                        .putBoolean(KEY_APP_HELP_SHOWN, true)
-                        .apply();
-                showProfilesHelp();
-            }
+        if (!prefs.getBoolean(KEY_APP_HELP_SHOWN, false)) {
+            prefs.edit()
+                    .putBoolean(KEY_APP_HELP_SHOWN, true)
+                    .apply();
+            showProfilesHelp();
         }
-        AppProfilesAppsItem newItem = pickerToAppItem(item);
+        BlacklistAppsItem newItem = pickerToAppItem(item);
         if (checkUnique(itemAdapter.getAdapterItems(), newItem)) {
             itemAdapter.add(newItem);
             showApps();
@@ -277,13 +279,13 @@ public class BlacklistFragment extends Fragment implements
      * @param allAppItems If null, attempts to read the list from disk. Else sets icons to this
      *                    list.
      */
-    private void fetchApps(ArrayList<AppProfilesAppsItem> allAppItems) {
+    private void fetchApps(ArrayList<BlacklistAppsItem> allAppItems) {
         Context context = getContext();
         if (context == null || isWriting) {
             return;
         }
 
-        LoadProfilesAppsRunnable loadAppsRunnable = new LoadProfilesAppsRunnable(
+        ReadBlacklistRunnable loadAppsRunnable = new ReadBlacklistRunnable(
                 context.getApplicationContext(), allAppItems, this::setListData
         );
         isWriting = true;
@@ -295,19 +297,19 @@ public class BlacklistFragment extends Fragment implements
      */
     @Override
     public synchronized void onSaveNeeded() {
-        ArrayList<AppProfilesAppsItem> allAppItems =
-                (ArrayList<AppProfilesAppsItem>) itemAdapter.getAdapterItems();
+        ArrayList<BlacklistAppsItem> allAppItems =
+                (ArrayList<BlacklistAppsItem>) itemAdapter.getAdapterItems();
         Context context = getContext();
         if (context == null)
             return;
-        WriteProfilesAppsRunnable writeProfilesAppsRunnable = new WriteProfilesAppsRunnable(
+        WriteBlacklistRunnable writeProfilesAppsRunnable = new WriteBlacklistRunnable(
                 context, allAppItems
         );
         // This will return quickly, so just spawning a thread
         new Thread(writeProfilesAppsRunnable).start();
     }
 
-    private void setupDialog(int position, String appName, boolean behaviour, float brightness) {
+    private void setupDialog(int position, String appName, float brightness) {
         Context context = getContext();
         if (context == null)
             return;
@@ -317,23 +319,27 @@ public class BlacklistFragment extends Fragment implements
                 .customView(R.layout.blacklist_apps_behaviour_dialog_view, true)
                 .positiveText(R.string.ok)
                 .onPositive((dialog1, which) -> {
-                    // Item pos == 0 means "Start" is selected
+                    View v = dialog1.getCustomView();
+                    if (v == null)
+                        return;
+                    CheckBox checkBox = v.findViewById(R.id.app_brightness_checkbox);
                     updateListItem(position,
-                            appBrightnessCheckbox.isChecked() ? appBrightnessSeekbar.getProgress() : -1
+                            checkBox.isChecked() ? appBrightnessSeekbar.getProgress() : -1
                     );
                 })
                 .build();
 
-        LinearLayout appBrightnessCheckboxHolder = null;
+        LinearLayout appBrightnessCheckboxHolder;
         View customView = dialog.getCustomView();
-        if (customView != null) {
-            appBrightnessCheckbox = customView.findViewById(R.id.app_brightness_checkbox);
-            appBrightness = customView.findViewById(R.id.app_brightness);
-            appBrightnessSeekbar = customView.findViewById(R.id.app_brightness_seekbar);
-            appBrightnessCheckboxHolder = customView.findViewById(R.id.app_brightness_checkbox_holder);
-            appBrightnessRootHolder = customView.findViewById(R.id.app_brightness_root_holder);
-        } else
+
+        if (customView == null)
             return; // Won't happen
+
+        CheckBox appBrightnessCheckbox = customView.findViewById(R.id.app_brightness_checkbox);
+        appBrightness = customView.findViewById(R.id.app_brightness);
+        appBrightnessSeekbar = customView.findViewById(R.id.app_brightness_seekbar);
+        appBrightnessCheckboxHolder = customView.findViewById(R.id.app_brightness_checkbox_holder);
+        appBrightnessRootHolder = customView.findViewById(R.id.app_brightness_root_holder);
 
         appBrightnessCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
             animateView(appBrightnessSeekbar, isChecked);
@@ -343,9 +349,9 @@ public class BlacklistFragment extends Fragment implements
                 appBrightness.setText(R.string.sett_blacklist_brightness_unchanged);
         });
 
-        appBrightnessCheckboxHolder.setOnClickListener(v -> {
-            appBrightnessCheckbox.setChecked(!appBrightnessCheckbox.isChecked());
-        });
+        appBrightnessCheckboxHolder.setOnClickListener(v ->
+                appBrightnessCheckbox.setChecked(!appBrightnessCheckbox.isChecked())
+        );
 
         appBrightnessSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -356,12 +362,10 @@ public class BlacklistFragment extends Fragment implements
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-
             }
         });
 
@@ -376,13 +380,13 @@ public class BlacklistFragment extends Fragment implements
     private void updateListItem(int position, float brightness) {
         if (brightness > -1)
             brightness = brightness * 2.55F;    // As the parameter is in percentages
-        AppProfilesAppsItem item = itemAdapter.getAdapterItem(position);
+        BlacklistAppsItem item = itemAdapter.getAdapterItem(position);
         item.setAppBehaviour(false);
         // As brightness cannot be changed if behaviour == true
         item.setAppBrightness(brightness);
         itemAdapter.remove(position);
         itemAdapter.add(position, item);
-        AppProfileActivityListener listener = ((AppProfileActivityListener) getActivity());
+        BlacklistActivityListener listener = ((BlacklistActivityListener) getActivity());
         if (listener != null)
             listener.onAppChanged();
     }
@@ -399,7 +403,7 @@ public class BlacklistFragment extends Fragment implements
         itemAdapter.remove(position);
         if (itemAdapter.getAdapterItemCount() == 0)
             showNoApps();
-        AppProfileActivityListener listener = ((AppProfileActivityListener) getActivity());
+        BlacklistActivityListener listener = ((BlacklistActivityListener) getActivity());
         if (listener != null)
             listener.onAppChanged();
     }

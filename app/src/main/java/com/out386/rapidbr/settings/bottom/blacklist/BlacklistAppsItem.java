@@ -35,7 +35,7 @@ import com.out386.rapidbr.R;
 import java.io.Serializable;
 import java.util.List;
 
-public class AppProfilesAppsItem extends AbstractItem<AppProfilesAppsItem, AppProfilesAppsItem.ViewHolder> implements Serializable {
+public class BlacklistAppsItem extends AbstractItem<BlacklistAppsItem, BlacklistAppsItem.ViewHolder> implements Serializable {
 
     private static final float DEFAULT_BRIGHTNESS = 178.5f;     // 70% of 255
     private String packageName;
@@ -44,14 +44,14 @@ public class AppProfilesAppsItem extends AbstractItem<AppProfilesAppsItem, AppPr
     /**
      * True means, "Start"
      */
-    private boolean startUnderburn = false;
-    private float brightness = DEFAULT_BRIGHTNESS;  // Float to reduce rounding errors when displaying as a percentage
+    private boolean startRapidbr;
+    private float brightness;
 
-    private AppProfilesAppsItem(AppProfilesAppsItem.Builder builder) {
+    private BlacklistAppsItem(BlacklistAppsItem.Builder builder) {
         appName = builder.appName;
         appIcon = builder.appIcon;
         packageName = builder.packageName;
-        startUnderburn = builder.behaviour;
+        startRapidbr = builder.behaviour;
         brightness = builder.brightness;
     }
 
@@ -62,52 +62,53 @@ public class AppProfilesAppsItem extends AbstractItem<AppProfilesAppsItem, AppPr
 
     @Override
     public int getLayoutRes() {
-        return R.layout.app_profiles_apps_item;
+        return R.layout.blacklist_apps_item;
     }
 
+    @NonNull
     @Override
     public ViewHolder getViewHolder(@NonNull View v) {
         return new ViewHolder(v);
     }
 
-    public String getPackageName() {
+    String getPackageName() {
         return packageName;
     }
 
-    public String getAppName() {
+    String getAppName() {
         return appName;
     }
 
     /**
-     * Getter for startUnderburn
+     * Getter for startRapidbr
      *
-     * @return True to start Underburn. False otherwise.
+     * @return True to start RapidBr. False otherwise.
      */
-    public boolean getStartUnderburn() {
-        return startUnderburn;
+    boolean getStartRapidbr() {
+        return startRapidbr;
     }
 
     /**
-     * @return The brightness to be used for this app, between -1F to 255F.
-     * -1F means brightness will be unchanged
+     * @return The brightness to be used for this app, between -1F to 255F. -1F means brightness
+     * will be unchanged
      */
-    public float getBrightness() {
+    float getBrightness() {
         return brightness;
     }
 
-    public void setAppIcon(Bitmap appIcon) {
+    void setAppIcon(Bitmap appIcon) {
         this.appIcon = appIcon;
     }
 
-    public void setAppBehaviour(boolean behaviour) {
-        this.startUnderburn = behaviour;
+    void setAppBehaviour(boolean behaviour) {
+        this.startRapidbr = behaviour;
     }
 
     /**
-     * Set the brightness to be used for this app, between -1 to 255.
-     * -1 means brightness will be unchanged
+     * Set the brightness to be used for this app, between -1 to 255. -1 means brightness will be
+     * unchanged
      */
-    public void setAppBrightness(float brightness) {
+    void setAppBrightness(float brightness) {
         if (brightness < -1)
             brightness = -1;
         else if (brightness > 255)
@@ -115,7 +116,7 @@ public class AppProfilesAppsItem extends AbstractItem<AppProfilesAppsItem, AppPr
         this.brightness = brightness;
     }
 
-    protected static class ViewHolder extends FastAdapter.ViewHolder<AppProfilesAppsItem> {
+    protected static class ViewHolder extends FastAdapter.ViewHolder<BlacklistAppsItem> {
         TextView name;
         TextView behaviour;
         TextView brightness;
@@ -130,9 +131,9 @@ public class AppProfilesAppsItem extends AbstractItem<AppProfilesAppsItem, AppPr
         }
 
         @Override
-        public void bindView(AppProfilesAppsItem item, List<Object> payloads) {
+        public void bindView(BlacklistAppsItem item, List<Object> payloads) {
             name.setText(item.appName);
-            if (item.startUnderburn) {
+            if (item.startRapidbr) {
                 behaviour.setText(R.string.sett_blacklist_on_stop);
                 brightness.setVisibility(View.GONE);
             } else {
@@ -154,7 +155,7 @@ public class AppProfilesAppsItem extends AbstractItem<AppProfilesAppsItem, AppPr
         }
 
         @Override
-        public void unbindView(AppProfilesAppsItem item) {
+        public void unbindView(BlacklistAppsItem item) {
             name.setText(null);
             behaviour.setText(null);
             brightness.setText(null);
@@ -170,33 +171,33 @@ public class AppProfilesAppsItem extends AbstractItem<AppProfilesAppsItem, AppPr
         private float brightness = DEFAULT_BRIGHTNESS;
         private Bitmap appIcon;
 
-        public AppProfilesAppsItem.Builder withPackage(String name) {
+        BlacklistAppsItem.Builder withPackage(String name) {
             this.packageName = name;
             return this;
         }
 
-        public AppProfilesAppsItem.Builder withName(String name) {
+        BlacklistAppsItem.Builder withName(String name) {
             this.appName = name;
             return this;
         }
 
-        public AppProfilesAppsItem.Builder withBehaviour(boolean behaviour) {
+        public BlacklistAppsItem.Builder withBehaviour(boolean behaviour) {
             this.behaviour = behaviour;
             return this;
         }
 
-        public AppProfilesAppsItem.Builder withBrightness(float brightness) {
+        public BlacklistAppsItem.Builder withBrightness(float brightness) {
             this.brightness = brightness;
             return this;
         }
 
-        public AppProfilesAppsItem.Builder withIcon(Bitmap icon) {
+        BlacklistAppsItem.Builder withIcon(Bitmap icon) {
             this.appIcon = icon;
             return this;
         }
 
-        public AppProfilesAppsItem build() {
-            return new AppProfilesAppsItem(this);
+        BlacklistAppsItem build() {
+            return new BlacklistAppsItem(this);
         }
     }
 }

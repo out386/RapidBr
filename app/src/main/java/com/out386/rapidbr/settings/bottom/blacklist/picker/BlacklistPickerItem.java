@@ -52,7 +52,7 @@ public class BlacklistPickerItem extends AbstractItem<BlacklistPickerItem, Black
 
     @Override
     public int getLayoutRes() {
-        return R.layout.app_profiles_picker_item;
+        return R.layout.blacklist_picker_item;
     }
 
     @Override
@@ -95,28 +95,27 @@ public class BlacklistPickerItem extends AbstractItem<BlacklistPickerItem, Black
         }
     }
 
-    public static class Builder {
-
+    static class Builder {
         private String packageName;
         private String appName;
         private Bitmap appIcon;
 
-        public BlacklistPickerItem.Builder withPackage(String name) {
+        BlacklistPickerItem.Builder withPackage(String name) {
             this.packageName = name;
             return this;
         }
 
-        public BlacklistPickerItem.Builder withName(String name) {
+        BlacklistPickerItem.Builder withName(String name) {
             this.appName = name;
             return this;
         }
 
-        public BlacklistPickerItem.Builder withIcon(Bitmap icon) {
+        BlacklistPickerItem.Builder withIcon(Bitmap icon) {
             this.appIcon = icon;
             return this;
         }
 
-        public BlacklistPickerItem build() {
+        BlacklistPickerItem build() {
             return new BlacklistPickerItem(this);
         }
     }

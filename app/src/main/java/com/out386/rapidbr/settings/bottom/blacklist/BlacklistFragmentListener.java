@@ -1,4 +1,4 @@
-package com.out386.rapidbr.settings.bottom.blacklist.picker;
+package com.out386.rapidbr.settings.bottom.blacklist;
 
 /*
  * Copyright (C) 2019 Ritayan Chakraborty <ritayanout@gmail.com>
@@ -20,24 +20,18 @@ package com.out386.rapidbr.settings.bottom.blacklist.picker;
  *
  */
 
-public interface AppProfileActivityListener {
-    /**
-     * Called when an app needs to be picked by
-     * {@link BlacklistPickerFragment}
-     */
-    void onShowPicker();
+import com.out386.rapidbr.settings.bottom.blacklist.picker.BlacklistPickerItem;
 
+public interface BlacklistFragmentListener {
     /**
-     * Called when an app has been picked in
-     * {@link BlacklistPickerFragment}
+     * Called when an app was picked in {@link com.out386.rapidbr.settings.bottom.blacklist.picker.BlacklistPickerFragment}
      *
      * @param item The item representing the app that was just picked.
      */
     void onAppPicked(BlacklistPickerItem item);
 
     /**
-     * Called when the entry for an app has been modified. This means that the list needs saving.
+     * Called when the internal list has to be saved because the fragment is being removed.
      */
-    void onAppChanged();
-
+    void onSaveNeeded();
 }

@@ -30,16 +30,16 @@ import android.provider.Settings;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
-import android.view.MenuItem;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.out386.rapidbr.R;
-import com.out386.rapidbr.settings.bottom.blacklist.picker.AppProfileActivityListener;
+import com.out386.rapidbr.settings.bottom.blacklist.picker.BlacklistActivityListener;
 import com.out386.rapidbr.settings.bottom.blacklist.picker.BlacklistPickerFragment;
 import com.out386.rapidbr.settings.bottom.blacklist.picker.BlacklistPickerItem;
 import com.out386.rapidbr.utils.GenericDialogFragment;
@@ -47,13 +47,13 @@ import com.out386.rapidbr.utils.GenericDialogFragment;
 import static android.app.AppOpsManager.MODE_ALLOWED;
 import static android.app.AppOpsManager.OPSTR_GET_USAGE_STATS;
 
-public class BlacklistActivity extends AppCompatActivity implements AppProfileActivityListener {
+public class BlacklistActivity extends AppCompatActivity implements BlacklistActivityListener {
 
-    private static final String APP_FRAGMENT_TAG = "appFragment";
+    private static final String BLACKLIST_FRAGMENT_TAG = "blacklistFragment";
     private static final String KEY_BLOCK_BACK = "isSaveNeeded";
 
     private boolean isSaveNeeded = false;
-    private BlacklistFragment appFragment;
+    private BlacklistFragment blacklistFragment;
     private GenericDialogFragment dialog;
 
     @Override
@@ -62,31 +62,23 @@ public class BlacklistActivity extends AppCompatActivity implements AppProfileAc
         setContentView(R.layout.activity_blacklist);
 
         if (savedInstanceState == null) {
-            appFragment = new BlacklistFragment();
-            changeFragment(appFragment, APP_FRAGMENT_TAG, false);
+            blacklistFragment = new BlacklistFragment();
+            changeFragment(blacklistFragment, BLACKLIST_FRAGMENT_TAG, false);
         } else {
             isSaveNeeded = savedInstanceState.getBoolean(KEY_BLOCK_BACK);
-            appFragment = (BlacklistFragment) getSupportFragmentManager().findFragmentByTag(APP_FRAGMENT_TAG);
-            if (appFragment == null)
-                appFragment = new BlacklistFragment();
+            blacklistFragment = (BlacklistFragment) getSupportFragmentManager()
+                    .findFragmentByTag(BLACKLIST_FRAGMENT_TAG);
+            if (blacklistFragment == null)
+                blacklistFragment = new BlacklistFragment();
         }
 
         setupToolbarText();
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putBoolean(KEY_BLOCK_BACK, isSaveNeeded);
         super.onSaveInstanceState(outState);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -97,8 +89,8 @@ public class BlacklistActivity extends AppCompatActivity implements AppProfileAc
 
     @Override
     public void onAppPicked(BlacklistPickerItem item) {
-        if (appFragment != null)
-            appFragment.onAppPicked(item);
+        if (blacklistFragment != null)
+            blacklistFragment.onAppPicked(item);
         onBackPressed();
         isSaveNeeded = true;
     }
@@ -121,9 +113,9 @@ public class BlacklistActivity extends AppCompatActivity implements AppProfileAc
         if (!isSaveNeeded)
             super.onBackPressed();
         else {
-            if (appFragment != null)
-                appFragment.onSaveNeeded();
-            isSaveNeeded = false; // Outside above "if" just in case appFragment somehow became null.
+            if (blacklistFragment != null)
+                blacklistFragment.onSaveNeeded();
+            isSaveNeeded = false; // Outside above "if" just in case blacklistFragment somehow became null.
             onBackPressed();    // Better to not save than get the user stuck
         }
     }
@@ -154,7 +146,7 @@ public class BlacklistActivity extends AppCompatActivity implements AppProfileAc
             fragmentTransaction
                     .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left,
                             R.anim.slide_in_left, R.anim.slide_out_right);
-        // AppProfilesAppsFragment is only used once, when the activity starts, so not adding animations for that.
+        // BlacklistAppsFragment is only used once, when the activity starts, so not adding animations for that.
 
         fragmentTransaction
                 .replace(R.id.app_blacklist_frame, fragment, tag);
@@ -164,7 +156,8 @@ public class BlacklistActivity extends AppCompatActivity implements AppProfileAc
     }
 
     /**
-     * @return 0 if this app does not have Usage access, 1 if it does, -1 if it can't be granted that permission
+     * @return 0 if this app does not have Usage access, 1 if it does, -1 if it can't be granted
+     * that permission
      */
     private int checkUsagePermission() {
         Context context = getApplicationContext();
@@ -202,7 +195,8 @@ public class BlacklistActivity extends AppCompatActivity implements AppProfileAc
         if (code == 0) {
             dialog.setTitle(getString(R.string.sett_blacklist_no_usage_access_title))
                     .setMessage(getString(R.string.sett_blacklist_no_usage_access))
-                    .setOnPositiveButtonTappedListener(() -> startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)));
+                    .setOnPositiveButtonTappedListener(() ->
+                            startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)));
         } else if (code == -1) {
             dialog.setTitle(getString(R.string.sett_blacklist_usage_access_unsupported))
                     .setMessage(getString(R.string.sett_blacklist_usage_access_unsupported_title));

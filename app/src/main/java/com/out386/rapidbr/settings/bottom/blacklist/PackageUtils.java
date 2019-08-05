@@ -36,22 +36,13 @@ import com.out386.rapidbr.settings.bottom.blacklist.picker.BlacklistPickerItem;
 import java.util.List;
 
 public class PackageUtils {
-    private static final String[] PROFILE_UNAVAILABLE_APPS = {"com.out386.underburn", "com.out386.underburn.trial"};
 
     public static String getAppName(PackageManager pm, String packageName, ApplicationInfo applicationInfo) {
         if (applicationInfo != null) {
             CharSequence name = pm.getApplicationLabel(applicationInfo);
-            return (name == null || "".equals(name)) ? packageName : name.toString();
+            return (name == null || "".contentEquals(name)) ? packageName : name.toString();
         } else
             return packageName;
-    }
-
-    public static boolean checkAppAvailableForProfiles(String packageName) {
-        for (String profilePackageName : PROFILE_UNAVAILABLE_APPS) {
-            if (profilePackageName.equals(packageName))
-                return false;
-        }
-        return true;
     }
 
     /**
@@ -80,7 +71,7 @@ public class PackageUtils {
         return appIcon;
     }
 
-    public static void setIcon(Context context, PackageManager packageManager, AppProfilesAppsItem app) {
+    public static void setIcon(Context context, PackageManager packageManager, BlacklistAppsItem app) {
         app.setAppIcon(getIcon(context, packageManager, app.getPackageName()));
     }
 
@@ -96,14 +87,13 @@ public class PackageUtils {
     }
 
     /**
-     * Takes an AppProfilesPickerItem and copies its contents to an AppProfilesAppsItem. Does not
-     * copy the icon, to allow serialization
+     * Takes an BlacklistPickerItem and sets its contents to an BlacklistAppsItem.
      *
-     * @param item The AppProfilesPickerItem to copy
-     * @return The AppProfilesAppsItem containing the data from item
+     * @param item The target BlacklistPickerItem
+     * @return The BlacklistAppsItem containing the data from {@code item}
      */
-    public static AppProfilesAppsItem pickerToAppItem(BlacklistPickerItem item) {
-        return new AppProfilesAppsItem.Builder()
+    static BlacklistAppsItem pickerToAppItem(BlacklistPickerItem item) {
+        return new BlacklistAppsItem.Builder()
                 .withPackage(item.getPackageName())
                 .withName(item.getAppName())
                 .withIcon(item.getAppIcon())
@@ -118,11 +108,11 @@ public class PackageUtils {
      * @param newItem The item to search for
      * @return True if the item is unique, false otherwise
      */
-    public static boolean checkUnique(List<AppProfilesAppsItem> apps, AppProfilesAppsItem newItem) {
+    static boolean checkUnique(List<BlacklistAppsItem> apps, BlacklistAppsItem newItem) {
         if (newItem == null)
             return false;
         for (int i = 0; i < apps.size(); i++) {
-            AppProfilesAppsItem current = apps.get(i);
+            BlacklistAppsItem current = apps.get(i);
             if (current.getPackageName().equals(newItem.getPackageName())) {
                 return false;
             }

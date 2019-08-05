@@ -22,7 +22,7 @@ package com.out386.rapidbr.settings.bottom.blacklist.io;
 
 import android.content.Context;
 
-import com.out386.rapidbr.settings.bottom.blacklist.AppProfilesAppsItem;
+import com.out386.rapidbr.settings.bottom.blacklist.BlacklistAppsItem;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -32,9 +32,9 @@ import java.util.List;
 
 import static com.out386.rapidbr.settings.bottom.blacklist.BlacklistFragment.FILE_APP_PROFILES_APPS_LIST;
 
-public class WriteProfilesAppsRunnable implements Runnable {
+public class WriteBlacklistRunnable implements Runnable {
     private Context context;
-    private List<AppProfilesAppsItem> items;
+    private List<BlacklistAppsItem> items;
 
     /**
      * Writes the given List to disk
@@ -42,7 +42,7 @@ public class WriteProfilesAppsRunnable implements Runnable {
      * @param context The Application Context
      * @param items   The List to write to disk
      */
-    public WriteProfilesAppsRunnable(Context context, List<AppProfilesAppsItem> items) {
+    public WriteBlacklistRunnable(Context context, List<BlacklistAppsItem> items) {
         this.context = context;
         this.items = items;
     }

@@ -14,8 +14,8 @@
     <string name="sett_sched_stop_title">Stop time</string>
     <string name="sett_sched_stop_desc">Stop RapidBr every day at this time: %s.</string>
     <string name="sett_br_colour_desc">Set the color of the floating brightness icon.</string>
-    <string name="sett_blacklist_desc">Pause and resume RapidBr based on which app is currently
-        open. Use this if you do not use Tasker integration.</string>
+    <string name="sett_blacklist_desc">Pause RapidBr based on which app is currently open.
+        Use this if you do not use Tasker integration. Swipe an item left or right to delete it.</string>
     <string name="sett_blacklist_enable">Enable app blacklist</string>
     <string name="sett_blacklist_pick_prompt">Tap an app below to add it to the blacklist</string>
 </resources>

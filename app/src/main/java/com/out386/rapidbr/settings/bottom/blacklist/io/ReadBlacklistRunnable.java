@@ -25,7 +25,7 @@ import android.content.pm.PackageManager;
 
 import androidx.annotation.Nullable;
 
-import com.out386.rapidbr.settings.bottom.blacklist.AppProfilesAppsItem;
+import com.out386.rapidbr.settings.bottom.blacklist.BlacklistAppsItem;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,23 +37,21 @@ import java.util.List;
 import static com.out386.rapidbr.settings.bottom.blacklist.BlacklistFragment.FILE_APP_PROFILES_APPS_LIST;
 import static com.out386.rapidbr.settings.bottom.blacklist.PackageUtils.setIcon;
 
-public class LoadProfilesAppsRunnable implements Runnable {
+public class ReadBlacklistRunnable implements Runnable {
     private PackageManager packageManager;
     private LoadProfilesAppsListener listener;
     private Context context;
-    private List<AppProfilesAppsItem> includeItems;
+    private List<BlacklistAppsItem> includeItems;
 
     /**
-     * Constructor for LoadProfilesAppsRunnable.
-     * If includeItems is null, read previously saved list from disk, set icons,
-     * and call the listener.
-     * Else set icons to the items in #includeItems, and call the listener.
+     * If includeItems is null, read previously saved list from disk, set icons, and call the
+     * listener. Else set icons to the items in #includeItems, and call the listener.
      *
      * @param context      The Application Context
      * @param includeItems Can be null
      * @param listener     The listener to call after reading the list.
      */
-    public LoadProfilesAppsRunnable(Context context, List<AppProfilesAppsItem> includeItems, LoadProfilesAppsListener listener) {
+    public ReadBlacklistRunnable(Context context, List<BlacklistAppsItem> includeItems, LoadProfilesAppsListener listener) {
         this.context = context;
         this.packageManager = context.getPackageManager();
         this.listener = listener;
@@ -70,14 +68,14 @@ public class LoadProfilesAppsRunnable implements Runnable {
         }
 
         ObjectInputStream objectInputStream;
-        List<AppProfilesAppsItem> apps;
+        List<BlacklistAppsItem> apps;
         File file = null;
         try {
             file = new File(context.getFilesDir().getAbsolutePath(), FILE_APP_PROFILES_APPS_LIST);
             FileInputStream inputStream = new FileInputStream(file);
             objectInputStream = new ObjectInputStream(inputStream);
             //noinspection unchecked
-            apps = (List<AppProfilesAppsItem>) objectInputStream.readObject();
+            apps = (List<BlacklistAppsItem>) objectInputStream.readObject();
             objectInputStream.close();
         } catch (IOException | ClassNotFoundException e) {
             if (!(e instanceof FileNotFoundException)) {
@@ -94,14 +92,14 @@ public class LoadProfilesAppsRunnable implements Runnable {
         listener.onAppsLoaded(apps);
     }
 
-    private void setIcons(List<AppProfilesAppsItem> apps) {
-        for (AppProfilesAppsItem appsItem : apps) {
+    private void setIcons(List<BlacklistAppsItem> apps) {
+        for (BlacklistAppsItem appsItem : apps) {
             setIcon(context, packageManager, appsItem);
         }
     }
 
     public interface LoadProfilesAppsListener {
-        void onAppsLoaded(@Nullable List<AppProfilesAppsItem> apps);
+        void onAppsLoaded(@Nullable List<BlacklistAppsItem> apps);
     }
 
 }
