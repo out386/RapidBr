@@ -167,11 +167,11 @@ public class BlacklistFragment extends Fragment implements
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
 
-                if (dy < 5) {
+                if (dy < 1) {
                     addButton.animate()
                             .setDuration(animTime)
                             .translationY(0);
-                } else if (dy > 5) {
+                } else if (dy > 1) {
                     addButton.animate()
                             .setDuration(animTime)
                             .translationY(addButton.getHeight() << 1);
