@@ -23,12 +23,10 @@ package com.out386.rapidbr.settings.bottom.blacklist;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
-import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,7 +39,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -60,7 +57,6 @@ import com.out386.rapidbr.settings.bottom.blacklist.io.ReadBlacklistRunnable;
 import com.out386.rapidbr.settings.bottom.blacklist.io.WriteBlacklistRunnable;
 import com.out386.rapidbr.settings.bottom.blacklist.picker.BlacklistActivityListener;
 import com.out386.rapidbr.settings.bottom.blacklist.picker.BlacklistPickerItem;
-import com.out386.rapidbr.utils.GenericDialogFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -92,7 +88,6 @@ public class BlacklistFragment extends Fragment implements
     private SeekBar appBrightnessSeekbar;
     private LinearLayout appBrightnessRootHolder;
     private ExecutorService loadAppsExecutor;
-    private SharedPreferences prefs;
 
     public BlacklistFragment() {
     }
@@ -106,12 +101,6 @@ public class BlacklistFragment extends Fragment implements
                 .withSelectable(true)
                 .withOnClickListener(this);
         loadAppsExecutor = Executors.newSingleThreadExecutor();
-    }
-
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        prefs = PreferenceManager.getDefaultSharedPreferences(context);
     }
 
     @Override
@@ -249,27 +238,11 @@ public class BlacklistFragment extends Fragment implements
      */
     @Override
     public void onAppPicked(BlacklistPickerItem item) {
-        if (!prefs.getBoolean(KEY_APP_HELP_SHOWN, false)) {
-            prefs.edit()
-                    .putBoolean(KEY_APP_HELP_SHOWN, true)
-                    .apply();
-            showProfilesHelp();
-        }
         BlacklistAppsItem newItem = pickerToAppItem(item);
         if (checkUnique(itemAdapter.getAdapterItems(), newItem)) {
             itemAdapter.add(newItem);
             showApps();
         }
-    }
-
-    private void showProfilesHelp() {
-        FragmentManager manager = getFragmentManager();
-        if (manager == null)
-            return; // Won't be hit
-        GenericDialogFragment.newInstance()
-                .setTitle(getString(R.string.sett_blacklist_help_title))
-                .setMessage(getString(R.string.sett_blacklist_help_text))
-                .show(manager, null);
     }
 
     /**
