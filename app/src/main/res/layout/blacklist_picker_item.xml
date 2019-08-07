@@ -28,7 +28,7 @@
         android:layout_toEndOf="@id/app_icon"
         android:paddingEnd="10dp"
         android:paddingStart="40dp"
-        style="@style/GeneralBodyText"
+        style="@style/GeneralSubHeaderText"
         tools:text="Long app name" />
 
 </RelativeLayout>
