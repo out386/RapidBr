@@ -1,4 +1,4 @@
-package com.out386.underburn.services;
+package com.out386.rapidbr.services;
 
 import android.annotation.TargetApi;
 import android.app.Service;
@@ -19,7 +19,6 @@ import android.os.IBinder;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -28,9 +27,10 @@ import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 
-import com.out386.underburn.R;
-import com.out386.underburn.tools.BasicUtils;
-import com.out386.underburn.tools.DimenUtils;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
+import com.out386.rapidbr.R;
+import com.out386.rapidbr.utils.DimenUtils;
 
 public class BrightnessOverlayService extends Service implements View.OnTouchListener {
 
@@ -421,7 +421,8 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         public void run() {
             moveWasBrightness = false;
             Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-            v.vibrate(100);
+            if (v != null)
+                v.vibrate(100);
             scaleSlider(true);
         }
     }

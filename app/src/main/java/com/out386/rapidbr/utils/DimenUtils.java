@@ -1,4 +1,4 @@
-package com.out386.underburn.tools;
+package com.out386.rapidbr.utils;
 
 /*
  * Copyright (C) 2019 Ritayan Chakraborty <ritayanout@gmail.com>
