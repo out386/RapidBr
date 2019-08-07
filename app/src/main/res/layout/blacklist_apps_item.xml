@@ -38,15 +38,6 @@
             tools:text="Long app name" />
 
         <TextView
-            android:id="@+id/app_behaviour"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingBottom="2dp"
-            android:paddingTop="2dp"
-            style="@style/GeneralBodyText"
-            tools:text="Stop Underburn on app start" />
-
-        <TextView
             android:id="@+id/app_brightness"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

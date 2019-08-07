@@ -354,8 +354,6 @@ public class BlacklistFragment extends Fragment implements
         if (brightness > -1)
             brightness = brightness * 2.55F;    // As the parameter is in percentages
         BlacklistAppsItem item = itemAdapter.getAdapterItem(position);
-        item.setAppBehaviour(false);
-        // As brightness cannot be changed if behaviour == true
         item.setAppBrightness(brightness);
         itemAdapter.remove(position);
         itemAdapter.add(position, item);

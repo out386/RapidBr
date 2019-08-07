@@ -41,17 +41,12 @@ public class BlacklistAppsItem extends AbstractItem<BlacklistAppsItem, Blacklist
     private String packageName;
     private String appName;
     private transient Bitmap appIcon;
-    /**
-     * True means, "Start"
-     */
-    private boolean startRapidbr;
     private float brightness;
 
     private BlacklistAppsItem(BlacklistAppsItem.Builder builder) {
         appName = builder.appName;
         appIcon = builder.appIcon;
         packageName = builder.packageName;
-        startRapidbr = builder.behaviour;
         brightness = builder.brightness;
     }
 
@@ -80,15 +75,6 @@ public class BlacklistAppsItem extends AbstractItem<BlacklistAppsItem, Blacklist
     }
 
     /**
-     * Getter for startRapidbr
-     *
-     * @return True to start RapidBr. False otherwise.
-     */
-    boolean getStartRapidbr() {
-        return startRapidbr;
-    }
-
-    /**
      * @return The brightness to be used for this app, between -1F to 255F. -1F means brightness
      * will be unchanged
      */
@@ -98,10 +84,6 @@ public class BlacklistAppsItem extends AbstractItem<BlacklistAppsItem, Blacklist
 
     void setAppIcon(Bitmap appIcon) {
         this.appIcon = appIcon;
-    }
-
-    void setAppBehaviour(boolean behaviour) {
-        this.startRapidbr = behaviour;
     }
 
     /**
@@ -118,14 +100,12 @@ public class BlacklistAppsItem extends AbstractItem<BlacklistAppsItem, Blacklist
 
     protected static class ViewHolder extends FastAdapter.ViewHolder<BlacklistAppsItem> {
         TextView name;
-        TextView behaviour;
         TextView brightness;
         ImageView icon;
 
         ViewHolder(View view) {
             super(view);
             name = view.findViewById(R.id.app_name);
-            behaviour = view.findViewById(R.id.app_behaviour);
             brightness = view.findViewById(R.id.app_brightness);
             icon = view.findViewById(R.id.app_icon);
         }
@@ -133,23 +113,18 @@ public class BlacklistAppsItem extends AbstractItem<BlacklistAppsItem, Blacklist
         @Override
         public void bindView(BlacklistAppsItem item, List<Object> payloads) {
             name.setText(item.appName);
-            if (item.startRapidbr) {
-                behaviour.setText(R.string.sett_blacklist_on_stop);
-                brightness.setVisibility(View.GONE);
-            } else {
-                behaviour.setText("FIX THIS");
-                brightness.setVisibility(View.VISIBLE);
-                Context context = brightness.getContext();
-                String text;
-                if (item.brightness == -1.0F)
-                    text = context.getString(R.string.sett_blacklist_unchanged);
-                else {
-                    String message = context.getString(R.string.sett_blacklist_changed);
-                    int brightnessPercent = (int) (item.brightness / 2.55F);
-                    text = String.format(message, brightnessPercent);
-                }
-                brightness.setText(text);
+            brightness.setVisibility(View.VISIBLE);
+            Context context = brightness.getContext();
+            String text;
+            if (item.brightness == -1.0F)
+                text = context.getString(R.string.sett_blacklist_unchanged);
+            else {
+                String message = context.getString(R.string.sett_blacklist_changed);
+                int brightnessPercent = (int) (item.brightness / 2.55F);
+                text = String.format(message, brightnessPercent);
             }
+            brightness.setText(text);
+
 
             icon.setImageBitmap(item.appIcon);
         }
@@ -157,7 +132,6 @@ public class BlacklistAppsItem extends AbstractItem<BlacklistAppsItem, Blacklist
         @Override
         public void unbindView(BlacklistAppsItem item) {
             name.setText(null);
-            behaviour.setText(null);
             brightness.setText(null);
             icon.setImageDrawable(null);
         }
@@ -167,7 +141,6 @@ public class BlacklistAppsItem extends AbstractItem<BlacklistAppsItem, Blacklist
 
         private String packageName;
         private String appName;
-        private boolean behaviour = false;
         private float brightness = DEFAULT_BRIGHTNESS;
         private Bitmap appIcon;
 
@@ -178,11 +151,6 @@ public class BlacklistAppsItem extends AbstractItem<BlacklistAppsItem, Blacklist
 
         BlacklistAppsItem.Builder withName(String name) {
             this.appName = name;
-            return this;
-        }
-
-        public BlacklistAppsItem.Builder withBehaviour(boolean behaviour) {
-            this.behaviour = behaviour;
             return this;
         }
 
