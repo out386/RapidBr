@@ -13,6 +13,7 @@ import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.net.Uri;
+import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
@@ -32,6 +33,8 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.out386.rapidbr.R;
 import com.out386.rapidbr.utils.DimenUtils;
 
+import java.lang.ref.WeakReference;
+
 public class BrightnessOverlayService extends Service implements View.OnTouchListener {
 
     public static final String KEY_OVERLAY_X = "overlayX";
@@ -46,6 +49,8 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     private static final int BUTTON_TOUCH_SLOP = 15;
     private static final int BRIGHTNESS_CHANGE_FACTOR = 20;
     private static final int BRIGHTNESS_CHANGE_FACTOR_LOW = 40;
+    public static float screenDimAmount = 0.0f;
+    private final BrightnessBinder binder = new BrightnessBinder();
     private View topLeftView;
     private ImageView brightnessSlider;
     private View dimView;
@@ -72,7 +77,10 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     private SharedPreferences prefs;
     private float imageAlpha;
     private int alertType;
-    public static float screenDimAmount = 0.0f;
+    private int initialSliderX;
+    private int initialSliderY;
+    private boolean isOverlayRunning;
+    private WeakReference<OnBrightnessStatusChangeListener> listener;
     private BroadcastReceiver screenDimReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -85,7 +93,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
 
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        return binder;
     }
 
     @Override
@@ -100,14 +108,18 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         imageAlpha /= 100F;
 
         display = this.getResources().getDisplayMetrics();
-        int sliderX = prefs.getInt(KEY_OVERLAY_X, 0);
         // As there's a new type in O
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             alertType = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
         else
             alertType = WindowManager.LayoutParams.TYPE_SYSTEM_ERROR;
+        initialSliderX = prefs.getInt(KEY_OVERLAY_X, 0);
+        initialSliderY = prefs.getInt(KEY_OVERLAY_Y, 300);
+    }
 
-        setupBrightnessButton(sliderX, alertType);
+    public void startOverlay() {
+        isOverlayRunning = true;
+        setupBrightnessButton(alertType);
         setupReferenceView(alertType);
         if (screenDimAmount > 0.0f)
             setupDimmerView();
@@ -119,15 +131,58 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
             if (brightnessSlider != null)
                 brightnessSlider.animate()
                         .translationX(
-                                (brightnessSlider.getWidth() / 2F) * (sliderX <= 10 ? -1 : 1)) //Move button left or right
+                                (brightnessSlider.getWidth() / 2F) * (initialSliderX <= 10 ? -1 : 1)) //Move button left or right
                         .setDuration(500)
                         .alpha(imageAlpha)
                         .start();
         }, 1000);
 
+        if (listener != null) {
+            OnBrightnessStatusChangeListener l = listener.get();
+            if (l != null)
+                l.onBrServiceStatusChanged(true);
+        }
     }
 
-    private void setupBrightnessButton(int sliderX, int alertType) {
+    public void pauseOverlay() {
+        isOverlayRunning = false;
+        screenDimAmount = 0.0f;
+        if (brightnessSlider != null) {
+            int[] location = new int[2];
+            brightnessSlider.getLocationOnScreen(location);
+            int[] topLeftLocationOnScreen = new int[2];
+            topLeftView.getLocationOnScreen(topLeftLocationOnScreen);
+            int xPos = location[0];
+            int yPos = location[1];
+            // TODO: yPos will get changed in action down, but if service is shut down before action up, it will not be what it should. Fix this.
+            prefs.edit()
+                    .putInt(KEY_OVERLAY_X, xPos)
+                    .putInt(KEY_OVERLAY_Y, yPos - topLeftLocationOnScreen[1])
+                    .apply();
+            wm.removeView(brightnessSlider);
+            wm.removeView(topLeftView);
+            brightnessSlider = null;
+            topLeftView = null;
+        }
+        LocalBroadcastManager.getInstance(getApplicationContext())
+                .unregisterReceiver(screenDimReceiver);
+        if (dimView != null)
+            wm.removeView(dimView);
+        if (brightnessHandler != null && brightnessRunnable != null)
+            brightnessHandler.removeCallbacksAndMessages(null);
+        if (scaleHandler != null && scaleRunnable != null)
+            scaleHandler.removeCallbacksAndMessages(null);
+        if (translateHandler != null && translateRunnable != null)
+            translateHandler.removeCallbacksAndMessages(null);
+
+        if (listener != null) {
+            OnBrightnessStatusChangeListener l = listener.get();
+            if (l != null)
+                l.onBrServiceStatusChanged(false);
+        }
+    }
+
+    private void setupBrightnessButton(int alertType) {
         final float scale = getResources().getDisplayMetrics().density;
         int buttonImageTintColour = prefs.getInt(KEY_OVERLAY_BUTTON_COLOUR, DEF_OVERLAY_BUTTON_COLOUR);
         int pixels = (int) (64 * scale + 0.5f);
@@ -149,8 +204,8 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
                 PixelFormat.TRANSLUCENT);
         params.gravity = Gravity.START | Gravity.TOP;
 
-        params.x = sliderX;
-        params.y = prefs.getInt(KEY_OVERLAY_Y, 300);
+        params.x = initialSliderX;
+        params.y = initialSliderY;
         wm.addView(brightnessSlider, params);
     }
 
@@ -203,32 +258,28 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         wm.addView(topLeftView, topLeftParams);
     }
 
+    public void toggleOverlay() {
+        if (isOverlayRunning)
+            pauseOverlay();
+        else
+            startOverlay();
+    }
+
+    public boolean getIsRunning() {
+        return isOverlayRunning;
+    }
+
+    public void setListener(OnBrightnessStatusChangeListener listener) {
+        this.listener = new WeakReference<>(listener);
+    }
+
+    public void unsetListener() {
+        this.listener = null;
+    }
+
     @Override
     public void onDestroy() {
-        screenDimAmount = 0.0f;
-        if (brightnessSlider != null) {
-            int[] location = new int[2];
-            brightnessSlider.getLocationOnScreen(location);
-            int[] topLeftLocationOnScreen = new int[2];
-            topLeftView.getLocationOnScreen(topLeftLocationOnScreen);
-            int xPos = location[0];
-            int yPos = location[1];
-            // TODO: yPos will get changed in action down, but if service is shut down before action up, it will not be what it should. Fix this.
-            prefs.edit()
-                    .putInt(KEY_OVERLAY_X, xPos)
-                    .putInt(KEY_OVERLAY_Y, yPos - topLeftLocationOnScreen[1])
-                    .apply();
-            wm.removeView(brightnessSlider);
-            wm.removeView(topLeftView);
-            brightnessSlider = null;
-            topLeftView = null;
-        }
-        LocalBroadcastManager.getInstance(getApplicationContext())
-                .unregisterReceiver(screenDimReceiver);
-        if (dimView != null)
-            wm.removeView(dimView);
-        if (brightnessHandler != null && brightnessRunnable != null)
-            brightnessHandler.removeCallbacksAndMessages(null);
+        pauseOverlay();
         super.onDestroy();
     }
 
@@ -395,6 +446,18 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
                 .start();
     }
 
+    private void setDimmerBrightness(float amount) {
+        screenDimAmount = amount;
+        if (dimView != null) {
+            if (alertType == WindowManager.LayoutParams.TYPE_SYSTEM_ERROR)
+                dimViewParams.dimAmount = screenDimAmount;
+            else
+                dimView.setAlpha(screenDimAmount);
+            wm.updateViewLayout(dimView, dimViewParams);
+        } else
+            setupDimmerView();
+    }
+
     private class BrightnessRunnable implements Runnable {
         @Override
         public void run() {
@@ -448,16 +511,10 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         }
     }
 
-    private void setDimmerBrightness(float amount) {
-        screenDimAmount = amount;
-        if (dimView != null) {
-            if (alertType == WindowManager.LayoutParams.TYPE_SYSTEM_ERROR)
-                dimViewParams.dimAmount = screenDimAmount;
-            else
-                dimView.setAlpha(screenDimAmount);
-            wm.updateViewLayout(dimView, dimViewParams);
-        } else
-            setupDimmerView();
+    public class BrightnessBinder extends Binder {
+        public BrightnessOverlayService getService() {
+            return BrightnessOverlayService.this;
+        }
     }
 
 }

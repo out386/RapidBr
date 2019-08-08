@@ -59,4 +59,12 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         app:navGraph="@navigation/bottom_nav_graph" />
 
+    <Button
+        android:id="@+id/app_start_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|bottom"
+        android:layout_marginBottom="@dimen/edge_padding_huge"
+        android:text="@string/start_app" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

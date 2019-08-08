@@ -18,4 +18,8 @@
         Use this if you do not use Tasker integration. Swipe an item left or right to delete it.</string>
     <string name="sett_blacklist_enable">Enable app blacklist</string>
     <string name="sett_blacklist_pick_prompt">Tap an app below to add it to the blacklist</string>
+    <string name="start_app">Start</string>
+    <string name="pause_app">Pause</string>
+    <string name="top_status_running">Running</string>
+    <string name="top_status_not_running">Not Running</string>
 </resources>

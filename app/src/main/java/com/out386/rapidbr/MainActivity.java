@@ -20,14 +20,20 @@ package com.out386.rapidbr;
  *
  */
 
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
@@ -35,25 +41,36 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.appbar.AppBarLayout;
+import com.out386.rapidbr.services.BrightnessOverlayService;
+import com.out386.rapidbr.services.OnBrightnessStatusChangeListener;
 import com.out386.rapidbr.settings.OnNavigationListener;
 import com.out386.rapidbr.settings.top.TopFragment;
 
-public class MainActivity extends AppCompatActivity implements OnNavigationListener {
+public class MainActivity extends AppCompatActivity implements OnNavigationListener,
+        OnBrightnessStatusChangeListener {
+
     private static final String KEY_CURRENTLY_MAIN_FRAG = "CURRENTLY_MAIN_FRAG";
+    private static final String KEY_TOP_FRAG = "KEY_TOP_FRAG";
     private boolean isCurrentlyMainFrag = true;
     private AppBarLayout appBarLayout;
+    private Button startButton;
+    private Intent brStartIntent;
+    private boolean isBrServiceBound;
+    private BrightnessOverlayService brService;
+    private BrightnessConnection brConnection;
+    private TopFragment topFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setupViews();
-        if (savedInstanceState == null) {
-            setFragments();
-        } else {
+        setTopFragment();
+        if (savedInstanceState != null) {
             isCurrentlyMainFrag =
                     savedInstanceState.getBoolean(KEY_CURRENTLY_MAIN_FRAG, true);
             if (isCurrentlyMainFrag)
@@ -74,7 +91,62 @@ public class MainActivity extends AppCompatActivity implements OnNavigationListe
         super.onSaveInstanceState(outState);
     }
 
+    @Override
+    public void onBrServiceStatusChanged(boolean isStarted) {
+        topFragment.setStatus(isStarted);
+        String text;
+        if (isStarted)
+            text = getResources().getString(R.string.pause_app);
+        else
+            text = getResources().getString(R.string.start_app);
+        startButton.setText(text);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (isBrServiceBound)
+            brService.setListener(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (isBrServiceBound)
+            brService.unsetListener();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        brStartIntent = new Intent(this, BrightnessOverlayService.class);
+        startService(brStartIntent);
+        bindBrService();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unbindService(brConnection);
+        isBrServiceBound = false;
+    }
+
     private void setupViews() {
+        startButton = findViewById(R.id.app_start_button);
+        startButton.setOnClickListener(view -> {
+            if (isBrServiceBound)
+                brService.toggleOverlay();
+        });
+        setupInsets();
+        setupToolbarText();
+    }
+
+    private void bindBrService() {
+        brConnection = new BrightnessConnection();
+        bindService(brStartIntent, brConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    private void setupInsets() {
         View decorView = getWindow().getDecorView();
         appBarLayout = findViewById(R.id.app_bar_layout);
         FrameLayout topView = findViewById(R.id.topView);
@@ -114,7 +186,6 @@ public class MainActivity extends AppCompatActivity implements OnNavigationListe
 
             return insets.consumeSystemWindowInsets();
         });
-        setupToolbarText();
     }
 
     private void fixScrolling(boolean finallyCollapsed) {
@@ -152,11 +223,20 @@ public class MainActivity extends AppCompatActivity implements OnNavigationListe
         toolbarTV.setText(toolbarString);
     }
 
-    private void setFragments() {
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.topView, new TopFragment())
-                .commit();
+    private void setTopFragment() {
+        if (topFragment == null) {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            Fragment fragment = fragmentManager.findFragmentByTag(KEY_TOP_FRAG);
+            if (fragment instanceof TopFragment) {
+                topFragment = (TopFragment) fragment;
+            } else {
+                topFragment = new TopFragment();
+                fragmentManager.beginTransaction()
+                        .replace(R.id.topView, topFragment, KEY_TOP_FRAG)
+                        .commit();
+            }
+        }
+
     }
 
     @Override
@@ -169,5 +249,21 @@ public class MainActivity extends AppCompatActivity implements OnNavigationListe
     public void onMainFragment() {
         isCurrentlyMainFrag = true;
         appBarLayout.setExpanded(true);
+    }
+
+    private class BrightnessConnection implements ServiceConnection {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            brService = ((BrightnessOverlayService.BrightnessBinder) service).getService();
+            brService.setListener(MainActivity.this);
+            onBrServiceStatusChanged(brService.getIsRunning());
+            isBrServiceBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            brService = null;
+            isBrServiceBound = false;
+        }
     }
 }

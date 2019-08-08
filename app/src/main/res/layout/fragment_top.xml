@@ -8,42 +8,42 @@
     tools:context=".settings.top.TopFragment">
 
     <TextView
-        android:id="@+id/statusText"
+        android:id="@+id/top_frag_status"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fontFamily="@font/orkney_medium"
-        android:text="Not Running"
         android:textColor="@color/textTopNotRunning"
         android:textSize="40sp"
-        app:layout_constraintBottom_toTopOf="@+id/scheduleText"
+        app:layout_constraintBottom_toTopOf="@+id/top_frag_schedule"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Not Running" />
 
     <TextView
-        android:id="@+id/scheduleText"
+        android:id="@+id/top_frag_schedule"
         style="@style/TopViewSmallText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="4dp"
         android:text="Scheduled to start tomorrow at 3:00PM"
-        app:layout_constraintBottom_toTopOf="@+id/filterText"
+        app:layout_constraintBottom_toTopOf="@+id/top_frag_filter"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
-        android:id="@+id/filterText"
+        android:id="@+id/top_frag_filter"
         style="@style/TopViewSmallText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="4dp"
         android:text="Screen filter at 10%"
-        app:layout_constraintBottom_toTopOf="@+id/profileText"
+        app:layout_constraintBottom_toTopOf="@+id/top_frag_blacklist"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
-        android:id="@+id/profileText"
+        android:id="@+id/top_frag_blacklist"
         style="@style/TopViewSmallText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
