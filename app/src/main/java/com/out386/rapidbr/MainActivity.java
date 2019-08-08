@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationListe
     private Button startButton;
     private Intent brStartIntent;
     private boolean isBrServiceBound;
+    private boolean isQueuedToggle;
     private BrightnessOverlayService brService;
     private BrightnessConnection brConnection;
     private TopFragment topFragment;
@@ -96,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationListe
         topFragment.setStatus(isStarted);
         String text;
         if (isStarted)
-            text = getResources().getString(R.string.pause_app);
+            text = getResources().getString(R.string.stop_app);
         else
             text = getResources().getString(R.string.start_app);
         startButton.setText(text);
@@ -134,15 +135,20 @@ public class MainActivity extends AppCompatActivity implements OnNavigationListe
     private void setupViews() {
         startButton = findViewById(R.id.app_start_button);
         startButton.setOnClickListener(view -> {
-            if (isBrServiceBound)
+            if (isBrServiceBound) {
                 brService.toggleOverlay();
+            } else {
+                isQueuedToggle = true;
+                bindBrService();
+            }
         });
         setupInsets();
         setupToolbarText();
     }
 
     private void bindBrService() {
-        brConnection = new BrightnessConnection();
+        if (brConnection == null)
+            brConnection = new BrightnessConnection();
         bindService(brStartIntent, brConnection, Context.BIND_AUTO_CREATE);
     }
 
@@ -258,6 +264,10 @@ public class MainActivity extends AppCompatActivity implements OnNavigationListe
             brService.setListener(MainActivity.this);
             onBrServiceStatusChanged(brService.getIsRunning());
             isBrServiceBound = true;
+            if (isQueuedToggle) {
+                isQueuedToggle = false;
+                brService.toggleOverlay();
+            }
         }
 
         @Override

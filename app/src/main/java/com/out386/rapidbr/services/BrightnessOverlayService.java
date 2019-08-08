@@ -1,6 +1,9 @@
 package com.out386.rapidbr.services;
 
 import android.annotation.TargetApi;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
@@ -28,10 +31,14 @@ import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 
+import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.out386.rapidbr.BuildConfig;
 import com.out386.rapidbr.R;
 import com.out386.rapidbr.utils.DimenUtils;
+import com.out386.rapidbr.utils.NotificationActivity;
 
 import java.lang.ref.WeakReference;
 
@@ -43,6 +50,9 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     public static final String KEY_OVERLAY_BUTTON_ALPHA = "overlayButtonAlpha";
     public static final String KEY_SCREEN_DIM_AMOUNT = "screenDimAmount";
     public static final String ACTION_SCREEN_DIM_AMOUNT = "actionScreenDimAmount";
+    static final String ACTION_START = BuildConfig.APPLICATION_ID + ".START";
+    static final String ACTION_PAUSE = BuildConfig.APPLICATION_ID + ".PAUSE";
+    static final String ACTION_STOP = BuildConfig.APPLICATION_ID + ".STOP";
     public static final int DEF_OVERLAY_BUTTON_COLOUR = 0x0288D1;
     public static final int DEF_OVERLAY_BUTTON_ALPHA = 50;
 
@@ -81,6 +91,8 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     private int initialSliderY;
     private boolean isOverlayRunning;
     private WeakReference<OnBrightnessStatusChangeListener> listener;
+    private NotificationCompat.Builder notificationBuilder;
+    private static final int NOTIFY_ID = 9906;
     private BroadcastReceiver screenDimReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -90,6 +102,19 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
             setDimmerBrightness(amount);
         }
     };
+
+    @Override
+    public int onStartCommand(Intent i, int flags, int startId) {
+        if (ACTION_START.equals(i.getAction())) {
+            startOverlay();
+        } else if (ACTION_PAUSE.equals(i.getAction())) {
+            pauseOverlay(true);
+        } else if (ACTION_STOP.equals(i.getAction())) {
+            stopOverlay();
+        }
+
+        return (START_NOT_STICKY);
+    }
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -142,9 +167,10 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
             if (l != null)
                 l.onBrServiceStatusChanged(true);
         }
+        foregroundify();
     }
 
-    public void pauseOverlay() {
+    private void pauseOverlay(boolean isForPause) {
         isOverlayRunning = false;
         screenDimAmount = 0.0f;
         if (brightnessSlider != null) {
@@ -180,6 +206,14 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
             if (l != null)
                 l.onBrServiceStatusChanged(false);
         }
+        if (isForPause)
+            setNotifActions();
+    }
+
+    public void stopOverlay() {
+        pauseOverlay(false);
+        stopForeground(true);
+        stopSelf();
     }
 
     private void setupBrightnessButton(int alertType) {
@@ -260,7 +294,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
 
     public void toggleOverlay() {
         if (isOverlayRunning)
-            pauseOverlay();
+            stopOverlay();
         else
             startOverlay();
     }
@@ -279,7 +313,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
 
     @Override
     public void onDestroy() {
-        pauseOverlay();
+        pauseOverlay(false);
         super.onDestroy();
     }
 
@@ -456,6 +490,83 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
             wm.updateViewLayout(dimView, dimViewParams);
         } else
             setupDimmerView();
+    }
+
+    private void foregroundify() {
+        final String CHANNEL_ID = "channelStandard";
+        if (notificationBuilder == null)
+            notificationBuilder =
+                    new NotificationCompat.Builder(this, CHANNEL_ID);
+        else
+            notificationBuilder.mActions.clear();
+
+        Intent notificationIntent = new Intent(getApplicationContext(), NotificationActivity.class);
+        PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(),
+                0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        notificationBuilder
+                .setSound(null)
+                .setVibrate(null)
+                .setAutoCancel(false)
+                .setOnlyAlertOnce(true)
+                .setContentIntent(contentIntent)
+                .setContentTitle(getString(R.string.notif_running))
+                .setContentText(getString(R.string.notif_subtext))
+                .setSmallIcon(R.drawable.ic_notif)
+                .setColor(ContextCompat.getColor(getApplicationContext(), R.color.colorAccent))
+                .setTicker(getString(R.string.notif_running));
+        setNotifActions();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            final String CHANNEL_NAME = getString(R.string.notif_channel_name);
+            final String CHANNEL_DESC = getString(R.string.notif_channel_desc);
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME,
+                    NotificationManager.IMPORTANCE_DEFAULT);
+            channel.setSound(null, null);
+            channel.setDescription(CHANNEL_DESC);
+            channel.enableLights(false);
+            channel.enableVibration(false);
+            NotificationManager notificationManager =
+                    ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE));
+            if (notificationManager != null)
+                notificationManager.createNotificationChannel(channel);
+        }
+
+        startForeground(NOTIFY_ID, notificationBuilder.build());
+    }
+
+    private void setNotifActions() {
+        if (notificationBuilder == null)
+            return;
+
+        notificationBuilder.mActions.clear();
+        if (isOverlayRunning)
+            notificationBuilder
+                    .addAction(R.drawable.ic_notif_pause,
+                            getString(R.string.notif_pause),
+                            buildPendingIntent(ACTION_PAUSE))
+                    .setContentTitle(getString(R.string.notif_running));
+        else
+            notificationBuilder
+                    .addAction(R.drawable.ic_notif_start,
+                            getString(R.string.notif_resume),
+                            buildPendingIntent(ACTION_START))
+                    .setContentTitle(getString(R.string.notif_paused));
+        notificationBuilder
+                .addAction(R.drawable.ic_notif_stop,
+                        getString(R.string.notif_stop),
+                        buildPendingIntent(ACTION_STOP));
+
+        NotificationManager notificationManager =
+                ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE));
+        if (notificationManager != null)
+            notificationManager.notify(NOTIFY_ID, notificationBuilder.build());
+
+    }
+
+    private PendingIntent buildPendingIntent(String action) {
+        Intent i = new Intent(this, getClass());
+        i.setAction(action);
+        return PendingIntent.getService(this, 0, i, 0);
     }
 
     private class BrightnessRunnable implements Runnable {
