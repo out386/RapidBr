@@ -24,9 +24,14 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
+import android.preference.PreferenceManager;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
@@ -46,12 +51,20 @@ import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.out386.rapidbr.services.BrightnessOverlayService;
-import com.out386.rapidbr.services.OnBrightnessStatusChangeListener;
 import com.out386.rapidbr.settings.OnNavigationListener;
 import com.out386.rapidbr.settings.top.TopFragment;
 
-public class MainActivity extends AppCompatActivity implements OnNavigationListener,
-        OnBrightnessStatusChangeListener {
+import java.lang.ref.WeakReference;
+
+import static com.out386.rapidbr.services.BrightnessOverlayService.DEF_OVERLAY_BUTTON_COLOUR;
+import static com.out386.rapidbr.services.BrightnessOverlayService.KEY_SCREEN_DIM_AMOUNT;
+import static com.out386.rapidbr.services.BrightnessOverlayService.MSG_IS_OVERLAY_RUNNING;
+import static com.out386.rapidbr.services.BrightnessOverlayService.MSG_SET_CLIENT_MESSENGER;
+import static com.out386.rapidbr.services.BrightnessOverlayService.MSG_TOGGLE_OVERLAY;
+import static com.out386.rapidbr.services.BrightnessOverlayService.MSG_UNSET_CLIENT_MESSENGER;
+import static com.out386.rapidbr.settings.bottom.bcolour.ButtonColourFragment.KEY_BR_ICON_COLOUR;
+
+public class MainActivity extends AppCompatActivity implements OnNavigationListener {
 
     private static final String KEY_CURRENTLY_MAIN_FRAG = "CURRENTLY_MAIN_FRAG";
     private static final String KEY_TOP_FRAG = "KEY_TOP_FRAG";
@@ -59,16 +72,18 @@ public class MainActivity extends AppCompatActivity implements OnNavigationListe
     private AppBarLayout appBarLayout;
     private Button startButton;
     private Intent brStartIntent;
-    private boolean isBrServiceBound;
     private boolean isQueuedToggle;
-    private BrightnessOverlayService brService;
     private BrightnessConnection brConnection;
     private TopFragment topFragment;
+    private Messenger clientMessenger;
+    private Messenger serviceMessenger;
+    private SharedPreferences prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
         setupViews();
         setTopFragment();
         if (savedInstanceState != null) {
@@ -92,8 +107,8 @@ public class MainActivity extends AppCompatActivity implements OnNavigationListe
         super.onSaveInstanceState(outState);
     }
 
-    @Override
-    public void onBrServiceStatusChanged(boolean isStarted) {
+    private void onBrServiceStatusChanged(int status) {
+        boolean isStarted = status != 0;
         topFragment.setStatus(isStarted);
         String text;
         if (isStarted)
@@ -106,15 +121,15 @@ public class MainActivity extends AppCompatActivity implements OnNavigationListe
     @Override
     protected void onResume() {
         super.onResume();
-        if (isBrServiceBound)
-            brService.setListener(this);
+        if (serviceMessenger != null)
+            setClientMessenger();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if (isBrServiceBound)
-            brService.unsetListener();
+        if (serviceMessenger != null)
+            sendMessage(MSG_UNSET_CLIENT_MESSENGER, 0, 0);
     }
 
     @Override
@@ -129,14 +144,13 @@ public class MainActivity extends AppCompatActivity implements OnNavigationListe
     protected void onStop() {
         super.onStop();
         unbindService(brConnection);
-        isBrServiceBound = false;
     }
 
     private void setupViews() {
         startButton = findViewById(R.id.app_start_button);
         startButton.setOnClickListener(view -> {
-            if (isBrServiceBound) {
-                brService.toggleOverlay();
+            if (serviceMessenger != null) {
+                toggleOverlay();
             } else {
                 isQueuedToggle = true;
                 bindBrService();
@@ -144,6 +158,12 @@ public class MainActivity extends AppCompatActivity implements OnNavigationListe
         });
         setupInsets();
         setupToolbarText();
+    }
+
+    private void toggleOverlay() {
+        int overlayButtonColour = prefs.getInt(KEY_BR_ICON_COLOUR, DEF_OVERLAY_BUTTON_COLOUR);
+        int screenDimAmount = prefs.getInt(KEY_SCREEN_DIM_AMOUNT, 0);
+        sendMessage(MSG_TOGGLE_OVERLAY, overlayButtonColour, screenDimAmount);
     }
 
     private void bindBrService() {
@@ -257,23 +277,63 @@ public class MainActivity extends AppCompatActivity implements OnNavigationListe
         appBarLayout.setExpanded(true);
     }
 
+    private void sendMessage(int what, int arg1, int arg2) {
+        if (serviceMessenger != null) {
+            try {
+                serviceMessenger.send(Message.obtain(
+                        null, what, arg1, arg2));
+            } catch (RemoteException e) {
+                serviceMessenger = null;
+            }
+        }
+    }
+
+    private void setClientMessenger() {
+        if (clientMessenger == null)
+            clientMessenger = new Messenger(new ClientHandler(this));
+        Message message =
+                Message.obtain(null, MSG_SET_CLIENT_MESSENGER);
+        message.replyTo = clientMessenger;
+        try {
+            serviceMessenger.send(message);
+        } catch (RemoteException ignored) {
+            // Dammit.
+        }
+    }
+
+    private static class ClientHandler extends Handler {
+        WeakReference<MainActivity> activity;
+
+        ClientHandler(MainActivity activity) {
+            this.activity = new WeakReference<>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            MainActivity mainActivity = activity.get();
+            if (mainActivity != null) {
+                if (msg.what == MSG_IS_OVERLAY_RUNNING)
+                    mainActivity.onBrServiceStatusChanged(msg.arg1);
+            }
+            super.handleMessage(msg);
+        }
+    }
+
     private class BrightnessConnection implements ServiceConnection {
         @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            brService = ((BrightnessOverlayService.BrightnessBinder) service).getService();
-            brService.setListener(MainActivity.this);
-            onBrServiceStatusChanged(brService.getIsRunning());
-            isBrServiceBound = true;
+        public void onServiceConnected(ComponentName name, IBinder binder) {
+            serviceMessenger = new Messenger(binder);
+            setClientMessenger();
+            // The service will send a status update after being bound, so not asking for status here
             if (isQueuedToggle) {
                 isQueuedToggle = false;
-                brService.toggleOverlay();
+                toggleOverlay();
             }
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            brService = null;
-            isBrServiceBound = false;
+            serviceMessenger = null;
         }
     }
 }

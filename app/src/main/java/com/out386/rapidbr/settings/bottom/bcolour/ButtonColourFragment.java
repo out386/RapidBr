@@ -40,7 +40,7 @@ import com.out386.rapidbr.R;
 
 public class ButtonColourFragment extends Fragment {
 
-    private static final String KEY_BR_ICON_COLOUR = "br_icon_colour";
+    public static final String KEY_BR_ICON_COLOUR = "br_icon_colour";
 
     private SharedPreferences prefs;
 

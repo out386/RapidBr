@@ -33,7 +33,9 @@
 
         <activity android:name=".utils.NotificationActivity" />
 
-        <service android:name=".services.BrightnessOverlayService" />
+        <service
+            android:name=".services.BrightnessOverlayService"
+            android:process=":overlayProcess" />
 
     </application>
 
