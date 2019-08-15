@@ -43,8 +43,23 @@ public class ButtonColourFragment extends Fragment {
     public static final String KEY_BR_ICON_COLOUR = "br_icon_colour";
 
     private SharedPreferences prefs;
+    private OnButtonColourChangedListener colourListener;
 
     public ButtonColourFragment() {
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (context instanceof OnButtonColourChangedListener) {
+            colourListener = (OnButtonColourChangedListener) context;
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        colourListener = null;
     }
 
     @Override
@@ -91,6 +106,8 @@ public class ButtonColourFragment extends Fragment {
             prefs.edit()
                     .putInt(KEY_BR_ICON_COLOUR, colour)
                     .apply();
+            if (colourListener != null)
+                colourListener.onColourChanged(colour);
         }
     }
 }

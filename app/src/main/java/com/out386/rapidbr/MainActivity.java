@@ -52,6 +52,7 @@ import androidx.fragment.app.FragmentManager;
 import com.google.android.material.appbar.AppBarLayout;
 import com.out386.rapidbr.services.BrightnessOverlayService;
 import com.out386.rapidbr.settings.OnNavigationListener;
+import com.out386.rapidbr.settings.bottom.bcolour.OnButtonColourChangedListener;
 import com.out386.rapidbr.settings.top.TopFragment;
 
 import java.lang.ref.WeakReference;
@@ -59,12 +60,14 @@ import java.lang.ref.WeakReference;
 import static com.out386.rapidbr.services.BrightnessOverlayService.DEF_OVERLAY_BUTTON_COLOUR;
 import static com.out386.rapidbr.services.BrightnessOverlayService.KEY_SCREEN_DIM_AMOUNT;
 import static com.out386.rapidbr.services.BrightnessOverlayService.MSG_IS_OVERLAY_RUNNING;
+import static com.out386.rapidbr.services.BrightnessOverlayService.MSG_OVERLAY_BUTTON_COLOUR;
 import static com.out386.rapidbr.services.BrightnessOverlayService.MSG_SET_CLIENT_MESSENGER;
 import static com.out386.rapidbr.services.BrightnessOverlayService.MSG_TOGGLE_OVERLAY;
 import static com.out386.rapidbr.services.BrightnessOverlayService.MSG_UNSET_CLIENT_MESSENGER;
 import static com.out386.rapidbr.settings.bottom.bcolour.ButtonColourFragment.KEY_BR_ICON_COLOUR;
 
-public class MainActivity extends AppCompatActivity implements OnNavigationListener {
+public class MainActivity extends AppCompatActivity implements OnNavigationListener,
+        OnButtonColourChangedListener {
 
     private static final String KEY_CURRENTLY_MAIN_FRAG = "CURRENTLY_MAIN_FRAG";
     private static final String KEY_TOP_FRAG = "KEY_TOP_FRAG";
@@ -276,6 +279,11 @@ public class MainActivity extends AppCompatActivity implements OnNavigationListe
     public void onMainFragment() {
         isCurrentlyMainFrag = true;
         appBarLayout.setExpanded(true);
+    }
+
+    @Override
+    public void onColourChanged(int colour) {
+        sendMessage(MSG_OVERLAY_BUTTON_COLOUR, colour, 0);
     }
 
     private void sendMessage(int what, int arg1, int arg2) {
