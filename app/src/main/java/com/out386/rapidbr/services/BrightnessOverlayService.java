@@ -158,6 +158,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         }, 1000);
 
         sendIsRunning();
+        startService(new Intent(this, BrightnessOverlayService.class));
         foregroundify();
     }
 

@@ -71,7 +71,6 @@ public class MainActivity extends AppCompatActivity implements OnNavigationListe
     private boolean isCurrentlyMainFrag = true;
     private AppBarLayout appBarLayout;
     private Button startButton;
-    private Intent brStartIntent;
     private boolean isQueuedToggle;
     private BrightnessConnection brConnection;
     private TopFragment topFragment;
@@ -135,8 +134,6 @@ public class MainActivity extends AppCompatActivity implements OnNavigationListe
     @Override
     protected void onStart() {
         super.onStart();
-        brStartIntent = new Intent(this, BrightnessOverlayService.class);
-        startService(brStartIntent);
         bindBrService();
     }
 
@@ -169,7 +166,11 @@ public class MainActivity extends AppCompatActivity implements OnNavigationListe
     private void bindBrService() {
         if (brConnection == null)
             brConnection = new BrightnessConnection();
-        bindService(brStartIntent, brConnection, Context.BIND_AUTO_CREATE);
+        bindService(
+                new Intent(this, BrightnessOverlayService.class),
+                brConnection,
+                Context.BIND_AUTO_CREATE
+        );
     }
 
     private void setupInsets() {
