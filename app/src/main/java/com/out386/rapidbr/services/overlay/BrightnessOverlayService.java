@@ -189,12 +189,14 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         stopSelf();
     }
 
-    private void setButtonColour(boolean isAfterSetup) {
-        if (buttonColour == 0)
-            buttonColour = DEF_OVERLAY_BUTTON_COLOUR;
-        ColorStateList csl = ColorStateList.valueOf(buttonColour).withAlpha(0xFF);
-        brightnessSlider.setImageTintList(csl);
-        if (isAfterSetup)
+    private void setButtonColour() {
+        if (brightnessSlider != null) {
+            if (buttonColour == 0)
+                buttonColour = DEF_OVERLAY_BUTTON_COLOUR;
+            ColorStateList csl = ColorStateList.valueOf(buttonColour).withAlpha(0xFF);
+            brightnessSlider.setImageTintList(csl);
+        }
+        if (buttonAnim != null)
             buttonAnim.peekButton();
     }
 
@@ -207,7 +209,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         brightnessSlider.setImageResource(R.drawable.ic_overlay_brightness);
         brightnessSlider.setImageTintMode(PorterDuff.Mode.SRC_ATOP);
         brightnessSlider.setOnTouchListener(this);
-        setButtonColour(false);
+        setButtonColour();
 
         WindowManager.LayoutParams params = new WindowManager
                 .LayoutParams(pixels,
@@ -564,7 +566,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
             switch (msg.what) {
                 case MSG_OVERLAY_BUTTON_COLOUR:
                     buttonColour = msg.arg1;
-                    setButtonColour(true);
+                    setButtonColour();
                     break;
                 case MSG_SCREEN_DIM_AMOUNT:
                     screenDimAmount = msg.arg1;
