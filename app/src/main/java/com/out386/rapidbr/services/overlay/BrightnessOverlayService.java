@@ -21,7 +21,6 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.os.Vibrator;
-import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
@@ -123,8 +122,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         super.onCreate();
 
         wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
-        prefs = PreferenceManager
-                .getDefaultSharedPreferences(getApplicationContext());
+        prefs = getSharedPreferences("brightnessPrefs", MODE_PRIVATE);
 
         display = this.getResources().getDisplayMetrics();
         // As there's a new type in O
@@ -132,11 +130,11 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
             alertType = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
         else
             alertType = WindowManager.LayoutParams.TYPE_SYSTEM_ERROR;
-        initialSliderX = prefs.getInt(KEY_OVERLAY_X, 0);
-        initialSliderY = prefs.getInt(KEY_OVERLAY_Y, 300);
     }
 
     private void startOverlay() {
+        initialSliderX = prefs.getInt(KEY_OVERLAY_X, 0);
+        initialSliderY = prefs.getInt(KEY_OVERLAY_Y, 300);
         isOverlayRunning = true;
         setupBrightnessButton(alertType);
         setupReferenceView(alertType);
