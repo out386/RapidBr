@@ -38,6 +38,7 @@ import com.out386.rapidbr.utils.DimenUtils;
 import com.out386.rapidbr.utils.NotificationActivity;
 
 import static com.out386.rapidbr.settings.bottom.bcolour.ButtonColourFragment.KEY_BR_ICON_COLOUR;
+import static com.out386.rapidbr.utils.SizeUtils.dpToPx;
 
 public class BrightnessOverlayService extends Service implements View.OnTouchListener {
 
@@ -58,10 +59,10 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     static final String ACTION_STOP = BuildConfig.APPLICATION_ID + ".STOP";
     private static final int NOTIFY_ID = 9906;
 
-    private static final int BUTTON_TOUCH_SLOP = 15;
     private static final int BRIGHTNESS_CHANGE_FACTOR = 20;
     private static final int BRIGHTNESS_CHANGE_FACTOR_LOW = 40;
     public static float screenDimAmount = 0.0f;
+    private static int buttonTouchSlop;
     boolean moveWasBrightness = true;
     private View topLeftView;
     private ImageView brightnessSlider;
@@ -121,6 +122,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     public void onCreate() {
         super.onCreate();
 
+        buttonTouchSlop = dpToPx(getApplicationContext(), 15);
         wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
         prefs = getSharedPreferences("brightnessPrefs", MODE_PRIVATE);
 
@@ -342,7 +344,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
             moving = true;
 
             float movedBy = Math.abs(lastY - y);
-            if (movedBy > BUTTON_TOUCH_SLOP || Math.abs(lastX - x) > BUTTON_TOUCH_SLOP) {
+            if (movedBy > buttonTouchSlop || Math.abs(lastX - x) > buttonTouchSlop) {
                 brightnessMovedBy = movedBy;
 
                 boolean brightnessUpNow = lastY - y >= 0;
