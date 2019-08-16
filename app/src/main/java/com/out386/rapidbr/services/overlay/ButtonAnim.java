@@ -25,7 +25,9 @@ import android.os.Vibrator;
 import android.util.DisplayMetrics;
 import android.view.ViewPropertyAnimator;
 import android.view.WindowManager;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
+import android.view.animation.Interpolator;
 import android.widget.ImageView;
 
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.DEF_OVERLAY_BUTTON_ALPHA;
@@ -33,7 +35,7 @@ import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.DEF_O
 class ButtonAnim {
     private static final int DELAY = 1000;
     private static final int DELAY_SHORT = 600;
-    private static final int ANIM_DURATION = 300;
+    private static final int ANIM_DURATION = 400;
 
     private ImageView brightnessButton;
     private DisplayMetrics displayMetrics;
@@ -43,6 +45,10 @@ class ButtonAnim {
     private Handler scaleHandler;
     private Handler translateHandler;
     private BrightnessOverlayService service;
+    private Interpolator accelerateInterpolator;
+    private Interpolator decelerateInterpolator;
+    private Interpolator decelerateFastInterpolator;
+
 
     ButtonAnim(ImageView brightnessButton, DisplayMetrics displayMetrics, Vibrator vibrator,
                BrightnessOverlayService service) {
@@ -54,6 +60,9 @@ class ButtonAnim {
         translateRunnable = new TranslateRunnable();
         scaleHandler = new Handler();
         translateHandler = new Handler();
+        accelerateInterpolator = new AccelerateInterpolator(2);
+        decelerateInterpolator = new DecelerateInterpolator(2);
+        decelerateFastInterpolator = new DecelerateInterpolator(4);
     }
 
     void shutdown() {
@@ -71,7 +80,7 @@ class ButtonAnim {
     void hideButtonDelayed() {
         translateHandler.removeCallbacks(translateRunnable);
         translateHandler.postDelayed(
-                translateRunnable.hide(), DELAY);
+                translateRunnable.hide(false), DELAY);
     }
 
     void peekButton() {
@@ -100,7 +109,7 @@ class ButtonAnim {
                 .scaleY(factor)
                 .scaleX(factor)
                 .setStartDelay(0)
-                .setInterpolator(new DecelerateInterpolator())
+                .setInterpolator(decelerateInterpolator)
                 .start();
     }
 
@@ -117,7 +126,7 @@ class ButtonAnim {
     private class TranslateRunnable implements Runnable {
         private boolean isHide;
         private boolean isPeek;
-        private boolean isDelayed;
+        private boolean wasPeek;
         private ViewPropertyAnimator anim;
 
         @Override
@@ -128,25 +137,29 @@ class ButtonAnim {
             if (brightnessButton != null) {
                 float translateX;
                 float alpha;
+                anim = brightnessButton.animate();
 
                 if (isHide) {
                     translateX = getHidePosition();
                     alpha = DEF_OVERLAY_BUTTON_ALPHA;
+                    if (wasPeek)
+                        anim.setInterpolator(accelerateInterpolator);
+                    else
+                        anim.setInterpolator(decelerateInterpolator);
+
                 } else {
                     translateX = 0;
                     alpha = 1;
+                    anim.setInterpolator(decelerateInterpolator);
                 }
 
-                anim = brightnessButton.animate()
-                        .alpha(alpha)
+                anim.alpha(alpha)
                         .setDuration(ANIM_DURATION)
                         .translationX(translateX);
-                if (isDelayed)
-                    anim.setStartDelay(DELAY_SHORT);
-                else
-                    anim.setStartDelay(0);
-                if (isPeek)
-                    anim.withEndAction(this.hideDelayed());
+                if (isPeek) {
+                    anim.withEndAction(this.hide(true));
+                    anim.setInterpolator(decelerateFastInterpolator);
+                }
                 anim.start();
             }
         }
@@ -161,31 +174,24 @@ class ButtonAnim {
             return position;
         }
 
-        private TranslateRunnable hideDelayed() {
+        TranslateRunnable hide(boolean wasPeek) {
             isHide = true;
             isPeek = false;
-            isDelayed = true;
-            return this;
-        }
-
-        TranslateRunnable hide() {
-            isHide = true;
-            isPeek = false;
-            isDelayed = false;
+            this.wasPeek = wasPeek;
             return this;
         }
 
         TranslateRunnable show() {
             isHide = false;
             isPeek = false;
-            isDelayed = false;
+            wasPeek = false;
             return this;
         }
 
         TranslateRunnable peek() {
             isHide = false;
             isPeek = true;
-            isDelayed = false;
+            wasPeek = false;
             return this;
         }
     }
