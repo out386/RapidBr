@@ -1,4 +1,4 @@
-package com.out386.rapidbr.services;
+package com.out386.rapidbr.services.overlay;
 
 import android.annotation.TargetApi;
 import android.app.NotificationChannel;
@@ -28,7 +28,6 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 
 import androidx.core.app.NotificationCompat;
@@ -64,6 +63,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     private static final int BRIGHTNESS_CHANGE_FACTOR = 20;
     private static final int BRIGHTNESS_CHANGE_FACTOR_LOW = 40;
     public static float screenDimAmount = 0.0f;
+    boolean moveWasBrightness = true;
     private View topLeftView;
     private ImageView brightnessSlider;
     private View dimView;
@@ -75,16 +75,11 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     private boolean moving;
     private WindowManager wm;
     private DisplayMetrics display;
-    private boolean moveWasBrightness = true;
     private boolean isBrightnessHandlerActive = false;
     private float lastX;
     private float lastY;
     private Handler brightnessHandler = new Handler();
-    private Handler scaleHandler = new Handler();
-    private Handler translateHandler = new Handler();
     private BrightnessRunnable brightnessRunnable = new BrightnessRunnable();
-    private ScaleRunnable scaleRunnable = new ScaleRunnable();
-    private TranslateRunnable translateRunnable = new TranslateRunnable();
     private boolean brightnessUp;
     private float brightnessMovedBy;
     private SharedPreferences prefs;
@@ -96,6 +91,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     private NotificationCompat.Builder notificationBuilder;
     private Messenger serviceMessenger;
     private Messenger clientMessenger;
+    private ButtonAnim buttonAnim;
 
     @Override
     public int onStartCommand(Intent i, int flags, int startId) {
@@ -145,18 +141,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         setupBrightnessButton(alertType);
         setupReferenceView(alertType);
         setDimmerBrightness();
-
-        // Handler instead of startDelay to prevent slider width from being 0
-        new Handler().postDelayed(() -> {
-            if (brightnessSlider != null)
-                brightnessSlider.animate()
-                        .translationX(
-                                (brightnessSlider.getWidth() / 2F) * (initialSliderX <= 10 ? -1 : 1)) //Move button left or right
-                        .setDuration(500)
-                        .alpha(DEF_OVERLAY_BUTTON_ALPHA)
-                        .start();
-        }, 1000);
-
+        buttonAnim.hideButtonDelayed();
         sendIsRunning();
         startService(new Intent(this, BrightnessOverlayService.class));
         foregroundify();
@@ -181,6 +166,10 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
             wm.removeView(topLeftView);
             brightnessSlider = null;
             topLeftView = null;
+            if (buttonAnim != null) {
+                buttonAnim.shutdown();
+                buttonAnim = null;
+            }
         }
         if (dimView != null) {
             wm.removeView(dimView);
@@ -188,10 +177,6 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         }
         if (brightnessHandler != null && brightnessRunnable != null)
             brightnessHandler.removeCallbacksAndMessages(null);
-        if (scaleHandler != null && scaleRunnable != null)
-            scaleHandler.removeCallbacksAndMessages(null);
-        if (translateHandler != null && translateRunnable != null)
-            translateHandler.removeCallbacksAndMessages(null);
 
         sendIsRunning();
         if (isForPause)
@@ -234,6 +219,8 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         params.x = initialSliderX;
         params.y = initialSliderY;
         wm.addView(brightnessSlider, params);
+        buttonAnim = new ButtonAnim(brightnessSlider, display,
+                (Vibrator) getSystemService(Context.VIBRATOR_SERVICE), this);
     }
 
     private void setupDimmerView() {
@@ -330,11 +317,9 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
             lastY = y;
             offsetY = originalYPos - y;
 
-            translateHandler.removeCallbacks(translateRunnable);
-            translateHandler.post(translateRunnable.set(1, 0));
+            buttonAnim.showButton();
+            buttonAnim.scaleUpButtonDelayed();
 
-            scaleHandler.removeCallbacks(scaleRunnable);
-            scaleHandler.postDelayed(scaleRunnable, 600);
 
         } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
             int[] topLeftLocationOnScreen = new int[2];
@@ -367,7 +352,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
                         brightnessSlider.setRotation((originalYPos - newY) / 2f);
                     }
                     brightnessUp = brightnessUpNow;
-                    scaleHandler.removeCallbacks(scaleRunnable);
+                    buttonAnim.cancelScale();
                     if (!isBrightnessHandlerActive) {
                         isBrightnessHandlerActive = true;
                         brightnessHandler.post(brightnessRunnable);
@@ -384,7 +369,8 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
             brightnessSlider.setRotation(0);
             WindowManager.LayoutParams params =
                     (WindowManager.LayoutParams) brightnessSlider.getLayoutParams();
-            scaleHandler.removeCallbacks(scaleRunnable);
+            buttonAnim.cancelScale();
+
             if (moveWasBrightness) {
                 xToSnap = originalXPos;
                 int[] topLeftLocationOnScreen = new int[2];
@@ -395,22 +381,15 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
             } else {
                 xToSnap = event.getRawX();
                 moveWasBrightness = true;
-                scaleSlider(false);
+                buttonAnim.scaleSlider(false);
             }
-            int finalPos;
-            if (xToSnap <= display.widthPixels / 2) {
+
+            if (xToSnap <= display.widthPixels / 2)
                 params.x = 0;
-                finalPos = -(brightnessSlider.getWidth() / 2);
-            } else {
+            else
                 params.x = display.widthPixels - brightnessSlider.getWidth();
-                finalPos = (brightnessSlider.getWidth() / 2);
-            }
 
-            translateHandler.removeCallbacks(translateRunnable);
-            translateHandler.postDelayed(
-                    translateRunnable.set(DEF_OVERLAY_BUTTON_ALPHA, finalPos),
-                    1000);
-
+            buttonAnim.hideButtonDelayed();
 
             if (moving) {
                 wm.updateViewLayout(brightnessSlider, params);
@@ -459,22 +438,6 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     private void setBrightness(int brightness) {
         ContentResolver cResolver = getApplicationContext().getContentResolver();
         Settings.System.putInt(cResolver, Settings.System.SCREEN_BRIGHTNESS, brightness);
-    }
-
-    private void scaleSlider(boolean scaleUp) {
-        float factor;
-        if (scaleUp) {
-            factor = 1.5F;
-        } else {
-            factor = 1;
-        }
-        brightnessSlider.setImageResource(R.drawable.ic_overlay_brightness);
-        brightnessSlider.animate()
-                .setDuration(250)
-                .scaleY(factor)
-                .scaleX(factor)
-                .setInterpolator(new DecelerateInterpolator())
-                .start();
     }
 
     private void setDimmerBrightness() {
@@ -590,38 +553,6 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
             int newbr = currentBrightness + (brightnessUp ? brightnessChangeBy : -brightnessChangeBy);
             setBrightnessCompat(newbr);
             brightnessHandler.postDelayed(this, brightnessChangeDelay);
-        }
-    }
-
-    private class ScaleRunnable implements Runnable {
-        @Override
-        public void run() {
-            moveWasBrightness = false;
-            Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-            if (v != null)
-                v.vibrate(100);
-            scaleSlider(true);
-        }
-    }
-
-    private class TranslateRunnable implements Runnable {
-        float alpha;
-        float translateX;
-
-        @Override
-        public void run() {
-            if (brightnessSlider != null)
-                brightnessSlider.animate()
-                        .alpha(alpha)
-                        .setDuration(250)
-                        .translationX(translateX)
-                        .start();
-        }
-
-        TranslateRunnable set(float alpha, float translateX) {
-            this.alpha = alpha;
-            this.translateX = translateX;
-            return this;
         }
     }
 

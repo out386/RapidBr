@@ -50,20 +50,20 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.appbar.AppBarLayout;
-import com.out386.rapidbr.services.BrightnessOverlayService;
+import com.out386.rapidbr.services.overlay.BrightnessOverlayService;
 import com.out386.rapidbr.settings.OnNavigationListener;
 import com.out386.rapidbr.settings.bottom.bcolour.OnButtonColourChangedListener;
 import com.out386.rapidbr.settings.top.TopFragment;
 
 import java.lang.ref.WeakReference;
 
-import static com.out386.rapidbr.services.BrightnessOverlayService.DEF_OVERLAY_BUTTON_COLOUR;
-import static com.out386.rapidbr.services.BrightnessOverlayService.KEY_SCREEN_DIM_AMOUNT;
-import static com.out386.rapidbr.services.BrightnessOverlayService.MSG_IS_OVERLAY_RUNNING;
-import static com.out386.rapidbr.services.BrightnessOverlayService.MSG_OVERLAY_BUTTON_COLOUR;
-import static com.out386.rapidbr.services.BrightnessOverlayService.MSG_SET_CLIENT_MESSENGER;
-import static com.out386.rapidbr.services.BrightnessOverlayService.MSG_TOGGLE_OVERLAY;
-import static com.out386.rapidbr.services.BrightnessOverlayService.MSG_UNSET_CLIENT_MESSENGER;
+import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.DEF_OVERLAY_BUTTON_COLOUR;
+import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.KEY_SCREEN_DIM_AMOUNT;
+import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_IS_OVERLAY_RUNNING;
+import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_OVERLAY_BUTTON_COLOUR;
+import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_SET_CLIENT_MESSENGER;
+import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_TOGGLE_OVERLAY;
+import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_UNSET_CLIENT_MESSENGER;
 import static com.out386.rapidbr.settings.bottom.bcolour.ButtonColourFragment.KEY_BR_ICON_COLOUR;
 
 public class MainActivity extends AppCompatActivity implements OnNavigationListener,
