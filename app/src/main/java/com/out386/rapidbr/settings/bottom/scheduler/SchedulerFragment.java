@@ -29,7 +29,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -37,6 +36,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.out386.rapidbr.R;
+import com.out386.rapidbr.settings.bottom.views.SwitchItem;
 
 import java.util.Calendar;
 
@@ -52,7 +52,7 @@ public class SchedulerFragment extends Fragment {
     private LinearLayout schedStop;
     private TextView schedStartDesc;
     private TextView schedStopDesc;
-    private Switch schedEnable;
+    private SwitchItem schedEnable;
     private SharedPreferences prefs;
     private PrefsListener prefsListener;
 
@@ -122,7 +122,7 @@ public class SchedulerFragment extends Fragment {
     }
 
     private void setupListeners() {
-        schedEnable.setOnCheckedChangeListener((buttonView, isChecked) ->
+        schedEnable.setOnCheckedChangeListener(isChecked ->
                 prefs.edit()
                         .putBoolean(KEY_SCHED_ENABLE, isChecked)
                         .apply());

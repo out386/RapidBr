@@ -33,6 +33,7 @@ import androidx.navigation.Navigation;
 
 import com.out386.rapidbr.R;
 import com.out386.rapidbr.settings.OnNavigationListener;
+import com.out386.rapidbr.settings.bottom.views.CardLayout;
 
 public class BottomFragment extends Fragment {
 

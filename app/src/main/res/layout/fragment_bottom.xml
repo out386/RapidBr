@@ -14,7 +14,7 @@
 
         <!--Why use a Recycler for just 4-5 items?-->
 
-        <com.out386.rapidbr.settings.bottom.CardLayout
+        <com.out386.rapidbr.settings.bottom.views.CardLayout
             android:id="@+id/scheduler_card"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -26,7 +26,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:text="@string/sett_main_scheduler" />
 
-        <com.out386.rapidbr.settings.bottom.CardLayout
+        <com.out386.rapidbr.settings.bottom.views.CardLayout
             android:id="@+id/color_card"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -38,7 +38,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:text="@string/sett_main_color" />
 
-        <com.out386.rapidbr.settings.bottom.CardLayout
+        <com.out386.rapidbr.settings.bottom.views.CardLayout
             android:id="@+id/blacklist_card"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -51,7 +51,7 @@
             app:layout_constraintTop_toBottomOf="@+id/scheduler_card"
             app:text="@string/sett_main_blacklist" />
 
-        <com.out386.rapidbr.settings.bottom.CardLayout
+        <com.out386.rapidbr.settings.bottom.views.CardLayout
             android:id="@+id/filter_card"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

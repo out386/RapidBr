@@ -32,39 +32,37 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/edge_padding_internal"
             android:layout_marginBottom="@dimen/edge_padding"
-            android:background="@drawable/card"
-            android:padding="@dimen/edge_padding_internal">
+            android:background="@drawable/card">
 
-            <TextView
-                android:id="@+id/sched_enable_text"
-                style="@style/GeneralSubHeaderText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/sett_sched_enable"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <Switch
+            <com.out386.rapidbr.settings.bottom.views.SwitchItem
                 android:id="@+id/sched_enable_switch"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:switchText="@string/sett_sched_enable" />
+
+
+            <View
+                android:id="@+id/sched_switch_div"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="@dimen/edge_padding_internal"
+                android:layout_marginEnd="@dimen/edge_padding_internal"
+                android:background="@color/cardStroke"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/sched_enable_switch" />
 
             <LinearLayout
                 android:id="@+id/sched_start"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="?android:selectableItemBackground"
                 android:orientation="vertical"
+                android:padding="@dimen/edge_padding_internal"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/sched_enable_text">
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="@dimen/edge_padding_internal"
-                    android:layout_marginBottom="@dimen/edge_padding_internal"
-                    android:background="@color/cardStroke" />
+                app:layout_constraintTop_toBottomOf="@+id/sched_switch_div">
 
                 <TextView
                     style="@style/GeneralSubHeaderText"
@@ -81,20 +79,25 @@
 
             </LinearLayout>
 
+            <View
+                android:id="@+id/sched_start_div"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="@dimen/edge_padding_internal"
+                android:layout_marginEnd="@dimen/edge_padding_internal"
+                android:background="@color/cardStroke"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/sched_start" />
+
             <LinearLayout
                 android:id="@+id/sched_stop"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="?android:selectableItemBackground"
                 android:orientation="vertical"
+                android:padding="@dimen/edge_padding_internal"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/sched_start">
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="@dimen/edge_padding_internal"
-                    android:layout_marginBottom="@dimen/edge_padding_internal"
-                    android:background="@color/cardStroke" />
+                app:layout_constraintTop_toBottomOf="@id/sched_start_div">
 
                 <TextView
                     style="@style/GeneralSubHeaderText"

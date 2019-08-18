@@ -5,4 +5,8 @@
         <attr name="image" format="reference" />
         <attr name="image_tint" format="reference" />
     </declare-styleable>
+
+    <declare-styleable name="SwitchItem">
+        <attr name="switchText" format="string" />
+    </declare-styleable>
 </resources>
