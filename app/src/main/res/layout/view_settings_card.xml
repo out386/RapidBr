@@ -36,7 +36,7 @@
         android:paddingStart="@dimen/edge_padding_internal_thin"
         android:paddingEnd="@dimen/edge_padding_internal_thin"
         android:textAllCaps="true"
-        android:textColor="@color/textSub"
+        android:textColor="@color/textWhite"
         android:textSize="13sp"
         tools:text="@tools:sample/lorem" />
 

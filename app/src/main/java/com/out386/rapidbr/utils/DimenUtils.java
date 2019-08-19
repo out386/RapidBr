@@ -28,6 +28,7 @@ import android.view.WindowManager;
 public class DimenUtils {
     /**
      * Get real metrics of default display
+     *
      * @param context Context
      * @return The real metrics of default display
      */
@@ -46,6 +47,7 @@ public class DimenUtils {
 
     /**
      * Get the real height of screen
+     *
      * @param context Context
      * @return The real height of screen
      */
@@ -56,6 +58,7 @@ public class DimenUtils {
 
     /**
      * Get the real width of screen
+     *
      * @param context Context
      * @return The real width of screen
      */

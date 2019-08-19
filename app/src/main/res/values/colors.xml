@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#1D1D1D</color>
-    <color name="colorPrimaryDark">#000000</color>
-    <color name="colorAccent">#E64A19</color>
-    <color name="colorAccentTransparent">#3FE64A19</color>
-    <color name="colorAccentSemiTransparent">#80E64A19</color>
-    <color name="windowBackground">#171717</color>
-    <color name="toolbarText2">#FFFFFF</color>
+    <color name="colorPrimary">#FFFFFF</color>
+    <color name="colorPrimaryDark">#FFFFFF</color>
+    <color name="colorAccent">#FF7043</color>
+    <color name="buttonStroke">#FF7043</color>
+    <color name="buttonFill">#6FFF6E40</color>
+    <color name="buttonRipple">#9FFF7043</color>
+    <color name="windowBackground">#FFFFFF</color>
+    <color name="toolbarText2">#585858</color>
     <color name="transparent">#00FFFFFF</color>
-    <color name="textWhite">#FFFFFF</color>
-    <color name="textTopNotRunning">#FFAB91</color>
+    <color name="textWhite">#050505</color>
+    <color name="textTopNotRunning">#FF7043</color>
     <color name="textTopRunning">#2196F3</color>
-    <color name="textHeaderSub">#FFFFFF</color>
-    <color name="textSub">#ACACAC</color>
+    <color name="textHeaderSub">#050505</color>
+    <color name="textSub">#727272</color>
+    <color name="colourPickerCheck">#303030</color>
     <color name="rippleColor">#33ACACAC</color>
-    <color name="cardStroke">#383838</color>
+    <color name="cardStroke">#DBDBDB</color>
     <color name="icGreen">#66BB6A</color>
     <color name="icBlue">#29B6F6</color>
     <color name="icYellow">#B9AD3B</color>
     <color name="icPink">#EC407A</color>
-    <color name="strokeWhite">#FFFFFF</color>
     <color name="white">#FFFFFF</color>
-    <color name="fillWhiteTransparent">#CFFFFFFF</color>
     <color name="blacklistDelete">#FFB71C1C</color>
 </resources>

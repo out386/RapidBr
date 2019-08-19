@@ -4,6 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_marginStart="@dimen/edge_padding"
+    android:layout_marginTop="@dimen/edge_padding_huge"
+    android:layout_marginEnd="@dimen/edge_padding"
+    android:layout_marginBottom="@dimen/edge_padding"
+    android:background="@drawable/card"
     android:padding="@dimen/edge_padding"
     tools:context=".settings.top.TopFragment">
 
@@ -14,7 +19,6 @@
         android:fontFamily="@font/orkney_medium"
         android:textColor="@color/textTopNotRunning"
         android:textSize="40sp"
-        app:layout_constraintBottom_toTopOf="@+id/top_frag_schedule"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"

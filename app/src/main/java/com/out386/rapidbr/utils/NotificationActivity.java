@@ -8,8 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.out386.rapidbr.MainActivity;
 
 /**
- * By David Wasser and Raginmari
- * https://stackoverflow.com/a/9532756
+ * By David Wasser and Raginmari https://stackoverflow.com/a/9532756
  * https://stackoverflow.com/a/7286683
  */
 

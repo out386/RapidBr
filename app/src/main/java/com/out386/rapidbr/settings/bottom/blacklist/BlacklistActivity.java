@@ -33,12 +33,12 @@ import android.text.style.ForegroundColorSpan;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.out386.rapidbr.R;
+import com.out386.rapidbr.ThemeActivity;
 import com.out386.rapidbr.settings.bottom.blacklist.picker.BlacklistActivityListener;
 import com.out386.rapidbr.settings.bottom.blacklist.picker.BlacklistPickerFragment;
 import com.out386.rapidbr.settings.bottom.blacklist.picker.BlacklistPickerItem;
@@ -47,7 +47,7 @@ import com.out386.rapidbr.utils.GenericDialogFragment;
 import static android.app.AppOpsManager.MODE_ALLOWED;
 import static android.app.AppOpsManager.OPSTR_GET_USAGE_STATS;
 
-public class BlacklistActivity extends AppCompatActivity implements BlacklistActivityListener {
+public class BlacklistActivity extends ThemeActivity implements BlacklistActivityListener {
 
     private static final String BLACKLIST_FRAGMENT_TAG = "blacklistFragment";
     private static final String KEY_BLOCK_BACK = "isSaveNeeded";

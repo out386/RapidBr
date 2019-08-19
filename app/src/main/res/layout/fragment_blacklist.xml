@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:paddingStart="@dimen/edge_padding"
     android:paddingEnd="@dimen/edge_padding">
 
@@ -79,14 +80,14 @@
 
     </RelativeLayout>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/blacklist_add_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="@dimen/edge_padding"
-        android:drawableStart="@drawable/ic_add"
+        app:icon="@drawable/ic_add"
         android:text="@string/sett_blacklist_add_apps" />
 
 </RelativeLayout>

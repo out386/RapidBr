@@ -11,10 +11,10 @@
         style="@style/GeneralBodyText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/edge_padding_internal"
+        android:layout_marginBottom="@dimen/edge_padding_internal"
         android:text="@string/sett_blacklist_pick_prompt"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginBottom="@dimen/edge_padding_internal"
-        android:layout_marginTop="@dimen/edge_padding_internal"
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView

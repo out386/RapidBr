@@ -46,7 +46,6 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.Fragment;
@@ -70,7 +69,7 @@ import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_U
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.NOTIF_CHANNEL_ID;
 import static com.out386.rapidbr.settings.bottom.bcolour.ButtonColourFragment.KEY_BR_ICON_COLOUR;
 
-public class MainActivity extends AppCompatActivity implements OnNavigationListener,
+public class MainActivity extends ThemeActivity implements OnNavigationListener,
         OnButtonColourChangedListener {
 
     private static final String KEY_CURRENTLY_MAIN_FRAG = "CURRENTLY_MAIN_FRAG";
@@ -208,9 +207,6 @@ public class MainActivity extends AppCompatActivity implements OnNavigationListe
         ViewGroup.LayoutParams toolbarParams = toolbar.getLayoutParams();
         CoordinatorLayout.LayoutParams appBarParams =
                 (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
-
-        decorView.setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
 
         decorView.setOnApplyWindowInsetsListener((view, insets) -> {
             int topInset = insets.getSystemWindowInsetTop();

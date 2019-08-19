@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#1D1D1D</color>
+    <color name="colorPrimaryDark">#000000</color>
+    <color name="colorAccent">#FF7043</color>
+    <color name="buttonStroke">#BE5232</color>
+    <color name="buttonFill">#3FFF5722</color>
+    <color name="buttonRipple">#8FFF5722</color>
+    <color name="windowBackground">#171717</color>
+    <color name="toolbarText2">#FFFFFF</color>
+    <color name="transparent">#00FFFFFF</color>
+    <color name="textWhite">#FFFFFF</color>
+    <color name="textTopNotRunning">#FFAB91</color>
+    <color name="textTopRunning">#80D8FF</color>
+    <color name="textHeaderSub">#FFFFFF</color>
+    <color name="textSub">#ACACAC</color>
+    <color name="colourPickerCheck">#000000</color>
+    <color name="rippleColor">#33ACACAC</color>
+    <color name="cardStroke">#383838</color>
+    <color name="icGreen">#66BB6A</color>
+    <color name="icBlue">#29B6F6</color>
+    <color name="icYellow">#B9AD3B</color>
+    <color name="icPink">#EC407A</color>
+    <color name="white">#FFFFFF</color>
+    <color name="blacklistDelete">#FFB71C1C</color>
+</resources>
