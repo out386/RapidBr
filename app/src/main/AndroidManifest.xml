@@ -28,13 +28,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity android:name=".settings.bottom.blacklist.BlacklistActivity" />
-
         <activity android:name=".utils.NotificationActivity" />
 
         <service
             android:name=".services.overlay.BrightnessOverlayService"
+            android:process=":overlayProcess" />
+        <service
+            android:name=".services.appusage.AppBlacklistService"
             android:process=":overlayProcess" />
 
     </application>

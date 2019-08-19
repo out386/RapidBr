@@ -34,6 +34,7 @@ import androidx.core.content.ContextCompat;
 
 import com.out386.rapidbr.BuildConfig;
 import com.out386.rapidbr.R;
+import com.out386.rapidbr.services.appusage.AppBlacklistService;
 import com.out386.rapidbr.utils.DimenUtils;
 import com.out386.rapidbr.utils.NotificationActivity;
 
@@ -54,8 +55,8 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     public static final int MSG_IS_OVERLAY_RUNNING = 8;
     public static final int DEF_OVERLAY_BUTTON_COLOUR = 0x0288D1;
     public static final float DEF_OVERLAY_BUTTON_ALPHA = 0.5f;
-    static final String ACTION_START = BuildConfig.APPLICATION_ID + ".START";
-    static final String ACTION_PAUSE = BuildConfig.APPLICATION_ID + ".PAUSE";
+    public static final String ACTION_START = BuildConfig.APPLICATION_ID + ".START";
+    public static final String ACTION_PAUSE = BuildConfig.APPLICATION_ID + ".PAUSE";
     static final String ACTION_STOP = BuildConfig.APPLICATION_ID + ".STOP";
     private static final int NOTIFY_ID = 9906;
 
@@ -108,8 +109,14 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     }
 
     private void setGlobals(Intent i) {
-        buttonColour = i.getIntExtra(KEY_BR_ICON_COLOUR, DEF_OVERLAY_BUTTON_COLOUR);
-        screenDimAmount = i.getIntExtra(KEY_SCREEN_DIM_AMOUNT, 0) / 100f;
+        int buttonColourTemp = i.getIntExtra(KEY_BR_ICON_COLOUR, DEF_OVERLAY_BUTTON_COLOUR);
+        float screenDimAmountTemp = i.getIntExtra(KEY_SCREEN_DIM_AMOUNT, 0) / 100f;
+
+        // Set new values only if there are no values currently set, or if the intent has new values
+        if (buttonColour == 0 || buttonColourTemp != DEF_OVERLAY_BUTTON_COLOUR)
+            buttonColour = buttonColourTemp;
+        if (screenDimAmount == 0.0f || screenDimAmountTemp != 0.0f)
+            screenDimAmount = screenDimAmountTemp;
     }
 
     @Override
@@ -135,6 +142,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     }
 
     private void startOverlay() {
+        // TODO: Check whether adaptive brightness was enabled
         initialSliderX = prefs.getInt(KEY_OVERLAY_X, 0);
         initialSliderY = prefs.getInt(KEY_OVERLAY_Y, 300);
         isOverlayRunning = true;
@@ -144,6 +152,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         buttonAnim.hideButtonDelayed();
         sendIsRunning();
         startService(new Intent(this, BrightnessOverlayService.class));
+        startService(new Intent(this, AppBlacklistService.class));
         foregroundify();
     }
 
@@ -185,6 +194,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
 
     private void stopOverlay() {
         pauseOverlay(false);
+        stopService(new Intent(this, AppBlacklistService.class));
         stopForeground(true);
         stopSelf();
     }
@@ -300,6 +310,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     @Override
     public void onDestroy() {
         pauseOverlay(false);
+        stopService(new Intent(this, AppBlacklistService.class));
         super.onDestroy();
     }
 

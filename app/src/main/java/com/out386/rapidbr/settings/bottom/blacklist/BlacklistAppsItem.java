@@ -66,7 +66,7 @@ public class BlacklistAppsItem extends AbstractItem<BlacklistAppsItem, Blacklist
         return new ViewHolder(v);
     }
 
-    String getPackageName() {
+    public String getPackageName() {
         return packageName;
     }
 
@@ -78,7 +78,7 @@ public class BlacklistAppsItem extends AbstractItem<BlacklistAppsItem, Blacklist
      * @return The brightness to be used for this app, between -1F to 255F. -1F means brightness
      * will be unchanged
      */
-    float getBrightness() {
+    public float getBrightness() {
         return brightness;
     }
 
@@ -90,7 +90,7 @@ public class BlacklistAppsItem extends AbstractItem<BlacklistAppsItem, Blacklist
      * Set the brightness to be used for this app, between -1 to 255. -1 means brightness will be
      * unchanged
      */
-    void setAppBrightness(float brightness) {
+    public void setAppBrightness(float brightness) {
         if (brightness < -1)
             brightness = -1;
         else if (brightness > 255)
