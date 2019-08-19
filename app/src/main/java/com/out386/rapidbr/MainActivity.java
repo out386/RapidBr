@@ -20,11 +20,14 @@ package com.out386.rapidbr;
  *
  */
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -64,6 +67,7 @@ import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_O
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_SET_CLIENT_MESSENGER;
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_TOGGLE_OVERLAY;
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_UNSET_CLIENT_MESSENGER;
+import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.NOTIF_CHANNEL_ID;
 import static com.out386.rapidbr.settings.bottom.bcolour.ButtonColourFragment.KEY_BR_ICON_COLOUR;
 
 public class MainActivity extends AppCompatActivity implements OnNavigationListener,
@@ -86,6 +90,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        createNotifChannel();
         setupViews();
         setTopFragment();
         if (savedInstanceState != null) {
@@ -174,6 +179,23 @@ public class MainActivity extends AppCompatActivity implements OnNavigationListe
                 brConnection,
                 Context.BIND_AUTO_CREATE
         );
+    }
+
+    private void createNotifChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            final String CHANNEL_NAME = getString(R.string.notif_channel_name);
+            final String CHANNEL_DESC = getString(R.string.notif_channel_desc);
+            NotificationChannel channel = new NotificationChannel(
+                    NOTIF_CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT);
+            channel.setSound(null, null);
+            channel.setDescription(CHANNEL_DESC);
+            channel.enableLights(false);
+            channel.enableVibration(false);
+            NotificationManager notificationManager =
+                    ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE));
+            if (notificationManager != null)
+                notificationManager.createNotificationChannel(channel);
+        }
     }
 
     private void setupInsets() {

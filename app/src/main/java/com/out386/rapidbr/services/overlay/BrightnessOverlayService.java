@@ -1,7 +1,7 @@
 package com.out386.rapidbr.services.overlay;
 
 import android.annotation.TargetApi;
-import android.app.NotificationChannel;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -43,6 +43,7 @@ import static com.out386.rapidbr.utils.SizeUtils.dpToPx;
 
 public class BrightnessOverlayService extends Service implements View.OnTouchListener {
 
+    public final static String NOTIF_CHANNEL_ID = "channelStandard";
     public static final String KEY_OVERLAY_X = "overlayX";
     public static final String KEY_OVERLAY_Y = "overlayY";
     public static final String KEY_SCREEN_DIM_AMOUNT = "screenDimAmount";
@@ -89,7 +90,9 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     private int initialSliderY;
     private int buttonColour;
     private boolean isOverlayRunning;
-    private NotificationCompat.Builder notificationBuilder;
+    private Notification notificationPause;
+    private Notification notificationResume;
+    private NotificationManager notificationManager;
     private Messenger serviceMessenger;
     private Messenger clientMessenger;
     private ButtonAnim buttonAnim;
@@ -188,8 +191,11 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
             brightnessHandler.removeCallbacksAndMessages(null);
 
         sendIsRunning();
-        if (isForPause)
-            setNotifActions();
+        if (isForPause) {
+            if (notificationResume == null)
+                notificationResume = getResumeNotification();
+            sendNotification(notificationResume);
+        }
     }
 
     private void stopOverlay() {
@@ -474,17 +480,21 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     }
 
     private void foregroundify() {
-        final String CHANNEL_ID = "channelStandard";
-        if (notificationBuilder == null)
-            notificationBuilder =
-                    new NotificationCompat.Builder(this, CHANNEL_ID);
-        else
-            notificationBuilder.mActions.clear();
+        if (notificationPause == null)
+            notificationPause = getPauseNotification();
+        sendNotification(notificationPause);
+        startForeground(NOTIFY_ID, notificationPause);
+    }
 
-        Intent notificationIntent = new Intent(getApplicationContext(), NotificationActivity.class);
+    private Notification getPauseNotification() {
+        NotificationCompat.Builder notificationBuilderPause =
+                new NotificationCompat.Builder(this, NOTIF_CHANNEL_ID);
+        Intent notificationIntent =
+                new Intent(getApplicationContext(), NotificationActivity.class);
         PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(),
                 0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-        notificationBuilder
+
+        notificationBuilderPause
                 .setSound(null)
                 .setVibrate(null)
                 .setAutoCancel(false)
@@ -494,53 +504,50 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
                 .setContentText(getString(R.string.notif_subtext))
                 .setSmallIcon(R.drawable.ic_notif)
                 .setColor(ContextCompat.getColor(getApplicationContext(), R.color.colorAccent))
-                .setTicker(getString(R.string.notif_running));
-        setNotifActions();
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            final String CHANNEL_NAME = getString(R.string.notif_channel_name);
-            final String CHANNEL_DESC = getString(R.string.notif_channel_desc);
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME,
-                    NotificationManager.IMPORTANCE_DEFAULT);
-            channel.setSound(null, null);
-            channel.setDescription(CHANNEL_DESC);
-            channel.enableLights(false);
-            channel.enableVibration(false);
-            NotificationManager notificationManager =
-                    ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE));
-            if (notificationManager != null)
-                notificationManager.createNotificationChannel(channel);
-        }
-
-        startForeground(NOTIFY_ID, notificationBuilder.build());
-    }
-
-    private void setNotifActions() {
-        if (notificationBuilder == null)
-            return;
-
-        notificationBuilder.mActions.clear();
-        if (isOverlayRunning)
-            notificationBuilder
-                    .addAction(R.drawable.ic_notif_pause,
-                            getString(R.string.notif_pause),
-                            buildPendingIntent(ACTION_PAUSE))
-                    .setContentTitle(getString(R.string.notif_running));
-        else
-            notificationBuilder
-                    .addAction(R.drawable.ic_notif_start,
-                            getString(R.string.notif_resume),
-                            buildPendingIntent(ACTION_START))
-                    .setContentTitle(getString(R.string.notif_paused));
-        notificationBuilder
-                .addAction(R.drawable.ic_notif_stop,
-                        getString(R.string.notif_stop),
+                .setTicker(getString(R.string.notif_running))
+                .addAction(
+                        R.drawable.ic_notif_pause, getString(R.string.notif_pause),
+                        buildPendingIntent(ACTION_PAUSE))
+                .addAction(
+                        R.drawable.ic_notif_stop, getString(R.string.notif_stop),
                         buildPendingIntent(ACTION_STOP));
 
-        NotificationManager notificationManager =
-                ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE));
-        if (notificationManager != null)
-            notificationManager.notify(NOTIFY_ID, notificationBuilder.build());
+        return notificationBuilderPause.build();
+    }
+
+    private Notification getResumeNotification() {
+        NotificationCompat.Builder notificationBuilderPause =
+                new NotificationCompat.Builder(this, NOTIF_CHANNEL_ID);
+        Intent notificationIntent =
+                new Intent(getApplicationContext(), NotificationActivity.class);
+        PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(),
+                0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+
+        notificationBuilderPause
+                .setSound(null)
+                .setVibrate(null)
+                .setAutoCancel(false)
+                .setOnlyAlertOnce(true)
+                .setContentIntent(contentIntent)
+                .setContentTitle(getString(R.string.notif_paused))
+                .setContentText(getString(R.string.notif_subtext))
+                .setSmallIcon(R.drawable.ic_notif)
+                .setColor(ContextCompat.getColor(getApplicationContext(), R.color.colorAccent))
+                .setTicker(getString(R.string.notif_paused))
+                .addAction(R.drawable.ic_notif_start, getString(R.string.notif_resume),
+                        buildPendingIntent(ACTION_START))
+                .addAction(
+                        R.drawable.ic_notif_stop, getString(R.string.notif_stop),
+                        buildPendingIntent(ACTION_STOP));
+
+        return notificationBuilderPause.build();
+    }
+
+    private void sendNotification(Notification notification) {
+        if (notificationManager == null)
+            notificationManager =
+                    ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE));
+        notificationManager.notify(NOTIFY_ID, notification);
 
     }
 
