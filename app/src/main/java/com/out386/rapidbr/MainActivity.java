@@ -38,7 +38,6 @@ import android.preference.PreferenceManager;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
-import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -68,6 +67,7 @@ import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_T
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_UNSET_CLIENT_MESSENGER;
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.NOTIF_CHANNEL_ID;
 import static com.out386.rapidbr.settings.bottom.bcolour.ButtonColourFragment.KEY_BR_ICON_COLOUR;
+import static com.out386.rapidbr.utils.DimenUtils.getActionbarHeight;
 
 public class MainActivity extends ThemeActivity implements OnNavigationListener,
         OnButtonColourChangedListener {
@@ -213,7 +213,7 @@ public class MainActivity extends ThemeActivity implements OnNavigationListener,
             int leftInset = insets.getSystemWindowInsetLeft();
             int rightInset = insets.getSystemWindowInsetRight();
             int bottomInset = insets.getSystemWindowInsetBottom();
-            int actionbarHeight = getActionbarHeight();
+            int actionbarHeight = getActionbarHeight(this);
 
             toolbarParams.height = (actionbarHeight > -1 ? actionbarHeight : toolbarParams.height) +
                     topInset;
@@ -243,14 +243,6 @@ public class MainActivity extends ThemeActivity implements OnNavigationListener,
                 .postDelayed(() -> appBarLayout.setExpanded(!finallyCollapsed, false),
                         250
                 );
-    }
-
-    private int getActionbarHeight() {
-        TypedValue tv = new TypedValue();
-        if (getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
-            return TypedValue.complexToDimensionPixelSize(tv.data, getResources().getDisplayMetrics());
-        }
-        return -1;
     }
 
     private void setupToolbarText() {

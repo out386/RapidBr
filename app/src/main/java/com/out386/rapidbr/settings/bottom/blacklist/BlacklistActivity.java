@@ -30,9 +30,12 @@ import android.provider.Settings;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -46,6 +49,7 @@ import com.out386.rapidbr.utils.GenericDialogFragment;
 
 import static android.app.AppOpsManager.MODE_ALLOWED;
 import static android.app.AppOpsManager.OPSTR_GET_USAGE_STATS;
+import static com.out386.rapidbr.utils.DimenUtils.getActionbarHeight;
 
 public class BlacklistActivity extends ThemeActivity implements BlacklistActivityListener {
 
@@ -74,6 +78,7 @@ public class BlacklistActivity extends ThemeActivity implements BlacklistActivit
         }
 
         setupToolbarText();
+        setupInsets();
     }
 
     @Override
@@ -137,6 +142,29 @@ public class BlacklistActivity extends ThemeActivity implements BlacklistActivit
                 appName.length(),
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         toolbarTV.setText(toolbarString);
+    }
+
+    private void setupInsets() {
+        View decorView = getWindow().getDecorView();
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        ViewGroup.LayoutParams toolbarParams = toolbar.getLayoutParams();
+
+        decorView.setOnApplyWindowInsetsListener((view, insets) -> {
+            int topInset = insets.getSystemWindowInsetTop();
+            int leftInset = insets.getSystemWindowInsetLeft();
+            int rightInset = insets.getSystemWindowInsetRight();
+            int bottomInset = insets.getSystemWindowInsetBottom();
+            int actionbarHeight = getActionbarHeight(this);
+
+            toolbarParams.height = (actionbarHeight > -1 ? actionbarHeight : toolbarParams.height) +
+                    topInset;
+
+            toolbar.setLayoutParams(toolbarParams);
+            toolbar.setPadding(leftInset, 0, rightInset, 0);
+            decorView.setPadding(leftInset, 0, rightInset, bottomInset);
+
+            return insets.consumeSystemWindowInsets();
+        });
     }
 
     private void changeFragment(Fragment fragment, String tag, boolean addToBackStack) {
