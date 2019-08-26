@@ -28,7 +28,11 @@
             app:popExitAnim="@anim/slide_out_bottom" />
         <action
             android:id="@+id/action_bottom_to_blacklist"
-            app:destination="@id/blacklistActivity" />
+            app:destination="@id/blacklistActivity"
+            app:enterAnim="@anim/slide_in_bottom_activity"
+            app:exitAnim="@anim/slide_out_top_activity"
+            app:popEnterAnim="@anim/slide_in_top_activity"
+            app:popExitAnim="@anim/slide_out_bottom_activity" />
 
     </fragment>
 

@@ -59,6 +59,7 @@ public class BlacklistActivity extends ThemeActivity implements BlacklistActivit
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_bottom);
         setContentView(R.layout.activity_blacklist);
 
         if (savedInstanceState == null) {

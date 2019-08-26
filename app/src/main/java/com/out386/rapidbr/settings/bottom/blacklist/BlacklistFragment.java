@@ -183,7 +183,7 @@ public class BlacklistFragment extends Fragment implements
      */
     private void showNoApps() {
         recyclerView.setVisibility(View.GONE);
-        animateView(noApps, true);
+        noApps.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -191,7 +191,7 @@ public class BlacklistFragment extends Fragment implements
      */
     private void showApps() {
         recyclerView.setVisibility(View.VISIBLE);
-        animateView(noApps, false);
+        noApps.setVisibility(View.GONE);
     }
 
     @Override
