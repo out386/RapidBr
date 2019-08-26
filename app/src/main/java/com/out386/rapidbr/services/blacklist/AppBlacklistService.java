@@ -1,4 +1,4 @@
-package com.out386.rapidbr.services.appusage;
+package com.out386.rapidbr.services.blacklist;
 
 /*
  * Copyright (C) 2019 Ritayan Chakraborty <ritayanout@gmail.com>
@@ -30,8 +30,8 @@ import androidx.annotation.Nullable;
 
 import com.out386.rapidbr.services.overlay.BrightnessOverlayService;
 import com.out386.rapidbr.settings.bottom.blacklist.BlacklistAppsItem;
-import com.out386.rapidbr.settings.bottom.blacklist.io.ReadBlacklistRunnable;
-import com.out386.rapidbr.settings.bottom.blacklist.io.WriteBlacklistRunnable;
+import com.out386.rapidbr.settings.bottom.blacklist.io.BlacklistAppsStore;
+import com.out386.rapidbr.settings.bottom.blacklist.io.BlacklistAppsStore.OnBlacklistReadListener;
 
 import java.util.List;
 
@@ -39,7 +39,7 @@ import static com.out386.rapidbr.utils.DeviceBrightnessUtils.getBrightness;
 import static com.out386.rapidbr.utils.DeviceBrightnessUtils.setBrightness;
 
 
-public class AppBlacklistService extends Service {
+public class AppBlacklistService extends Service implements OnBlacklistReadListener {
     private static final String KEY_USER_BRIGHTNESS = "userBrightness";
 
     private AppUsageDetector appUsageDetector;
@@ -49,20 +49,18 @@ public class AppBlacklistService extends Service {
     private Intent resumeIntent;
     private Intent pauseIntent;
     private SharedPreferences prefs;
+    private BlacklistAppsStore blacklistAppsStore;
 
     @Override
     public void onCreate() {
         prefs = getSharedPreferences("brightnessPrefs", MODE_PRIVATE);
-        ReadBlacklistRunnable loadAppsRunnable =
-                // TODO: We don't need icons here. Add a switch for it.
-                new ReadBlacklistRunnable(getApplicationContext(),
-                        null, this::startPolling
-                );
-        new Thread(loadAppsRunnable).start();
+        blacklistAppsStore = BlacklistAppsStore.getInstance(getApplicationContext());
+        blacklistAppsStore.read(null, this);
         super.onCreate();
     }
 
-    private void startPolling(@Nullable List<BlacklistAppsItem> list) {
+    @Override
+    public void onBlacklistRead(@Nullable List<BlacklistAppsItem> list) {
         if (list == null || list.size() == 0) // No apps, no polling.
             return;
 
@@ -116,11 +114,6 @@ public class AppBlacklistService extends Service {
     public void onDestroy() {
         if (appUsageDetector != null)
             appUsageDetector.stop();
-        // The list might have been changed, because brightnesses for paused apps might
-        // have been changed
-        WriteBlacklistRunnable writeBlacklistAppsRunnable =
-                new WriteBlacklistRunnable(getApplicationContext(), blacklistList);
-        new Thread(writeBlacklistAppsRunnable).start();
         super.onDestroy();
     }
 

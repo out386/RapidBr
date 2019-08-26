@@ -21,7 +21,6 @@ package com.out386.rapidbr.settings.bottom.blacklist;
  */
 
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -37,6 +36,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -53,15 +53,13 @@ import com.mikepenz.fastadapter_extensions.drag.SimpleDragCallback;
 import com.mikepenz.fastadapter_extensions.swipe.SimpleSwipeCallback;
 import com.mikepenz.fastadapter_extensions.swipe.SimpleSwipeDragCallback;
 import com.out386.rapidbr.R;
-import com.out386.rapidbr.settings.bottom.blacklist.io.ReadBlacklistRunnable;
-import com.out386.rapidbr.settings.bottom.blacklist.io.WriteBlacklistRunnable;
+import com.out386.rapidbr.settings.bottom.blacklist.io.BlacklistAppsStore;
+import com.out386.rapidbr.settings.bottom.blacklist.io.BlacklistAppsStore.OnBlacklistReadListener;
 import com.out386.rapidbr.settings.bottom.blacklist.picker.BlacklistActivityListener;
 import com.out386.rapidbr.settings.bottom.blacklist.picker.BlacklistPickerItem;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import static com.out386.rapidbr.settings.bottom.blacklist.PackageUtils.checkUnique;
 import static com.out386.rapidbr.settings.bottom.blacklist.PackageUtils.pickerToAppItem;
@@ -69,13 +67,10 @@ import static com.out386.rapidbr.utils.ViewUtils.animateView;
 
 public class BlacklistFragment extends Fragment implements
         OnClickListener<BlacklistAppsItem>, ItemTouchCallback,
-        SimpleSwipeCallback.ItemSwipeCallback, BlacklistFragmentListener {
+        SimpleSwipeCallback.ItemSwipeCallback, BlacklistFragmentListener, OnBlacklistReadListener {
 
-    public static final String FILE_APP_PROFILES_APPS_LIST = "profilesAppsList";
     private static final String KEY_NEW_APP_ITEM_LIST = "newAppItemList";
     private static final String KEY_LAYOUT_MANAGER_STATE = "layoutState";
-    private static final String KEY_APP_HELP_SHOWN = "profilesHelpShown";
-    private static boolean isWriting = false;
 
     private ItemAdapter<BlacklistAppsItem> itemAdapter;
     private FastAdapter<BlacklistAppsItem> fastAdapter;
@@ -87,7 +82,8 @@ public class BlacklistFragment extends Fragment implements
     private TextView noApps;
     private SeekBar appBrightnessSeekbar;
     private LinearLayout appBrightnessRootHolder;
-    private ExecutorService loadAppsExecutor;
+    private BlacklistAppsStore blacklistAppsStore;
+    private Handler mainHandler;
 
     public BlacklistFragment() {
     }
@@ -100,7 +96,8 @@ public class BlacklistFragment extends Fragment implements
         fastAdapter
                 .withSelectable(true)
                 .withOnClickListener(this);
-        loadAppsExecutor = Executors.newSingleThreadExecutor();
+        blacklistAppsStore = BlacklistAppsStore.getInstance(requireContext());
+        mainHandler = new Handler();
     }
 
     @Override
@@ -111,6 +108,12 @@ public class BlacklistFragment extends Fragment implements
         noApps = v.findViewById(R.id.blacklist_no_apps_text);
         recyclerView = v.findViewById(R.id.blacklist_recycler);
         layoutManager = new LinearLayoutManager(getContext());
+        return v;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         Context context = requireContext();
         Drawable deleteDrawable = ContextCompat.getDrawable(context, R.drawable.ic_delete);
@@ -132,7 +135,7 @@ public class BlacklistFragment extends Fragment implements
         recyclerView.setAdapter(fastAdapter);
         touchHelper.attachToRecyclerView(recyclerView);
 
-        addButton.setOnClickListener(view ->
+        addButton.setOnClickListener(v ->
                 // The delay is to let the ripple animation complete
                 new Handler().postDelayed(() -> {
                     BlacklistActivityListener listener = ((BlacklistActivityListener) getActivity());
@@ -147,12 +150,11 @@ public class BlacklistFragment extends Fragment implements
             ArrayList<BlacklistAppsItem> allAppItems =
                     (ArrayList<BlacklistAppsItem>) savedInstanceState
                             .getSerializable(KEY_NEW_APP_ITEM_LIST);
-            fetchApps(allAppItems);
+            blacklistAppsStore.read(allAppItems, this);
         } else if (itemAdapter.getAdapterItems() == null || itemAdapter.getAdapterItems().size() == 0)
-            fetchApps(null);
+            blacklistAppsStore.read(null, this);
 
         setupButtonScroll();
-        return v;
     }
 
     private void setupButtonScroll() {
@@ -209,25 +211,23 @@ public class BlacklistFragment extends Fragment implements
     }
 
     /**
-     * Clears the RecyclerView adapter and sets the parameter list to it. Can be called on a
-     * background thread.
+     * Clears the RecyclerView adapter and sets the parameter list to it.
      *
      * @param apps The List of apps to show in the RecyclerView
      */
-    private void setListData(List<BlacklistAppsItem> apps) {
-        Activity activity = getActivity();
-        if (activity != null)
-            activity.runOnUiThread(() -> {
-                itemAdapter.clear();
-                if (apps != null && apps.size() > 0) {
-                    showApps();
-                    itemAdapter.add(apps);
-                    if (layoutManagerState != null)
-                        layoutManager.onRestoreInstanceState(layoutManagerState);   // Used to restore scroll position
-                } else
-                    showNoApps();
-            });
-        isWriting = false;
+    @Override
+    public void onBlacklistRead(List<BlacklistAppsItem> apps) {
+        mainHandler.post(() -> {
+            itemAdapter.clear();
+            if (apps != null && apps.size() > 0) {
+                showApps();
+                itemAdapter.add(apps);
+                recyclerView.setVisibility(View.VISIBLE);
+                if (layoutManagerState != null)
+                    layoutManager.onRestoreInstanceState(layoutManagerState);   // Used to restore scroll position
+            } else
+                showNoApps();
+        });
     }
 
     /**
@@ -246,26 +246,6 @@ public class BlacklistFragment extends Fragment implements
     }
 
     /**
-     * Manages loading a list app items on a background thread. Can read from saved data on disk.
-     * Sets icons to the items, and calls {@link #setListData(List)}
-     *
-     * @param allAppItems If null, attempts to read the list from disk. Else sets icons to this
-     *                    list.
-     */
-    private void fetchApps(ArrayList<BlacklistAppsItem> allAppItems) {
-        Context context = getContext();
-        if (context == null || isWriting) {
-            return;
-        }
-
-        ReadBlacklistRunnable loadAppsRunnable = new ReadBlacklistRunnable(
-                context.getApplicationContext(), allAppItems, this::setListData
-        );
-        isWriting = true;
-        loadAppsExecutor.submit(loadAppsRunnable);
-    }
-
-    /**
      * Saves the List in the itemAdapter to disk on a background thread
      */
     @Override
@@ -275,11 +255,7 @@ public class BlacklistFragment extends Fragment implements
         Context context = getContext();
         if (context == null)
             return;
-        WriteBlacklistRunnable writeProfilesAppsRunnable = new WriteBlacklistRunnable(
-                context, allAppItems
-        );
-        // This will return quickly, so just spawning a thread
-        new Thread(writeProfilesAppsRunnable).start();
+        blacklistAppsStore.write(allAppItems);
     }
 
     private void setupDialog(int position, String appName, float brightness) {

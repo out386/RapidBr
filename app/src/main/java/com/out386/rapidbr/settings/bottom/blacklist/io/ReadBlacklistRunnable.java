@@ -23,9 +23,8 @@ package com.out386.rapidbr.settings.bottom.blacklist.io;
 import android.content.Context;
 import android.content.pm.PackageManager;
 
-import androidx.annotation.Nullable;
-
 import com.out386.rapidbr.settings.bottom.blacklist.BlacklistAppsItem;
+import com.out386.rapidbr.settings.bottom.blacklist.io.BlacklistAppsStore.OnBlacklistReadListener;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,12 +33,12 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.List;
 
-import static com.out386.rapidbr.settings.bottom.blacklist.BlacklistFragment.FILE_APP_PROFILES_APPS_LIST;
 import static com.out386.rapidbr.settings.bottom.blacklist.PackageUtils.setIcon;
+import static com.out386.rapidbr.settings.bottom.blacklist.io.BlacklistAppsStore.FILE_APP_PROFILES_APPS_LIST;
 
-public class ReadBlacklistRunnable implements Runnable {
+class ReadBlacklistRunnable implements Runnable {
     private PackageManager packageManager;
-    private LoadProfilesAppsListener listener;
+    private OnBlacklistReadListener listener;
     private Context context;
     private List<BlacklistAppsItem> includeItems;
 
@@ -51,7 +50,8 @@ public class ReadBlacklistRunnable implements Runnable {
      * @param includeItems Can be null
      * @param listener     The listener to call after reading the list.
      */
-    public ReadBlacklistRunnable(Context context, List<BlacklistAppsItem> includeItems, LoadProfilesAppsListener listener) {
+    ReadBlacklistRunnable(Context context, List<BlacklistAppsItem> includeItems,
+                          OnBlacklistReadListener listener) {
         this.context = context;
         this.packageManager = context.getPackageManager();
         this.listener = listener;
@@ -63,7 +63,7 @@ public class ReadBlacklistRunnable implements Runnable {
         if (includeItems != null) {
             // No need to read from disk, because an updated version of whatever is on disk is in includeItems
             setIcons(includeItems);
-            listener.onAppsLoaded(includeItems);
+            listener.onBlacklistRead(includeItems);
             return;
         }
 
@@ -83,23 +83,19 @@ public class ReadBlacklistRunnable implements Runnable {
                 //noinspection ResultOfMethodCallIgnored
                 file.delete();
             }
-            listener.onAppsLoaded(null);    // Nothing on disk
+            listener.onBlacklistRead(null);    // Nothing on disk
             return;
         }
         if (apps != null)
             setIcons(apps);
 
-        listener.onAppsLoaded(apps);
+        listener.onBlacklistRead(apps);
     }
 
     private void setIcons(List<BlacklistAppsItem> apps) {
         for (BlacklistAppsItem appsItem : apps) {
             setIcon(context, packageManager, appsItem);
         }
-    }
-
-    public interface LoadProfilesAppsListener {
-        void onAppsLoaded(@Nullable List<BlacklistAppsItem> apps);
     }
 
 }

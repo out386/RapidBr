@@ -1,4 +1,4 @@
-package com.out386.rapidbr.services.appusage;
+package com.out386.rapidbr.services.blacklist;
 
 /*
  * Copyright (C) 2019 Ritayan Chakraborty <ritayanout@gmail.com>

@@ -38,7 +38,7 @@
             android:name=".services.overlay.BrightnessOverlayService"
             android:process=":overlayProcess" />
         <service
-            android:name=".services.appusage.AppBlacklistService"
+            android:name=".services.blacklist.AppBlacklistService"
             android:process=":overlayProcess" />
 
     </application>

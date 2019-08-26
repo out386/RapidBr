@@ -34,7 +34,7 @@ import androidx.core.content.ContextCompat;
 
 import com.out386.rapidbr.BuildConfig;
 import com.out386.rapidbr.R;
-import com.out386.rapidbr.services.appusage.AppBlacklistService;
+import com.out386.rapidbr.services.blacklist.AppBlacklistService;
 import com.out386.rapidbr.utils.DimenUtils;
 import com.out386.rapidbr.utils.NotificationActivity;
 
