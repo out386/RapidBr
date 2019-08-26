@@ -4,7 +4,7 @@
     android:id="@+id/settings_switch_root"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?android:selectableItemBackground"
+    android:background="@drawable/settings_item_ripple"
     android:focusable="true"
     android:orientation="horizontal"
     android:padding="@dimen/edge_padding_internal">
@@ -16,6 +16,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
+        android:layout_toStartOf="@+id/swtttings_switch_switch"
         tools:text="@tools:sample/lorem" />
 
     <Switch
