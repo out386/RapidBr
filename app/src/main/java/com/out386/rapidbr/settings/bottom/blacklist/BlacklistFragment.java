@@ -22,10 +22,12 @@ package com.out386.rapidbr.settings.bottom.blacklist;
 
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,6 +59,7 @@ import com.out386.rapidbr.settings.bottom.blacklist.io.BlacklistAppsStore;
 import com.out386.rapidbr.settings.bottom.blacklist.io.BlacklistAppsStore.OnBlacklistReadListener;
 import com.out386.rapidbr.settings.bottom.blacklist.picker.BlacklistActivityListener;
 import com.out386.rapidbr.settings.bottom.blacklist.picker.BlacklistPickerItem;
+import com.out386.rapidbr.settings.bottom.views.SwitchItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,6 +74,7 @@ public class BlacklistFragment extends Fragment implements
 
     private static final String KEY_NEW_APP_ITEM_LIST = "newAppItemList";
     private static final String KEY_LAYOUT_MANAGER_STATE = "layoutState";
+    private static final String KEY_BLACKLIST_ENABLED = "blacklistEnabled";
 
     private ItemAdapter<BlacklistAppsItem> itemAdapter;
     private FastAdapter<BlacklistAppsItem> fastAdapter;
@@ -81,9 +85,10 @@ public class BlacklistFragment extends Fragment implements
     private TextView appBrightness;
     private TextView noApps;
     private SeekBar appBrightnessSeekbar;
-    private LinearLayout appBrightnessRootHolder;
+    private SwitchItem enableSwitch;
     private BlacklistAppsStore blacklistAppsStore;
     private Handler mainHandler;
+    private SharedPreferences prefs;
 
     public BlacklistFragment() {
     }
@@ -98,6 +103,7 @@ public class BlacklistFragment extends Fragment implements
                 .withOnClickListener(this);
         blacklistAppsStore = BlacklistAppsStore.getInstance(requireContext());
         mainHandler = new Handler();
+        prefs = PreferenceManager.getDefaultSharedPreferences(requireContext());
     }
 
     @Override
@@ -105,6 +111,7 @@ public class BlacklistFragment extends Fragment implements
                              ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_blacklist, container, false);
         addButton = v.findViewById(R.id.blacklist_add_button);
+        enableSwitch = v.findViewById(R.id.blacklist_enable_switch);
         noApps = v.findViewById(R.id.blacklist_no_apps_text);
         recyclerView = v.findViewById(R.id.blacklist_recycler);
         layoutManager = new LinearLayoutManager(getContext());
@@ -142,6 +149,12 @@ public class BlacklistFragment extends Fragment implements
                     if (listener != null)
                         listener.onShowPicker();
                 }, 200)
+        );
+
+        enableSwitch.setOnCheckedChangeListener(isChecked ->
+                prefs.edit()
+                        .putBoolean(KEY_BLACKLIST_ENABLED, isChecked)
+                        .apply()
         );
 
         if (savedInstanceState != null) {
@@ -288,7 +301,6 @@ public class BlacklistFragment extends Fragment implements
         appBrightness = customView.findViewById(R.id.app_brightness);
         appBrightnessSeekbar = customView.findViewById(R.id.app_brightness_seekbar);
         appBrightnessCheckboxHolder = customView.findViewById(R.id.app_brightness_checkbox_holder);
-        appBrightnessRootHolder = customView.findViewById(R.id.app_brightness_root_holder);
 
         appBrightnessCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
             animateView(appBrightnessSeekbar, isChecked);
