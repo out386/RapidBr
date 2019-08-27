@@ -74,7 +74,8 @@ public class BlacklistFragment extends Fragment implements
 
     private static final String KEY_NEW_APP_ITEM_LIST = "newAppItemList";
     private static final String KEY_LAYOUT_MANAGER_STATE = "layoutState";
-    private static final String KEY_BLACKLIST_ENABLED = "blacklistEnabled";
+    public static final String KEY_BLACKLIST_ENABLED = "blacklistEnabled";
+    public static final String KEY_BLACKLIST_BUNDLE = "blacklistBundle";
 
     private ItemAdapter<BlacklistAppsItem> itemAdapter;
     private FastAdapter<BlacklistAppsItem> fastAdapter;
@@ -151,6 +152,7 @@ public class BlacklistFragment extends Fragment implements
                 }, 200)
         );
 
+        enableSwitch.setChecked(prefs.getBoolean(KEY_BLACKLIST_ENABLED, false));
         enableSwitch.setOnCheckedChangeListener(isChecked ->
                 prefs.edit()
                         .putBoolean(KEY_BLACKLIST_ENABLED, isChecked)

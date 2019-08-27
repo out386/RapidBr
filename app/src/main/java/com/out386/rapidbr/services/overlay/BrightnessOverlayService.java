@@ -15,6 +15,7 @@ import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -38,6 +39,8 @@ import com.out386.rapidbr.services.blacklist.AppBlacklistService;
 import com.out386.rapidbr.utils.DimenUtils;
 import com.out386.rapidbr.utils.NotificationActivity;
 
+import static com.out386.rapidbr.settings.bottom.blacklist.BlacklistFragment.KEY_BLACKLIST_BUNDLE;
+import static com.out386.rapidbr.settings.bottom.blacklist.BlacklistFragment.KEY_BLACKLIST_ENABLED;
 import static com.out386.rapidbr.utils.SizeUtils.dpToPx;
 
 public class BrightnessOverlayService extends Service implements View.OnTouchListener {
@@ -101,7 +104,11 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     public int onStartCommand(Intent i, int flags, int startId) {
         if (ACTION_START.equals(i.getAction())) {
             setGlobals(i);
-            startOverlay();
+
+            // See comment in startOverlay
+            // Using Bundle instead of boolean because it will also have the apps list in the future
+            Bundle b = i.getBundleExtra(KEY_BLACKLIST_BUNDLE);
+            startOverlay(b);
         } else if (ACTION_PAUSE.equals(i.getAction())) {
             pauseOverlay(true);
         } else if (ACTION_STOP.equals(i.getAction())) {
@@ -144,7 +151,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
             alertType = WindowManager.LayoutParams.TYPE_SYSTEM_ERROR;
     }
 
-    private void startOverlay() {
+    private void startOverlay(Bundle settings) {
         // TODO: Check whether adaptive brightness was enabled
         initialSliderX = prefs.getInt(KEY_OVERLAY_X, 0);
         initialSliderY = prefs.getInt(KEY_OVERLAY_Y, 300);
@@ -155,7 +162,23 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         buttonAnim.hideButtonDelayed();
         sendIsRunning();
         startService(new Intent(this, BrightnessOverlayService.class));
-        startService(new Intent(this, AppBlacklistService.class));
+
+        /*
+         * Managing ABS here instead of from outside this service to keep ABS in sync with this
+         * service better, as this service can be started in various ways, from multiple places.
+         */
+        /*
+         * ABS is not stopped when this service is paused. So if this method is called from
+         * onStartCommand without a bundle, while ABS is enabled, it won't be a problem, as
+         * ABS will already be running, started when this method was first called, either by a
+         * Message, or from onStartCommand with an Intent with all values set.
+         */
+        boolean isABSEnabled = false;
+        if (settings != null)
+            isABSEnabled = settings.getBoolean(KEY_BLACKLIST_ENABLED);
+        if (isABSEnabled)
+            startService(new Intent(this, AppBlacklistService.class));
+
         foregroundify();
     }
 
@@ -292,13 +315,13 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         wm.addView(topLeftView, topLeftParams);
     }
 
-    private void toggleOverlay(int colour, int dim) {
+    private void toggleOverlay(int colour, int dim, Bundle settings) {
         buttonColour = colour;
         screenDimAmount = dim / 100f;
         if (isOverlayRunning)
             stopOverlay();
         else
-            startOverlay();
+            startOverlay(settings);
     }
 
     private void sendIsRunning() {
@@ -591,7 +614,10 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
                     setDimmerBrightness();
                     break;
                 case MSG_TOGGLE_OVERLAY:
-                    toggleOverlay(msg.arg1, msg.arg2);
+                    Bundle bundle = null;
+                    if (msg.obj instanceof Bundle)
+                        bundle = (Bundle) msg.obj;
+                    toggleOverlay(msg.arg1, msg.arg2, bundle);
                     break;
                 case MSG_SET_CLIENT_MESSENGER:
                     clientMessenger = msg.replyTo;

@@ -21,6 +21,7 @@ package com.out386.rapidbr.services.overlay;
  */
 
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
@@ -29,14 +30,27 @@ import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.DEF_O
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.KEY_BR_ICON_COLOUR;
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.KEY_SCREEN_DIM_AMOUNT;
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_TOGGLE_OVERLAY;
+import static com.out386.rapidbr.settings.bottom.blacklist.BlacklistFragment.KEY_BLACKLIST_ENABLED;
 
 public class ServiceLauncher {
     public static boolean toggleBrightnessService(Messenger serviceMessenger,
                                                   SharedPreferences prefs) {
         int overlayButtonColour = prefs.getInt(KEY_BR_ICON_COLOUR, DEF_OVERLAY_BUTTON_COLOUR);
         int screenDimAmount = prefs.getInt(KEY_SCREEN_DIM_AMOUNT, 0);
-        return sendMessageToBrightnessService(
-                serviceMessenger, MSG_TOGGLE_OVERLAY, overlayButtonColour, screenDimAmount, false);
+        Bundle settings = new Bundle();
+        settings.putBoolean(KEY_BLACKLIST_ENABLED,
+                prefs.getBoolean(KEY_BLACKLIST_ENABLED, false));
+
+        if (serviceMessenger != null) {
+            try {
+                serviceMessenger.send(Message.obtain(
+                        null, MSG_TOGGLE_OVERLAY, overlayButtonColour, screenDimAmount, settings));
+                return true;
+            } catch (RemoteException e) {
+                return false;
+            }
+        }
+        return false;
 
     }
 
@@ -51,14 +65,9 @@ public class ServiceLauncher {
      * @param arg2             The {@code arg2} parameter of the {@link Message}
      * @return True if the {@link Message} could be sent, false otherwise
      */
-    public static boolean sendMessageToBrightnessService(Messenger serviceMessenger,
-                                                         int what, int arg1, int arg2) {
-        return sendMessageToBrightnessService(serviceMessenger, what, arg1, arg2, true);
-    }
-
-    private static boolean sendMessageToBrightnessService(
-            Messenger serviceMessenger, int what, int arg1, int arg2, boolean directCall) {
-        if (directCall && what == MSG_TOGGLE_OVERLAY)
+    public static boolean sendMessageToBrightnessService(
+            Messenger serviceMessenger, int what, int arg1, int arg2) {
+        if (what == MSG_TOGGLE_OVERLAY)
             throw new IllegalArgumentException(
                     "Use toggleBrightnessService to toggle the service instead of sending the Message directly");
 
