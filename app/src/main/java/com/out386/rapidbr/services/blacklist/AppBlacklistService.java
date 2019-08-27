@@ -49,12 +49,11 @@ public class AppBlacklistService extends Service implements OnBlacklistReadListe
     private Intent resumeIntent;
     private Intent pauseIntent;
     private SharedPreferences prefs;
-    private BlacklistAppsStore blacklistAppsStore;
 
     @Override
     public void onCreate() {
         prefs = getSharedPreferences("brightnessPrefs", MODE_PRIVATE);
-        blacklistAppsStore = BlacklistAppsStore.getInstance(getApplicationContext());
+        BlacklistAppsStore blacklistAppsStore = BlacklistAppsStore.getInstance(getApplicationContext());
         blacklistAppsStore.read(null, this);
         super.onCreate();
     }

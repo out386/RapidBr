@@ -38,7 +38,6 @@ import com.out386.rapidbr.services.blacklist.AppBlacklistService;
 import com.out386.rapidbr.utils.DimenUtils;
 import com.out386.rapidbr.utils.NotificationActivity;
 
-import static com.out386.rapidbr.settings.bottom.bcolour.ButtonColourFragment.KEY_BR_ICON_COLOUR;
 import static com.out386.rapidbr.utils.SizeUtils.dpToPx;
 
 public class BrightnessOverlayService extends Service implements View.OnTouchListener {
@@ -47,6 +46,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     public static final String KEY_OVERLAY_X = "overlayX";
     public static final String KEY_OVERLAY_Y = "overlayY";
     public static final String KEY_SCREEN_DIM_AMOUNT = "screenDimAmount";
+    public static final String KEY_BR_ICON_COLOUR = "br_icon_colour";
 
     public static final int MSG_OVERLAY_BUTTON_COLOUR = 1;
     public static final int MSG_SCREEN_DIM_AMOUNT = 2;

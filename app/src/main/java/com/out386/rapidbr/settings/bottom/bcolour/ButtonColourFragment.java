@@ -38,10 +38,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.out386.rapidbr.R;
 
+import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.KEY_BR_ICON_COLOUR;
+
 public class ButtonColourFragment extends Fragment {
-
-    public static final String KEY_BR_ICON_COLOUR = "br_icon_colour";
-
     private SharedPreferences prefs;
     private OnButtonColourChangedListener colourListener;
 

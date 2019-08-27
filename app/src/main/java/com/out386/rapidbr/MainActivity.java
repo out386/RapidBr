@@ -58,15 +58,13 @@ import com.out386.rapidbr.settings.top.TopFragment;
 
 import java.lang.ref.WeakReference;
 
-import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.DEF_OVERLAY_BUTTON_COLOUR;
-import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.KEY_SCREEN_DIM_AMOUNT;
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_IS_OVERLAY_RUNNING;
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_OVERLAY_BUTTON_COLOUR;
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_SET_CLIENT_MESSENGER;
-import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_TOGGLE_OVERLAY;
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_UNSET_CLIENT_MESSENGER;
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.NOTIF_CHANNEL_ID;
-import static com.out386.rapidbr.settings.bottom.bcolour.ButtonColourFragment.KEY_BR_ICON_COLOUR;
+import static com.out386.rapidbr.services.overlay.ServiceLauncher.sendMessageToBrightnessService;
+import static com.out386.rapidbr.services.overlay.ServiceLauncher.toggleBrightnessService;
 import static com.out386.rapidbr.utils.DimenUtils.getActionbarHeight;
 
 public class MainActivity extends ThemeActivity implements OnNavigationListener,
@@ -134,8 +132,12 @@ public class MainActivity extends ThemeActivity implements OnNavigationListener,
     @Override
     protected void onPause() {
         super.onPause();
-        if (serviceMessenger != null)
-            sendMessage(MSG_UNSET_CLIENT_MESSENGER, 0, 0);
+        if (serviceMessenger != null) {
+            boolean result = sendMessageToBrightnessService(
+                    serviceMessenger, MSG_UNSET_CLIENT_MESSENGER, 0, 0);
+            if (!result)
+                serviceMessenger = null;
+        }
     }
 
     @Override
@@ -165,9 +167,9 @@ public class MainActivity extends ThemeActivity implements OnNavigationListener,
     }
 
     private void toggleOverlay() {
-        int overlayButtonColour = prefs.getInt(KEY_BR_ICON_COLOUR, DEF_OVERLAY_BUTTON_COLOUR);
-        int screenDimAmount = prefs.getInt(KEY_SCREEN_DIM_AMOUNT, 0);
-        sendMessage(MSG_TOGGLE_OVERLAY, overlayButtonColour, screenDimAmount);
+        boolean result = toggleBrightnessService(serviceMessenger, prefs);
+        if (!result)
+            serviceMessenger = null;
     }
 
     private void bindBrService() {
@@ -293,18 +295,10 @@ public class MainActivity extends ThemeActivity implements OnNavigationListener,
 
     @Override
     public void onColourChanged(int colour) {
-        sendMessage(MSG_OVERLAY_BUTTON_COLOUR, colour, 0);
-    }
-
-    private void sendMessage(int what, int arg1, int arg2) {
-        if (serviceMessenger != null) {
-            try {
-                serviceMessenger.send(Message.obtain(
-                        null, what, arg1, arg2));
-            } catch (RemoteException e) {
-                serviceMessenger = null;
-            }
-        }
+        boolean result = sendMessageToBrightnessService(
+                serviceMessenger, MSG_OVERLAY_BUTTON_COLOUR, colour, 0);
+        if (!result)
+            serviceMessenger = null;
     }
 
     private void setClientMessenger() {
