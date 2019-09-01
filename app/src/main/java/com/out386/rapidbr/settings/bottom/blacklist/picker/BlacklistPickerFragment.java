@@ -45,23 +45,13 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class BlacklistPickerFragment extends Fragment implements OnClickListener<BlacklistPickerItem> {
-    private static final String KEY_ALLOW_APPS_CACHE = "allowAppsCache";
 
     private ItemAdapter<BlacklistPickerItem> itemAdapter;
     private ProgressDialog progressDialog;
     private BlacklistActivityListener listener;
-    private boolean allowAppsCache;
 
     public BlacklistPickerFragment() {
 
-    }
-
-    public static BlacklistPickerFragment newInstance(boolean allowAppsCache) {
-        BlacklistPickerFragment fragment = new BlacklistPickerFragment();
-        Bundle bundle = new Bundle();
-        bundle.putBoolean(KEY_ALLOW_APPS_CACHE, allowAppsCache);
-        fragment.setArguments(bundle);
-        return fragment;
     }
 
     @Override
@@ -82,9 +72,6 @@ public class BlacklistPickerFragment extends Fragment implements OnClickListener
                 .withSelectable(true)
                 .withOnClickListener(this);
         recyclerView.setAdapter(fastAdapter);
-        Bundle args = getArguments();
-        if (args != null)
-            allowAppsCache = args.getBoolean(KEY_ALLOW_APPS_CACHE);
 
         return v;
     }
@@ -127,6 +114,6 @@ public class BlacklistPickerFragment extends Fragment implements OnClickListener
         progressDialog.show();
 
         AllAppsStore appsStore = AllAppsStore.getInstance(requireContext());
-        appsStore.fetchApps(this::setListData, allowAppsCache);
+        appsStore.fetchApps(this::setListData, true);
     }
 }

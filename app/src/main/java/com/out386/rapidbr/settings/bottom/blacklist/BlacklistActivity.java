@@ -41,6 +41,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.out386.rapidbr.R;
 import com.out386.rapidbr.ThemeActivity;
+import com.out386.rapidbr.settings.bottom.blacklist.picker.AllAppsStore;
 import com.out386.rapidbr.settings.bottom.blacklist.picker.BlacklistActivityListener;
 import com.out386.rapidbr.settings.bottom.blacklist.picker.BlacklistPickerFragment;
 import com.out386.rapidbr.settings.bottom.blacklist.picker.BlacklistPickerItem;
@@ -56,12 +57,10 @@ public class BlacklistActivity extends ThemeActivity implements BlacklistActivit
 
     private BlacklistFragment blacklistFragment;
     private GenericDialogFragment dialog;
-    private boolean allowBlacklistPickerCache;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_bottom);
         setContentView(R.layout.activity_blacklist);
 
         if (savedInstanceState == null) {
@@ -76,18 +75,12 @@ public class BlacklistActivity extends ThemeActivity implements BlacklistActivit
 
         setupToolbarText();
         setupInsets();
+        preloadAllApps();
     }
 
     @Override
     public void onShowPicker() {
-        changeFragment(BlacklistPickerFragment.newInstance(allowBlacklistPickerCache),
-                null, true);
-        /*
-         * Do not save allowBlacklistPickerCache in onSaveInstanceState. This way, the cache will be
-         * dropped on instance state changes, but will be used otherwise. This will allow speeding up
-         * subsequent presses on the add apps button, with acceptable risk of the cache being too old.
-         */
-        allowBlacklistPickerCache = true;
+        changeFragment(new BlacklistPickerFragment(), null, true);
     }
 
     @Override
@@ -100,7 +93,6 @@ public class BlacklistActivity extends ThemeActivity implements BlacklistActivit
     @Override
     public void onResume() {
         super.onResume();
-        allowBlacklistPickerCache = false;
         int permissionCode = checkUsagePermission();
         if (permissionCode == 0 || permissionCode == -1)
             showPermissionDialog(permissionCode);
@@ -211,5 +203,11 @@ public class BlacklistActivity extends ThemeActivity implements BlacklistActivit
                     .setMessage(getString(R.string.sett_blacklist_usage_access_unsupported_title));
         }
         dialog.show(manager, null);
+    }
+
+    private void preloadAllApps() {
+        AllAppsStore appsStore = AllAppsStore.getInstance(this);
+        // Populate the cache before the user has a chance to tap the app apps button
+        appsStore.fetchApps(null, false);
     }
 }

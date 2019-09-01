@@ -26,6 +26,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 
+import androidx.annotation.Nullable;
+
 import java.util.List;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
@@ -34,7 +36,7 @@ import java.util.concurrent.Executors;
 import static com.out386.rapidbr.settings.bottom.blacklist.PackageUtils.getAppName;
 import static com.out386.rapidbr.settings.bottom.blacklist.PackageUtils.getIcon;
 
-class AllAppsStore {
+public class AllAppsStore {
     private Context context;
     private static AllAppsStore allAppsStore;
     private PackageManager packageManager;
@@ -47,16 +49,16 @@ class AllAppsStore {
         appsStoreExecutor = Executors.newSingleThreadExecutor();
     }
 
-    static AllAppsStore getInstance(Context context) {
+    public static AllAppsStore getInstance(Context context) {
         if (allAppsStore == null)
             allAppsStore = new AllAppsStore(context);
         return allAppsStore;
     }
 
-    void fetchApps(LoadProfilesPickerAppsListener listener,
-                   boolean allowCache) {
+    public void fetchApps(@Nullable LoadProfilesPickerAppsListener listener, boolean allowCache) {
         if (allowCache && appsList != null) {
-            listener.onAppsLoaded(appsList);
+            if (listener != null)
+                listener.onAppsLoaded(appsList);
         } else {
             appsStoreExecutor.submit(new GetAppsRunnable(listener));
         }
@@ -76,7 +78,8 @@ class AllAppsStore {
             appsIntent.addCategory(Intent.CATEGORY_LAUNCHER);
             resolveAppsList = packageManager.queryIntentActivities(appsIntent, 0);
             if (resolveAppsList == null || resolveAppsList.size() == 0) {
-                listener.onAppsLoaded(null);
+                if (listener != null)
+                    listener.onAppsLoaded(null);
                 return;
             }
 
@@ -104,7 +107,8 @@ class AllAppsStore {
                 }
             }
             appsList = apps;
-            listener.onAppsLoaded(apps);
+            if (listener != null)
+                listener.onAppsLoaded(apps);
         }
     }
 
