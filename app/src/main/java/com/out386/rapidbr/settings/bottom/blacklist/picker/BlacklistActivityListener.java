@@ -33,9 +33,4 @@ public interface BlacklistActivityListener {
      */
     void onAppPicked(BlacklistPickerItem item);
 
-    /**
-     * Called when the entry for an app has been modified. This means that the list needs saving.
-     */
-    void onAppChanged();
-
 }

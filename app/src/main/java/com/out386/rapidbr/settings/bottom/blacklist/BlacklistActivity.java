@@ -34,7 +34,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -54,9 +53,7 @@ import static com.out386.rapidbr.utils.DimenUtils.getActionbarHeight;
 public class BlacklistActivity extends ThemeActivity implements BlacklistActivityListener {
 
     private static final String BLACKLIST_FRAGMENT_TAG = "blacklistFragment";
-    private static final String KEY_BLOCK_BACK = "isSaveNeeded";
 
-    private boolean isSaveNeeded = false;
     private BlacklistFragment blacklistFragment;
     private GenericDialogFragment dialog;
 
@@ -70,7 +67,6 @@ public class BlacklistActivity extends ThemeActivity implements BlacklistActivit
             blacklistFragment = new BlacklistFragment();
             changeFragment(blacklistFragment, BLACKLIST_FRAGMENT_TAG, false);
         } else {
-            isSaveNeeded = savedInstanceState.getBoolean(KEY_BLOCK_BACK);
             blacklistFragment = (BlacklistFragment) getSupportFragmentManager()
                     .findFragmentByTag(BLACKLIST_FRAGMENT_TAG);
             if (blacklistFragment == null)
@@ -82,14 +78,7 @@ public class BlacklistActivity extends ThemeActivity implements BlacklistActivit
     }
 
     @Override
-    protected void onSaveInstanceState(@NonNull Bundle outState) {
-        outState.putBoolean(KEY_BLOCK_BACK, isSaveNeeded);
-        super.onSaveInstanceState(outState);
-    }
-
-    @Override
     public void onShowPicker() {
-        isSaveNeeded = false;
         changeFragment(new BlacklistPickerFragment(), null, true);
     }
 
@@ -98,12 +87,6 @@ public class BlacklistActivity extends ThemeActivity implements BlacklistActivit
         if (blacklistFragment != null)
             blacklistFragment.onAppPicked(item);
         onBackPressed();
-        isSaveNeeded = true;
-    }
-
-    @Override
-    public void onAppChanged() {
-        isSaveNeeded = true;
     }
 
     @Override
@@ -112,18 +95,6 @@ public class BlacklistActivity extends ThemeActivity implements BlacklistActivit
         int permissionCode = checkUsagePermission();
         if (permissionCode == 0 || permissionCode == -1)
             showPermissionDialog(permissionCode);
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (!isSaveNeeded)
-            super.onBackPressed();
-        else {
-            if (blacklistFragment != null)
-                blacklistFragment.onSaveNeeded();
-            isSaveNeeded = false; // Outside above "if" just in case blacklistFragment somehow became null.
-            onBackPressed();    // Better to not save than get the user stuck
-        }
     }
 
     private void setupToolbarText() {

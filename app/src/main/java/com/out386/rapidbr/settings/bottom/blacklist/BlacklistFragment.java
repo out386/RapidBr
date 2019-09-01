@@ -62,7 +62,6 @@ import com.out386.rapidbr.settings.bottom.blacklist.picker.BlacklistPickerItem;
 import com.out386.rapidbr.settings.bottom.views.SwitchItem;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import static com.out386.rapidbr.settings.bottom.blacklist.PackageUtils.checkUnique;
 import static com.out386.rapidbr.settings.bottom.blacklist.PackageUtils.pickerToAppItem;
@@ -90,6 +89,7 @@ public class BlacklistFragment extends Fragment implements
     private BlacklistAppsStore blacklistAppsStore;
     private Handler mainHandler;
     private SharedPreferences prefs;
+    private BlacklistActivityListener listener;
 
     public BlacklistFragment() {
     }
@@ -120,6 +120,13 @@ public class BlacklistFragment extends Fragment implements
     }
 
     @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (context instanceof BlacklistActivityListener)
+            listener = (BlacklistActivityListener) context;
+    }
+
+    @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
@@ -143,10 +150,10 @@ public class BlacklistFragment extends Fragment implements
         recyclerView.setAdapter(fastAdapter);
         touchHelper.attachToRecyclerView(recyclerView);
 
+
         addButton.setOnClickListener(v ->
                 // The delay is to let the ripple animation complete
                 new Handler().postDelayed(() -> {
-                    BlacklistActivityListener listener = ((BlacklistActivityListener) getActivity());
                     if (listener != null)
                         listener.onShowPicker();
                 }, 200)
@@ -257,6 +264,7 @@ public class BlacklistFragment extends Fragment implements
         if (checkUnique(itemAdapter.getAdapterItems(), newItem)) {
             itemAdapter.add(newItem);
             showApps();
+            onSaveNeeded();
         }
     }
 
@@ -267,9 +275,6 @@ public class BlacklistFragment extends Fragment implements
     public synchronized void onSaveNeeded() {
         ArrayList<BlacklistAppsItem> allAppItems =
                 (ArrayList<BlacklistAppsItem>) itemAdapter.getAdapterItems();
-        Context context = getContext();
-        if (context == null)
-            return;
         blacklistAppsStore.write(allAppItems);
     }
 
@@ -347,9 +352,7 @@ public class BlacklistFragment extends Fragment implements
         item.setAppBrightness(brightness);
         itemAdapter.remove(position);
         itemAdapter.add(position, item);
-        BlacklistActivityListener listener = ((BlacklistActivityListener) getActivity());
-        if (listener != null)
-            listener.onAppChanged();
+        onSaveNeeded();
     }
 
 
@@ -364,9 +367,7 @@ public class BlacklistFragment extends Fragment implements
         itemAdapter.remove(position);
         if (itemAdapter.getAdapterItemCount() == 0)
             showNoApps();
-        BlacklistActivityListener listener = ((BlacklistActivityListener) getActivity());
-        if (listener != null)
-            listener.onAppChanged();
+        onSaveNeeded();
     }
 
     @Override
