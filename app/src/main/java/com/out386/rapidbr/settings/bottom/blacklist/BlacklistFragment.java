@@ -150,15 +150,7 @@ public class BlacklistFragment extends Fragment implements
         recyclerView.setAdapter(fastAdapter);
         touchHelper.attachToRecyclerView(recyclerView);
 
-
-        addButton.setOnClickListener(v ->
-                // The delay is to let the ripple animation complete
-                new Handler().postDelayed(() -> {
-                    if (listener != null)
-                        listener.onShowPicker();
-                }, 200)
-        );
-
+        setupAddButton();
         enableSwitch.setChecked(prefs.getBoolean(KEY_BLACKLIST_ENABLED, false));
         enableSwitch.setOnCheckedChangeListener(isChecked ->
                 prefs.edit()
@@ -177,6 +169,19 @@ public class BlacklistFragment extends Fragment implements
             blacklistAppsStore.read(null, this);
 
         setupButtonScroll();
+    }
+
+    private void setupAddButton() {
+        Handler buttonHandler = new Handler();
+        Runnable rippleRunnable = () -> {
+            if (listener != null)
+                listener.onShowPicker();
+        };
+        addButton.setOnClickListener(v ->
+                // The delay is to let the ripple animation complete
+                buttonHandler.postDelayed(rippleRunnable, 200)
+        );
+
     }
 
     private void setupButtonScroll() {
