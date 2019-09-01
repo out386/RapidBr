@@ -4,7 +4,7 @@
     <color name="colorPrimaryDark">#FFFFFF</color>
     <color name="colorAccent">#FF7043</color>
     <color name="buttonStroke">#FF7043</color>
-    <color name="buttonFill">#6FFF6E40</color>
+    <color name="buttonFill">#ffbfab</color>
     <color name="buttonRipple">#9FFF7043</color>
     <color name="windowBackground">#FFFFFF</color>
     <color name="toolbarText2">#585858</color>
