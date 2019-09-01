@@ -31,6 +31,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.out386.rapidbr.settings.bottom.blacklist.PackageUtils.setIcon;
@@ -40,7 +41,7 @@ class ReadBlacklistRunnable implements Runnable {
     private PackageManager packageManager;
     private OnBlacklistReadListener listener;
     private Context context;
-    private List<BlacklistAppsItem> includeItems;
+    private ArrayList<BlacklistAppsItem> includeItems;
 
     /**
      * If includeItems is null, read previously saved list from disk, set icons, and call the
@@ -50,7 +51,7 @@ class ReadBlacklistRunnable implements Runnable {
      * @param includeItems Can be null
      * @param listener     The listener to call after reading the list.
      */
-    ReadBlacklistRunnable(Context context, List<BlacklistAppsItem> includeItems,
+    ReadBlacklistRunnable(Context context, ArrayList<BlacklistAppsItem> includeItems,
                           OnBlacklistReadListener listener) {
         this.context = context;
         this.packageManager = context.getPackageManager();
@@ -68,14 +69,14 @@ class ReadBlacklistRunnable implements Runnable {
         }
 
         ObjectInputStream objectInputStream;
-        List<BlacklistAppsItem> apps;
+        ArrayList<BlacklistAppsItem> apps;
         File file = null;
         try {
             file = new File(context.getFilesDir().getAbsolutePath(), FILE_APP_PROFILES_APPS_LIST);
             FileInputStream inputStream = new FileInputStream(file);
             objectInputStream = new ObjectInputStream(inputStream);
             //noinspection unchecked
-            apps = (List<BlacklistAppsItem>) objectInputStream.readObject();
+            apps = (ArrayList<BlacklistAppsItem>) objectInputStream.readObject();
             objectInputStream.close();
         } catch (IOException | ClassNotFoundException e) {
             if (!(e instanceof FileNotFoundException)) {

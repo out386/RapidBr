@@ -231,7 +231,7 @@ public class BlacklistFragment extends Fragment implements
      * @param apps The List of apps to show in the RecyclerView
      */
     @Override
-    public void onBlacklistRead(List<BlacklistAppsItem> apps) {
+    public void onBlacklistRead(ArrayList<BlacklistAppsItem> apps) {
         mainHandler.post(() -> {
             itemAdapter.clear();
             if (apps != null && apps.size() > 0) {

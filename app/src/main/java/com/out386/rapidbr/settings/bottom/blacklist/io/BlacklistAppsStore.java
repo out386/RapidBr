@@ -26,7 +26,7 @@ import androidx.annotation.Nullable;
 
 import com.out386.rapidbr.settings.bottom.blacklist.BlacklistAppsItem;
 
-import java.util.List;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -55,19 +55,19 @@ public class BlacklistAppsStore {
      * @param list     If null, attempts to read the list from disk. Else sets icons to this list.
      * @param listener Called with a list of {@link BlacklistAppsItem}
      */
-    public void read(List<BlacklistAppsItem> list, OnBlacklistReadListener listener) {
+    public void read(ArrayList<BlacklistAppsItem> list, OnBlacklistReadListener listener) {
         ReadBlacklistRunnable readBlacklistRunnable =
                 new ReadBlacklistRunnable(context, list, listener);
         appsStoreExecutor.submit(readBlacklistRunnable);
     }
 
-    public void write(List<BlacklistAppsItem> list) {
+    public void write(ArrayList<BlacklistAppsItem> list) {
         WriteBlacklistRunnable writeProfilesAppsRunnable =
                 new WriteBlacklistRunnable(context, list);
         appsStoreExecutor.submit(writeProfilesAppsRunnable);
     }
 
     public interface OnBlacklistReadListener {
-        void onBlacklistRead(@Nullable List<BlacklistAppsItem> apps);
+        void onBlacklistRead(@Nullable ArrayList<BlacklistAppsItem> apps);
     }
 }

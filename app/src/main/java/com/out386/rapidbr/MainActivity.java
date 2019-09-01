@@ -167,7 +167,7 @@ public class MainActivity extends ThemeActivity implements OnNavigationListener,
     }
 
     private void toggleOverlay() {
-        boolean result = toggleBrightnessService(serviceMessenger, prefs);
+        boolean result = toggleBrightnessService(getApplicationContext(), serviceMessenger, prefs);
         if (!result)
             serviceMessenger = null;
     }

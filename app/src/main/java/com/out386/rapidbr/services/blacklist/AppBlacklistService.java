@@ -30,17 +30,17 @@ import androidx.annotation.Nullable;
 
 import com.out386.rapidbr.services.overlay.BrightnessOverlayService;
 import com.out386.rapidbr.settings.bottom.blacklist.BlacklistAppsItem;
-import com.out386.rapidbr.settings.bottom.blacklist.io.BlacklistAppsStore;
-import com.out386.rapidbr.settings.bottom.blacklist.io.BlacklistAppsStore.OnBlacklistReadListener;
 
+import java.io.Serializable;
 import java.util.List;
 
 import static com.out386.rapidbr.utils.DeviceBrightnessUtils.getBrightness;
 import static com.out386.rapidbr.utils.DeviceBrightnessUtils.setBrightness;
 
 
-public class AppBlacklistService extends Service implements OnBlacklistReadListener {
+public class AppBlacklistService extends Service {
     private static final String KEY_USER_BRIGHTNESS = "userBrightness";
+    public static final String KEY_BLACKLIST_LIST = "blacklistList";
 
     private AppUsageDetector appUsageDetector;
     private List<BlacklistAppsItem> blacklistList;
@@ -51,25 +51,39 @@ public class AppBlacklistService extends Service implements OnBlacklistReadListe
     private SharedPreferences prefs;
 
     @Override
-    public void onCreate() {
-        prefs = getSharedPreferences("brightnessPrefs", MODE_PRIVATE);
-        BlacklistAppsStore blacklistAppsStore = BlacklistAppsStore.getInstance(getApplicationContext());
-        blacklistAppsStore.read(null, this);
-        super.onCreate();
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        List<BlacklistAppsItem> list = null;
+        Serializable serializable = intent.getSerializableExtra(KEY_BLACKLIST_LIST);
+        if (serializable instanceof List) {
+            //noinspection unchecked
+            list = (List<BlacklistAppsItem>) serializable;
+        }
+
+        synchronized (this) {
+            blacklistList = list;
+            if (list != null && list.size() > 0) {
+                setupIntents();
+                if (appUsageDetector == null || !appUsageDetector.isRunning()) {
+                    appUsageDetector = new AppUsageDetector(getApplicationContext(), this::onAppChanged);
+                    appUsageDetector.startPolling();
+                }
+            } else {
+                if (appUsageDetector != null && appUsageDetector.isRunning()) {
+                    appUsageDetector.stop();
+                }
+                stopSelf();
+            }
+        }
+        return super.onStartCommand(intent, flags, startId);
     }
 
     @Override
-    public void onBlacklistRead(@Nullable List<BlacklistAppsItem> list) {
-        if (list == null || list.size() == 0) // No apps, no polling.
-            return;
-
-        setupIntents();
-        blacklistList = list;
-        appUsageDetector = new AppUsageDetector(getApplicationContext(), this::onAppChanged);
-        appUsageDetector.startPolling();
+    public void onCreate() {
+        prefs = getSharedPreferences("brightnessPrefs", MODE_PRIVATE);
+        super.onCreate();
     }
 
-    private void onAppChanged(@NonNull String packageName) {
+    private synchronized void onAppChanged(@NonNull String packageName) {
         for (BlacklistAppsItem item : blacklistList) {
             if (packageName.equals(item.getPackageName())) {
                 if (lastItem != null) {
@@ -111,7 +125,7 @@ public class AppBlacklistService extends Service implements OnBlacklistReadListe
 
     @Override
     public void onDestroy() {
-        if (appUsageDetector != null)
+        if (appUsageDetector != null && appUsageDetector.isRunning())
             appUsageDetector.stop();
         super.onDestroy();
     }
@@ -123,10 +137,12 @@ public class AppBlacklistService extends Service implements OnBlacklistReadListe
     }
 
     private void setupIntents() {
-        resumeIntent = new Intent(this, BrightnessOverlayService.class)
-                .setAction(BrightnessOverlayService.ACTION_START);
-        pauseIntent = new Intent(this, BrightnessOverlayService.class)
-                .setAction(BrightnessOverlayService.ACTION_PAUSE);
+        if (resumeIntent == null)
+            resumeIntent = new Intent(this, BrightnessOverlayService.class)
+                    .setAction(BrightnessOverlayService.ACTION_START);
+        if (pauseIntent == null)
+            pauseIntent = new Intent(this, BrightnessOverlayService.class)
+                    .setAction(BrightnessOverlayService.ACTION_PAUSE);
     }
 
     private synchronized void pauseRapidbr(float brightness) {

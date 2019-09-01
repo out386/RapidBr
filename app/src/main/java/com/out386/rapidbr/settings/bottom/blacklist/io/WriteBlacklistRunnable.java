@@ -28,13 +28,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.util.List;
+import java.util.ArrayList;
 
 import static com.out386.rapidbr.settings.bottom.blacklist.io.BlacklistAppsStore.FILE_APP_PROFILES_APPS_LIST;
 
 class WriteBlacklistRunnable implements Runnable {
     private Context context;
-    private List<BlacklistAppsItem> items;
+    private ArrayList<BlacklistAppsItem> items;
 
     /**
      * Writes the given List to disk
@@ -42,7 +42,7 @@ class WriteBlacklistRunnable implements Runnable {
      * @param context The Application Context
      * @param items   The List to write to disk
      */
-    WriteBlacklistRunnable(Context context, List<BlacklistAppsItem> items) {
+    WriteBlacklistRunnable(Context context, ArrayList<BlacklistAppsItem> items) {
         this.context = context;
         this.items = items;
     }

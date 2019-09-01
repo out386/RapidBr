@@ -20,38 +20,67 @@ package com.out386.rapidbr.services.overlay;
  *
  */
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.util.Log;
 
+import com.out386.rapidbr.settings.bottom.blacklist.io.BlacklistAppsStore;
+
+import static com.out386.rapidbr.services.blacklist.AppBlacklistService.KEY_BLACKLIST_LIST;
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.DEF_OVERLAY_BUTTON_COLOUR;
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.KEY_BR_ICON_COLOUR;
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.KEY_SCREEN_DIM_AMOUNT;
+import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_DUMMY;
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_TOGGLE_OVERLAY;
 import static com.out386.rapidbr.settings.bottom.blacklist.BlacklistFragment.KEY_BLACKLIST_ENABLED;
 
 public class ServiceLauncher {
-    public static boolean toggleBrightnessService(Messenger serviceMessenger,
+    public static boolean toggleBrightnessService(Context context, Messenger serviceMessenger,
                                                   SharedPreferences prefs) {
+        if (serviceMessenger == null)
+            return false;
+
         int overlayButtonColour = prefs.getInt(KEY_BR_ICON_COLOUR, DEF_OVERLAY_BUTTON_COLOUR);
         int screenDimAmount = prefs.getInt(KEY_SCREEN_DIM_AMOUNT, 0);
         Bundle settings = new Bundle();
         settings.putBoolean(KEY_BLACKLIST_ENABLED,
                 prefs.getBoolean(KEY_BLACKLIST_ENABLED, false));
+        BlacklistAppsStore blacklistAppsStore = BlacklistAppsStore.getInstance(context);
 
-        if (serviceMessenger != null) {
+        blacklistAppsStore.read(null, apps -> {
+            settings.putSerializable(KEY_BLACKLIST_LIST, apps);
             try {
                 serviceMessenger.send(Message.obtain(
                         null, MSG_TOGGLE_OVERLAY, overlayButtonColour, screenDimAmount, settings));
-                return true;
             } catch (RemoteException e) {
-                return false;
+                Log.e("ServiceLauncher", "toggleBrightnessService-read: " + e.getMessage());
             }
-        }
-        return false;
+        });
 
+        // Return if a message could not be sent. Even if this is successful, it is not a guarantee
+        // that messages can still be sent by the time that MSG_TOGGLE_OVERLAY is ready to be sent.
+        return sendTestMessage(serviceMessenger);
+    }
+
+
+    /**
+     * Sends a dummy message to the {@code serviceMessenger} to check whether the target handler
+     * still exists.
+     *
+     * @param serviceMessenger Duh
+     * @return True is the message was sent
+     */
+    private static boolean sendTestMessage(Messenger serviceMessenger) {
+        try {
+            serviceMessenger.send(Message.obtain(null, MSG_DUMMY));
+            return true;
+        } catch (RemoteException e) {
+            return false;
+        }
     }
 
     /**

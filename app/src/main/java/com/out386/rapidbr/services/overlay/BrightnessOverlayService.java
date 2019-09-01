@@ -39,6 +39,7 @@ import com.out386.rapidbr.services.blacklist.AppBlacklistService;
 import com.out386.rapidbr.utils.DimenUtils;
 import com.out386.rapidbr.utils.NotificationActivity;
 
+import static com.out386.rapidbr.services.blacklist.AppBlacklistService.KEY_BLACKLIST_LIST;
 import static com.out386.rapidbr.settings.bottom.blacklist.BlacklistFragment.KEY_BLACKLIST_BUNDLE;
 import static com.out386.rapidbr.settings.bottom.blacklist.BlacklistFragment.KEY_BLACKLIST_ENABLED;
 import static com.out386.rapidbr.utils.SizeUtils.dpToPx;
@@ -57,6 +58,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     public static final int MSG_SET_CLIENT_MESSENGER = 6;
     public static final int MSG_UNSET_CLIENT_MESSENGER = 7;
     public static final int MSG_IS_OVERLAY_RUNNING = 8;
+    public static final int MSG_DUMMY = 10;
     public static final int DEF_OVERLAY_BUTTON_COLOUR = 0x0288D1;
     public static final float DEF_OVERLAY_BUTTON_ALPHA = 0.5f;
     public static final String ACTION_START = BuildConfig.APPLICATION_ID + ".START";
@@ -173,11 +175,15 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
          * ABS will already be running, started when this method was first called, either by a
          * Message, or from onStartCommand with an Intent with all values set.
          */
-        boolean isABSEnabled = false;
-        if (settings != null)
-            isABSEnabled = settings.getBoolean(KEY_BLACKLIST_ENABLED);
-        if (isABSEnabled)
-            startService(new Intent(this, AppBlacklistService.class));
+        if (settings != null) {
+            boolean isABSEnabled = settings.getBoolean(KEY_BLACKLIST_ENABLED);
+            if (isABSEnabled) {
+                Intent startIntent = new Intent(this, AppBlacklistService.class);
+                startIntent
+                        .putExtra(KEY_BLACKLIST_LIST, settings.getSerializable(KEY_BLACKLIST_LIST));
+                startService(startIntent);
+            }
+        }
 
         foregroundify();
     }
