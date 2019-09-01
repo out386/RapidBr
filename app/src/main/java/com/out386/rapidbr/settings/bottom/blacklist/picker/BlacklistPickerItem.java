@@ -57,6 +57,7 @@ public class BlacklistPickerItem extends
         return R.layout.blacklist_picker_item;
     }
 
+    @NonNull
     @Override
     public ViewHolder getViewHolder(@NonNull View v) {
         return new ViewHolder(v);
@@ -76,23 +77,27 @@ public class BlacklistPickerItem extends
 
     protected static class ViewHolder extends FastAdapter.ViewHolder<BlacklistPickerItem> {
         TextView name;
+        TextView packageName;
         ImageView icon;
 
         ViewHolder(View view) {
             super(view);
             name = view.findViewById(R.id.app_name);
+            packageName = view.findViewById(R.id.package_name);
             icon = view.findViewById(R.id.app_icon);
         }
 
         @Override
         public void bindView(BlacklistPickerItem item, List<Object> payloads) {
             name.setText(item.appName);
+            packageName.setText(item.packageName);
             icon.setImageBitmap(item.appIcon);
         }
 
         @Override
         public void unbindView(BlacklistPickerItem item) {
             name.setText(null);
+            packageName.setText(null);
             icon.setImageDrawable(null);
         }
     }
