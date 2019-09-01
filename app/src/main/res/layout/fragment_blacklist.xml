@@ -6,25 +6,6 @@
     android:paddingStart="@dimen/edge_padding"
     android:paddingEnd="@dimen/edge_padding">
 
-    <TextView
-        android:id="@+id/blacklist_title"
-        style="@style/GeneralHeaderText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="@dimen/edge_padding"
-        android:text="@string/sett_main_blacklist" />
-
-    <TextView
-        android:id="@+id/blacklist_desc"
-        style="@style/GeneralBodyText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/blacklist_title"
-        android:layout_alignParentStart="true"
-        android:text="@string/sett_blacklist_desc" />
-
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -33,21 +14,6 @@
         android:layout_marginTop="@dimen/edge_padding_internal"
         android:layout_marginBottom="@dimen/edge_padding_internal"
         android:background="@drawable/card">
-
-        <com.out386.rapidbr.settings.bottom.views.SwitchItem
-            android:id="@+id/blacklist_enable_switch"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:switchText="@string/sett_blacklist_enable" />
-
-        <View
-            android:id="@+id/blacklist_divider_1"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_below="@id/blacklist_enable_switch"
-            android:layout_alignParentStart="true"
-            android:layout_marginBottom="@dimen/edge_padding_internal"
-            android:background="@color/cardStroke" />
 
         <TextView
             android:id="@+id/blacklist_no_apps_text"
@@ -61,6 +27,14 @@
             android:text="@string/sett_blacklist_no_apps"
             android:visibility="gone" />
 
+        <View
+            android:id="@+id/blacklist_divider_1"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@id/blacklist_enable_switch"
+            android:layout_alignParentStart="true"
+            android:background="@color/cardStroke" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/blacklist_recycler"
             android:layout_width="match_parent"
@@ -68,7 +42,32 @@
             android:layout_below="@id/blacklist_divider_1"
             android:padding="@dimen/edge_padding_internal" />
 
+        <com.out386.rapidbr.settings.bottom.views.SwitchItem
+            android:id="@+id/blacklist_enable_switch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:switchText="@string/sett_blacklist_enable" />
+
     </RelativeLayout>
+
+    <TextView
+        android:id="@+id/blacklist_desc"
+        style="@style/GeneralBodyText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/blacklist_title"
+        android:layout_alignParentStart="true"
+        android:text="@string/sett_blacklist_desc" />
+
+    <TextView
+        android:id="@+id/blacklist_title"
+        style="@style/GeneralHeaderText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="@dimen/edge_padding"
+        android:text="@string/sett_main_blacklist" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/blacklist_add_button"
