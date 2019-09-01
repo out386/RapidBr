@@ -56,6 +56,7 @@ public class BlacklistActivity extends ThemeActivity implements BlacklistActivit
 
     private BlacklistFragment blacklistFragment;
     private GenericDialogFragment dialog;
+    private boolean allowBlacklistPickerCache;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,7 +80,14 @@ public class BlacklistActivity extends ThemeActivity implements BlacklistActivit
 
     @Override
     public void onShowPicker() {
-        changeFragment(new BlacklistPickerFragment(), null, true);
+        changeFragment(BlacklistPickerFragment.newInstance(allowBlacklistPickerCache),
+                null, true);
+        /*
+         * Do not save allowBlacklistPickerCache in onSaveInstanceState. This way, the cache will be
+         * dropped on instance state changes, but will be used otherwise. This will allow speeding up
+         * subsequent presses on the add apps button, with acceptable risk of the cache being too old.
+         */
+        allowBlacklistPickerCache = true;
     }
 
     @Override
@@ -92,6 +100,7 @@ public class BlacklistActivity extends ThemeActivity implements BlacklistActivit
     @Override
     public void onResume() {
         super.onResume();
+        allowBlacklistPickerCache = false;
         int permissionCode = checkUsagePermission();
         if (permissionCode == 0 || permissionCode == -1)
             showPermissionDialog(permissionCode);

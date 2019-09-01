@@ -30,6 +30,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -44,13 +45,23 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class BlacklistPickerFragment extends Fragment implements OnClickListener<BlacklistPickerItem> {
+    private static final String KEY_ALLOW_APPS_CACHE = "allowAppsCache";
 
     private ItemAdapter<BlacklistPickerItem> itemAdapter;
     private ProgressDialog progressDialog;
     private BlacklistActivityListener listener;
+    private boolean allowAppsCache;
 
     public BlacklistPickerFragment() {
 
+    }
+
+    public static BlacklistPickerFragment newInstance(boolean allowAppsCache) {
+        BlacklistPickerFragment fragment = new BlacklistPickerFragment();
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(KEY_ALLOW_APPS_CACHE, allowAppsCache);
+        fragment.setArguments(bundle);
+        return fragment;
     }
 
     @Override
@@ -71,9 +82,17 @@ public class BlacklistPickerFragment extends Fragment implements OnClickListener
                 .withSelectable(true)
                 .withOnClickListener(this);
         recyclerView.setAdapter(fastAdapter);
-        fetchApps();
+        Bundle args = getArguments();
+        if (args != null)
+            allowAppsCache = args.getBoolean(KEY_ALLOW_APPS_CACHE);
 
         return v;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        fetchApps();
     }
 
     @Override
@@ -107,11 +126,7 @@ public class BlacklistPickerFragment extends Fragment implements OnClickListener
         progressDialog.setCancelable(false);
         progressDialog.show();
 
-        BlacklistPickerRunnable loadAppsRunnable =
-                new BlacklistPickerRunnable(
-                        context.getApplicationContext(),
-                        this::setListData
-                );
-        new Thread(loadAppsRunnable).start();   // The Runnable will finish quickly, so just spawning a thread
+        AllAppsStore appsStore = AllAppsStore.getInstance(requireContext());
+        appsStore.fetchApps(this::setListData, allowAppsCache);
     }
 }
