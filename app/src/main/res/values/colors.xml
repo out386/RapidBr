@@ -10,6 +10,7 @@
     <color name="windowBackground">#FFFFFF</color>
     <color name="toolbarText2">#585858</color>
     <color name="transparent">#00FFFFFF</color>
+    <color name="iconFill">#AF050505</color>
     <color name="textWhite">#050505</color>
     <color name="textTopNotRunning">#FF7043</color>
     <color name="textTopRunning">#2196F3</color>

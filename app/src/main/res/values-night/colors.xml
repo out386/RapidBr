@@ -9,6 +9,7 @@
     <color name="windowBackground">#171717</color>
     <color name="toolbarText2">#FFFFFF</color>
     <color name="transparent">#00FFFFFF</color>
+    <color name="iconFill">#AFFFFFFF</color>
     <color name="textWhite">#FFFFFF</color>
     <color name="textTopNotRunning">#FFAB91</color>
     <color name="textTopRunning">#80D8FF</color>

@@ -38,6 +38,8 @@ import android.preference.PreferenceManager;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -86,6 +88,8 @@ public class MainActivity extends ThemeActivity implements OnNavigationListener,
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         createNotifChannel();
         setupViews();
@@ -109,6 +113,21 @@ public class MainActivity extends ThemeActivity implements OnNavigationListener,
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putBoolean(KEY_CURRENTLY_MAIN_FRAG, isCurrentlyMainFrag);
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_theme) {
+            showThemeDialog();
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void onBrServiceStatusChanged(int status) {

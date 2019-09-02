@@ -30,4 +30,9 @@
     <string name="notif_resume">Resume</string>
     <string name="notif_pause">Pause</string>
     <string name="notif_stop">Stop</string>
+    <string name="action_theme">Theme</string>
+    <string name="action_theme_night">Dark theme</string>
+    <string name="action_theme_day">Light theme</string>
+    <string name="action_theme_battery">Based on battery saver</string>
+    <string name="action_theme_system">Based on system theme</string>
 </resources>
