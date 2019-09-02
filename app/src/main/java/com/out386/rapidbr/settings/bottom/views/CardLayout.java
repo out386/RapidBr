@@ -87,7 +87,7 @@ public class CardLayout extends RelativeLayout {
     @Override
     public boolean performClick() {
         // Let the ripple animation complete
-        getHandler().postDelayed(clickRunnable, 150);
+        getHandler().postDelayed(clickRunnable, 75);
         return true;
     }
 

@@ -179,7 +179,7 @@ public class BlacklistFragment extends Fragment implements
         };
         addButton.setOnClickListener(v ->
                 // The delay is to let the ripple animation complete
-                buttonHandler.postDelayed(rippleRunnable, 200)
+                buttonHandler.postDelayed(rippleRunnable, 75)
         );
 
     }
