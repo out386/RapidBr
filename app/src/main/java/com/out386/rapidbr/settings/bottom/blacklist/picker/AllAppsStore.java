@@ -28,6 +28,8 @@ import android.content.pm.ResolveInfo;
 
 import androidx.annotation.Nullable;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
@@ -40,7 +42,7 @@ public class AllAppsStore {
     private Context context;
     private static AllAppsStore allAppsStore;
     private PackageManager packageManager;
-    private TreeMap<String, BlacklistPickerItem> appsList;
+    private List<BlacklistPickerItem> appsList;
     private ExecutorService appsStoreExecutor;
 
     private AllAppsStore(Context context) {
@@ -56,7 +58,7 @@ public class AllAppsStore {
     }
 
     public void fetchApps(@Nullable LoadProfilesPickerAppsListener listener, boolean allowCache) {
-        if (allowCache && appsList != null) {
+        if (allowCache && appsList != null && appsList.size() > 0) {
             if (listener != null)
                 listener.onAppsLoaded(appsList);
         } else {
@@ -83,6 +85,7 @@ public class AllAppsStore {
                 return;
             }
 
+            // Using the package name as the key. This will handle apps with multiple launcher activities
             TreeMap<String, BlacklistPickerItem> apps = new TreeMap<>();
             for (ResolveInfo resolveInfo : resolveAppsList) {
                 String name = getAppName(packageManager,
@@ -93,8 +96,8 @@ public class AllAppsStore {
                 boolean isAppBlacklistable =
                         !context.getPackageName().equals(resolveInfo.activityInfo.packageName);
 
-                if (!apps.containsKey(name) && isAppBlacklistable) {
-                    apps.put(name,
+                if (isAppBlacklistable) {
+                    apps.put(resolveInfo.activityInfo.packageName,
                             new BlacklistPickerItem.Builder()
                                     .withName(name)
                                     .withPackage(resolveInfo.activityInfo.packageName)
@@ -106,13 +109,16 @@ public class AllAppsStore {
                     );
                 }
             }
-            appsList = apps;
+            // Sorting by app name
+            List<BlacklistPickerItem> list = new ArrayList<>(apps.values());
+            Collections.sort(list);
+            appsList = list;
             if (listener != null)
-                listener.onAppsLoaded(apps);
+                listener.onAppsLoaded(list);
         }
     }
 
     public interface LoadProfilesPickerAppsListener {
-        void onAppsLoaded(TreeMap<String, BlacklistPickerItem> apps);
+        void onAppsLoaded(List<BlacklistPickerItem> apps);
     }
 }

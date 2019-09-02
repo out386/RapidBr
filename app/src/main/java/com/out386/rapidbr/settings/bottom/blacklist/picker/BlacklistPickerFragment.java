@@ -41,8 +41,7 @@ import com.mikepenz.fastadapter.adapters.ItemAdapter;
 import com.mikepenz.fastadapter.listeners.OnClickListener;
 import com.out386.rapidbr.R;
 
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.List;
 
 public class BlacklistPickerFragment extends Fragment implements OnClickListener<BlacklistPickerItem> {
 
@@ -88,7 +87,7 @@ public class BlacklistPickerFragment extends Fragment implements OnClickListener
         return true;
     }
 
-    private void setListData(TreeMap<String, BlacklistPickerItem> apps) {
+    private void setListData(List<BlacklistPickerItem> apps) {
         if (progressDialog != null)
             progressDialog.dismiss();
         Activity activity = getActivity();
@@ -96,8 +95,8 @@ public class BlacklistPickerFragment extends Fragment implements OnClickListener
             activity.runOnUiThread(() -> {
                 itemAdapter.clear();
                 if (apps != null && apps.size() > 0) {
-                    for (Map.Entry<String, BlacklistPickerItem> entry : apps.entrySet())
-                        itemAdapter.add(entry.getValue());
+                    for (BlacklistPickerItem item : apps)
+                        itemAdapter.add(item);
                 }
             });
     }

@@ -33,7 +33,9 @@ import com.out386.rapidbr.R;
 
 import java.util.List;
 
-public class BlacklistPickerItem extends AbstractItem<BlacklistPickerItem, BlacklistPickerItem.ViewHolder> {
+public class BlacklistPickerItem extends
+        AbstractItem<BlacklistPickerItem, BlacklistPickerItem.ViewHolder>
+        implements Comparable<BlacklistPickerItem> {
 
     private String packageName;
     private String appName;
@@ -118,5 +120,13 @@ public class BlacklistPickerItem extends AbstractItem<BlacklistPickerItem, Black
         BlacklistPickerItem build() {
             return new BlacklistPickerItem(this);
         }
+    }
+
+    @Override
+    public int compareTo(@NonNull BlacklistPickerItem o) {
+        if (this.appName != null)
+            return this.appName.compareToIgnoreCase(o.appName);
+        else
+            return 1;
     }
 }
