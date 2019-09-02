@@ -2,10 +2,11 @@
 <resources>
     <color name="colorPrimary">#FFFFFF</color>
     <color name="colorPrimaryDark">#FFFFFF</color>
-    <color name="colorAccent">#FF7043</color>
-    <color name="buttonStroke">#FF7043</color>
-    <color name="buttonFill">#ffbfab</color>
-    <color name="buttonRipple">#9FFF7043</color>
+    <color name="colorAccent">#F44336</color>
+    <color name="buttonStroke">#FFAAA4</color>
+    <color name="buttonText">#F03728</color>
+    <color name="buttonFill">#FFCDD2</color>
+    <color name="buttonRipple">#4FF44336</color>
     <color name="windowBackground">#FFFFFF</color>
     <color name="toolbarText2">#585858</color>
     <color name="transparent">#00FFFFFF</color>
