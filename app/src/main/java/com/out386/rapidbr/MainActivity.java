@@ -248,7 +248,7 @@ public class MainActivity extends ThemeActivity implements OnNavigationListener,
             toolbar.setLayoutParams(toolbarParams);
             topView.setLayoutParams(topViewParams);
 
-            toolbar.setPadding(leftInset, 0, rightInset, 0);
+            toolbar.setPadding(leftInset, topInset, rightInset, 0);
             topView.setPadding(leftInset, 0, rightInset, 0);
             bottomView.setPadding(leftInset, 0, rightInset, 0);
             decorView.setPadding(0, 0, 0, bottomInset);

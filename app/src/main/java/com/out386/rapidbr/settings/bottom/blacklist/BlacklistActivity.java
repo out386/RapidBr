@@ -132,7 +132,7 @@ public class BlacklistActivity extends ThemeActivity implements BlacklistActivit
                     topInset;
 
             toolbar.setLayoutParams(toolbarParams);
-            toolbar.setPadding(leftInset, 0, rightInset, 0);
+            toolbar.setPadding(leftInset, topInset, rightInset, 0);
             decorView.setPadding(leftInset, 0, rightInset, bottomInset);
 
             return insets.consumeSystemWindowInsets();
