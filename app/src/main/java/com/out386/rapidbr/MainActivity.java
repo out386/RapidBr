@@ -27,6 +27,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -42,7 +43,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
@@ -53,6 +53,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.button.MaterialButton;
 import com.out386.rapidbr.services.overlay.BrightnessOverlayService;
 import com.out386.rapidbr.settings.OnNavigationListener;
 import com.out386.rapidbr.settings.bottom.bcolour.OnButtonColourChangedListener;
@@ -76,7 +77,7 @@ public class MainActivity extends ThemeActivity implements OnNavigationListener,
     private static final String KEY_TOP_FRAG = "KEY_TOP_FRAG";
     private boolean isCurrentlyMainFrag = true;
     private AppBarLayout appBarLayout;
-    private Button startButton;
+    private MaterialButton startButton;
     private boolean isQueuedToggle;
     private BrightnessConnection brConnection;
     private TopFragment topFragment;
@@ -134,11 +135,16 @@ public class MainActivity extends ThemeActivity implements OnNavigationListener,
         boolean isStarted = status != 0;
         topFragment.setStatus(isStarted);
         String text;
-        if (isStarted)
+        Drawable icon;
+        if (isStarted) {
             text = getResources().getString(R.string.stop_app);
-        else
+            icon = getDrawable(R.drawable.ic_notif_stop);
+        } else {
             text = getResources().getString(R.string.start_app);
+            icon = getDrawable(R.drawable.ic_notif_start);
+        }
         startButton.setText(text);
+        startButton.setIcon(icon);
     }
 
     @Override

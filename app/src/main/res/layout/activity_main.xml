@@ -65,6 +65,9 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal|bottom"
         android:layout_marginBottom="@dimen/edge_padding_huge"
-        android:text="@string/start_app" />
+        android:paddingStart="15dp"
+        android:text="@string/start_app"
+        app:icon="@drawable/ic_notif_start"
+        tools:ignore="RtlSymmetry" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

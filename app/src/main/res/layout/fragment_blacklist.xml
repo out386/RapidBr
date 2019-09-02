@@ -75,7 +75,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="@dimen/edge_padding"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="@dimen/edge_padding_huge"
         android:text="@string/sett_blacklist_add_apps"
         app:icon="@drawable/ic_add" />
 
