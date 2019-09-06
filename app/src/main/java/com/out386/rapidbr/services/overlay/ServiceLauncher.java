@@ -21,6 +21,7 @@ package com.out386.rapidbr.services.overlay;
  */
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Message;
@@ -36,6 +37,7 @@ import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.KEY_B
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.KEY_SCREEN_DIM_AMOUNT;
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_DUMMY;
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_TOGGLE_OVERLAY;
+import static com.out386.rapidbr.settings.bottom.blacklist.BlacklistFragment.KEY_BLACKLIST_BUNDLE;
 import static com.out386.rapidbr.settings.bottom.blacklist.BlacklistFragment.KEY_BLACKLIST_ENABLED;
 
 public class ServiceLauncher {
@@ -110,5 +112,30 @@ public class ServiceLauncher {
             }
         }
         return false;
+    }
+
+    public static Intent getBrightnessServiceStartIntent(Context context, int brIconColour,
+                                                         int screenDimAmount, Bundle blacklistBundle) {
+        Intent intent = new Intent(context, BrightnessOverlayService.class);
+        intent.setAction(BrightnessOverlayService.ACTION_START);
+        intent.putExtra(KEY_BR_ICON_COLOUR, brIconColour);
+        intent.putExtra(KEY_SCREEN_DIM_AMOUNT, screenDimAmount);
+        if (blacklistBundle != null)
+            intent.putExtra(KEY_BLACKLIST_BUNDLE, blacklistBundle);
+        return intent;
+    }
+
+    /**
+     * Returns an Intent to start {@link BrightnessOverlayService} with. Use this only when {@link
+     * BrightnessOverlayService} is supposed to already be running, as this method uses default
+     * values for {@link BrightnessOverlayService}. If starting the service for the first time, use
+     * {@link #getBrightnessServiceStartIntent(Context, int, int, Bundle)}.
+     *
+     * @param context Duh
+     * @return An Intent to start {@link BrightnessOverlayService} with
+     */
+    public static Intent getBrightnessServiceStartIntent(Context context) {
+        return getBrightnessServiceStartIntent(
+                context, DEF_OVERLAY_BUTTON_COLOUR, 0, null);
     }
 }

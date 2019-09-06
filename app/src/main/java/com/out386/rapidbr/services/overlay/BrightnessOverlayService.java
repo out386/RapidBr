@@ -93,7 +93,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     private int alertType;
     private int initialSliderX;
     private int initialSliderY;
-    private int buttonColour;
+    private int buttonColour = DEF_OVERLAY_BUTTON_COLOUR;
     private boolean isOverlayRunning;
     private Notification notificationPause;
     private Notification notificationResume;
@@ -108,7 +108,6 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
             setGlobals(i);
 
             // See comment in startOverlay
-            // Using Bundle instead of boolean because it will also have the apps list in the future
             Bundle b = i.getBundleExtra(KEY_BLACKLIST_BUNDLE);
             startOverlay(b);
         } else if (ACTION_PAUSE.equals(i.getAction())) {
@@ -124,10 +123,10 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         int buttonColourTemp = i.getIntExtra(KEY_BR_ICON_COLOUR, DEF_OVERLAY_BUTTON_COLOUR);
         float screenDimAmountTemp = i.getIntExtra(KEY_SCREEN_DIM_AMOUNT, 0) / 100f;
 
-        // Set new values only if there are no values currently set, or if the intent has new values
-        if (buttonColour == 0 || buttonColourTemp != DEF_OVERLAY_BUTTON_COLOUR)
+        // Set new values only the intent has new values
+        if (buttonColourTemp != DEF_OVERLAY_BUTTON_COLOUR)
             buttonColour = buttonColourTemp;
-        if (screenDimAmount == 0.0f || screenDimAmountTemp != 0.0f)
+        if (screenDimAmountTemp != 0.0f)
             screenDimAmount = screenDimAmountTemp;
     }
 
@@ -581,8 +580,13 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     }
 
     private PendingIntent buildPendingIntent(String action) {
-        Intent i = new Intent(this, getClass());
-        i.setAction(action);
+        Intent i;
+        if (action.equals(ACTION_START)) {
+            i = ServiceLauncher.getBrightnessServiceStartIntent(this);
+        } else {
+            i = new Intent(this, getClass());
+            i.setAction(action);
+        }
         return PendingIntent.getService(this, 0, i, 0);
     }
 

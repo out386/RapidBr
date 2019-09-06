@@ -29,6 +29,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.out386.rapidbr.services.overlay.BrightnessOverlayService;
+import com.out386.rapidbr.services.overlay.ServiceLauncher;
 import com.out386.rapidbr.settings.bottom.blacklist.BlacklistAppsItem;
 
 import java.io.Serializable;
@@ -138,8 +139,7 @@ public class AppBlacklistService extends Service {
 
     private void setupIntents() {
         if (resumeIntent == null)
-            resumeIntent = new Intent(this, BrightnessOverlayService.class)
-                    .setAction(BrightnessOverlayService.ACTION_START);
+            resumeIntent = ServiceLauncher.getBrightnessServiceStartIntent(this);
         if (pauseIntent == null)
             pauseIntent = new Intent(this, BrightnessOverlayService.class)
                     .setAction(BrightnessOverlayService.ACTION_PAUSE);
