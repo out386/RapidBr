@@ -62,6 +62,7 @@ import com.out386.rapidbr.settings.bottom.blacklist.picker.BlacklistPickerItem;
 import com.out386.rapidbr.settings.bottom.views.SwitchItem;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.out386.rapidbr.settings.bottom.blacklist.PackageUtils.checkUnique;
 import static com.out386.rapidbr.settings.bottom.blacklist.PackageUtils.pickerToAppItem;
@@ -75,6 +76,7 @@ public class BlacklistFragment extends Fragment implements
     private static final String KEY_LAYOUT_MANAGER_STATE = "layoutState";
     public static final String KEY_BLACKLIST_ENABLED = "blacklistEnabled";
     public static final String KEY_BLACKLIST_BUNDLE = "blacklistBundle";
+    public static final String KEY_BLACKLIST_APPS_NUMBER = "blacklistAppsNumber";
 
     private ItemAdapter<BlacklistAppsItem> itemAdapter;
     private FastAdapter<BlacklistAppsItem> fastAdapter;
@@ -152,10 +154,22 @@ public class BlacklistFragment extends Fragment implements
 
         setupAddButton();
         enableSwitch.setChecked(prefs.getBoolean(KEY_BLACKLIST_ENABLED, false));
-        enableSwitch.setOnCheckedChangeListener(isChecked ->
-                prefs.edit()
-                        .putBoolean(KEY_BLACKLIST_ENABLED, isChecked)
-                        .apply()
+        enableSwitch.setOnCheckedChangeListener(isChecked -> {
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putBoolean(KEY_BLACKLIST_ENABLED, isChecked);
+                    if (!isChecked) {
+                        editor.putInt(KEY_BLACKLIST_APPS_NUMBER, 0);
+                    } else {
+                        List<BlacklistAppsItem> list = null;
+                        int numBlacklisted = 0;
+                        if (itemAdapter != null)
+                            list = itemAdapter.getAdapterItems();
+                        if (list != null)
+                            numBlacklisted = list.size();
+                        editor.putInt(KEY_BLACKLIST_APPS_NUMBER, numBlacklisted);
+                    }
+                    editor.apply();
+                }
         );
 
         if (savedInstanceState != null) {
@@ -281,6 +295,15 @@ public class BlacklistFragment extends Fragment implements
         ArrayList<BlacklistAppsItem> allAppItems =
                 (ArrayList<BlacklistAppsItem>) itemAdapter.getAdapterItems();
         blacklistAppsStore.write(allAppItems);
+
+        int numItems;
+        if (prefs.getBoolean(KEY_BLACKLIST_ENABLED, false))
+            numItems = allAppItems.size();
+        else
+            numItems = 0;
+        prefs.edit()
+                .putInt(KEY_BLACKLIST_APPS_NUMBER, numItems)
+                .apply();
     }
 
     private void setupDialog(int position, String appName, float brightness) {

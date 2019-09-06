@@ -34,6 +34,8 @@
     <string name="top_status_not_running">Not Running</string>
     <string name="top_filter_disabled">Screen filter is off</string>
     <string name="top_filter_percent">Screen filter is at %d %%</string>
+    <string name="top_blacklist_disabled">App blacklist is disabled</string>
+    <string name="top_blacklist_number">%d apps are blacklisted</string>
     <string name="notif_running">RapidBr is running</string>
     <string name="notif_paused">RapidBr is paused</string>
     <string name="notif_subtext">Long press to hide</string>

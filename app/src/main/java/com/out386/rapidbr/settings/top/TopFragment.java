@@ -35,6 +35,8 @@ import androidx.fragment.app.Fragment;
 
 import com.out386.rapidbr.R;
 
+import static com.out386.rapidbr.settings.bottom.blacklist.BlacklistFragment.KEY_BLACKLIST_APPS_NUMBER;
+
 public class TopFragment extends Fragment {
 
     private TextView runningText;
@@ -44,6 +46,7 @@ public class TopFragment extends Fragment {
     private Context context;
     private String[] statusMessage = new String[2];
     private int[] statusColour = new int[2];
+    private SharedPreferences prefs;
 
     public TopFragment() {
     }
@@ -52,6 +55,7 @@ public class TopFragment extends Fragment {
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         this.context = context;
+        prefs = PreferenceManager.getDefaultSharedPreferences(context);
     }
 
     @Override
@@ -64,6 +68,12 @@ public class TopFragment extends Fragment {
         blacklistText = v.findViewById(R.id.top_frag_blacklist);
         getStatusRes();
         return v;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        setBlacklist();
     }
 
     private void getStatusRes() {
@@ -97,8 +107,14 @@ public class TopFragment extends Fragment {
         filterText.setText(status);
     }
 
-    public void setBlacklist(String blacklist) {
-        blacklistText.setText(blacklist);
+    private void setBlacklist() {
+        int numBlacklist = prefs.getInt(KEY_BLACKLIST_APPS_NUMBER, 0);
+        String text;
+        if (numBlacklist == 0)
+            text = getString(R.string.top_blacklist_disabled);
+        else
+            text = String.format(getString(R.string.top_blacklist_number), numBlacklist);
+        blacklistText.setText(text);
     }
 
     private void setSecondaryStatus() {
