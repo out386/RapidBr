@@ -34,7 +34,7 @@ import com.out386.rapidbr.settings.bottom.blacklist.io.BlacklistAppsStore;
 import static com.out386.rapidbr.services.blacklist.AppBlacklistService.KEY_BLACKLIST_LIST;
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.DEF_OVERLAY_BUTTON_COLOUR;
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.KEY_BR_ICON_COLOUR;
-import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.KEY_SCREEN_DIM_AMOUNT;
+import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.KEY_SCREEN_FILTER_ENABLED;
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_DUMMY;
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_TOGGLE_OVERLAY;
 import static com.out386.rapidbr.settings.bottom.blacklist.BlacklistFragment.KEY_BLACKLIST_BUNDLE;
@@ -47,7 +47,7 @@ public class ServiceLauncher {
             return false;
 
         int overlayButtonColour = prefs.getInt(KEY_BR_ICON_COLOUR, DEF_OVERLAY_BUTTON_COLOUR);
-        int screenDimAmount = prefs.getInt(KEY_SCREEN_DIM_AMOUNT, 0);
+        int screenDimEnabled = prefs.getBoolean(KEY_SCREEN_FILTER_ENABLED, true) ? 1 : -1;
         Bundle settings = new Bundle();
         settings.putBoolean(KEY_BLACKLIST_ENABLED,
                 prefs.getBoolean(KEY_BLACKLIST_ENABLED, false));
@@ -57,7 +57,7 @@ public class ServiceLauncher {
             settings.putSerializable(KEY_BLACKLIST_LIST, apps);
             try {
                 serviceMessenger.send(Message.obtain(
-                        null, MSG_TOGGLE_OVERLAY, overlayButtonColour, screenDimAmount, settings));
+                        null, MSG_TOGGLE_OVERLAY, overlayButtonColour, screenDimEnabled, settings));
             } catch (RemoteException e) {
                 Log.e("ServiceLauncher", "toggleBrightnessService-read: " + e.getMessage());
             }
@@ -115,11 +115,30 @@ public class ServiceLauncher {
     }
 
     public static Intent getBrightnessServiceStartIntent(Context context, int brIconColour,
-                                                         int screenDimAmount, Bundle blacklistBundle) {
+                                                         boolean screenDimEnabled, Bundle blacklistBundle) {
+
+        // Not using a boolean for screenDimAmount allows BOS to know whether a value was explicitly
+        // set on the Intent or not.
+        return getBrightnessServiceStartIntent(context, brIconColour,
+                screenDimEnabled ? 1 : -1, blacklistBundle);
+    }
+
+    /**
+     * Returns an Intent to start {@link BrightnessOverlayService} with.
+     *
+     * @param context          Duh
+     * @param brIconColour     The colour of the floating brightness button
+     * @param screenDimEnabled 1 to enable the screen filter, -1 otherwise
+     * @param blacklistBundle  A Bundle containing settings for {@link com.out386.rapidbr.services.blacklist.AppBlacklistService}
+     * @return An Intent to start {@link BrightnessOverlayService} with
+     */
+    private static Intent getBrightnessServiceStartIntent(Context context, int brIconColour,
+                                                          int screenDimEnabled, Bundle blacklistBundle) {
         Intent intent = new Intent(context, BrightnessOverlayService.class);
         intent.setAction(BrightnessOverlayService.ACTION_START);
         intent.putExtra(KEY_BR_ICON_COLOUR, brIconColour);
-        intent.putExtra(KEY_SCREEN_DIM_AMOUNT, screenDimAmount);
+
+        intent.putExtra(KEY_SCREEN_FILTER_ENABLED, screenDimEnabled);
         if (blacklistBundle != null)
             intent.putExtra(KEY_BLACKLIST_BUNDLE, blacklistBundle);
         return intent;
@@ -129,7 +148,7 @@ public class ServiceLauncher {
      * Returns an Intent to start {@link BrightnessOverlayService} with. Use this only when {@link
      * BrightnessOverlayService} is supposed to already be running, as this method uses default
      * values for {@link BrightnessOverlayService}. If starting the service for the first time, use
-     * {@link #getBrightnessServiceStartIntent(Context, int, int, Bundle)}.
+     * {@link #getBrightnessServiceStartIntent(Context, int, boolean, Bundle)}.
      *
      * @param context Duh
      * @return An Intent to start {@link BrightnessOverlayService} with

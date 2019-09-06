@@ -49,11 +49,11 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     public final static String NOTIF_CHANNEL_ID = "channelStandard";
     public static final String KEY_OVERLAY_X = "overlayX";
     public static final String KEY_OVERLAY_Y = "overlayY";
-    public static final String KEY_SCREEN_DIM_AMOUNT = "screenDimAmount";
+    public static final String KEY_SCREEN_FILTER_ENABLED = "screenDimEnabled";
     public static final String KEY_BR_ICON_COLOUR = "br_icon_colour";
 
     public static final int MSG_OVERLAY_BUTTON_COLOUR = 1;
-    public static final int MSG_SCREEN_DIM_AMOUNT = 2;
+    public static final int MSG_SCREEN_DIM_ENABLED = 2;
     public static final int MSG_TOGGLE_OVERLAY = 3;
     public static final int MSG_SET_CLIENT_MESSENGER = 6;
     public static final int MSG_UNSET_CLIENT_MESSENGER = 7;
@@ -69,6 +69,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     private static final int BRIGHTNESS_CHANGE_FACTOR = 20;
     private static final int BRIGHTNESS_CHANGE_FACTOR_LOW = 40;
     public static float screenDimAmount = 0.0f;
+    public static boolean screenDimEnabled = true;
     private static int buttonTouchSlop;
     boolean moveWasBrightness = true;
     private View topLeftView;
@@ -119,15 +120,22 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         return START_NOT_STICKY;
     }
 
+    /**
+     * Sets state if the service has been not been started bound for the first time. This is needed
+     * if the service is started from the QS tile, start on boot, Tasker, scheduler, or by anything
+     * except for {@link com.out386.rapidbr.MainActivity}
+     *
+     * @param i The intent this service was started with
+     */
     private void setGlobals(Intent i) {
         int buttonColourTemp = i.getIntExtra(KEY_BR_ICON_COLOUR, DEF_OVERLAY_BUTTON_COLOUR);
-        float screenDimAmountTemp = i.getIntExtra(KEY_SCREEN_DIM_AMOUNT, 0) / 100f;
+        int screenDimEnabledInt = i.getIntExtra(KEY_SCREEN_FILTER_ENABLED, 0);
 
-        // Set new values only the intent has new values
+        // Set new values only if the intent has new values
         if (buttonColourTemp != DEF_OVERLAY_BUTTON_COLOUR)
             buttonColour = buttonColourTemp;
-        if (screenDimAmountTemp != 0.0f)
-            screenDimAmount = screenDimAmountTemp;
+        if (screenDimEnabledInt != 0)
+            screenDimEnabled = screenDimEnabledInt == 1;
     }
 
     @Override
@@ -189,7 +197,6 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
 
     private void pauseOverlay(boolean isForPause) {
         isOverlayRunning = false;
-        screenDimAmount = 0.0f;
         if (brightnessSlider != null) {
             int[] location = new int[2];
             brightnessSlider.getLocationOnScreen(location);
@@ -320,9 +327,9 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         wm.addView(topLeftView, topLeftParams);
     }
 
-    private void toggleOverlay(int colour, int dim, Bundle settings) {
+    private void toggleOverlay(int colour, int dimEnabled, Bundle settings) {
         buttonColour = colour;
-        screenDimAmount = dim / 100f;
+        screenDimEnabled = dimEnabled == 1;
         if (isOverlayRunning)
             stopOverlay();
         else
@@ -490,7 +497,10 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     }
 
     private void setDimmerBrightness() {
-        if (screenDimAmount > 0) {
+        if (!isOverlayRunning)
+            return;
+
+        if (screenDimEnabled && screenDimAmount > 0) {
             if (dimView != null) {
                 if (alertType == WindowManager.LayoutParams.TYPE_SYSTEM_ERROR)
                     dimViewParams.dimAmount = screenDimAmount;
@@ -619,8 +629,8 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
                     buttonColour = msg.arg1;
                     setButtonColour();
                     break;
-                case MSG_SCREEN_DIM_AMOUNT:
-                    screenDimAmount = msg.arg1;
+                case MSG_SCREEN_DIM_ENABLED:
+                    screenDimEnabled = msg.arg1 == 1;
                     setDimmerBrightness();
                     break;
                 case MSG_TOGGLE_OVERLAY:

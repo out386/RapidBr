@@ -57,12 +57,14 @@ import com.google.android.material.button.MaterialButton;
 import com.out386.rapidbr.services.overlay.BrightnessOverlayService;
 import com.out386.rapidbr.settings.OnNavigationListener;
 import com.out386.rapidbr.settings.bottom.bcolour.OnButtonColourChangedListener;
+import com.out386.rapidbr.settings.bottom.screenfilter.OnScreenFilterSettingsChangedListener;
 import com.out386.rapidbr.settings.top.TopFragment;
 
 import java.lang.ref.WeakReference;
 
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_IS_OVERLAY_RUNNING;
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_OVERLAY_BUTTON_COLOUR;
+import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_SCREEN_DIM_ENABLED;
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_SET_CLIENT_MESSENGER;
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_UNSET_CLIENT_MESSENGER;
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.NOTIF_CHANNEL_ID;
@@ -71,7 +73,7 @@ import static com.out386.rapidbr.services.overlay.ServiceLauncher.toggleBrightne
 import static com.out386.rapidbr.utils.DimenUtils.getActionbarHeight;
 
 public class MainActivity extends ThemeActivity implements OnNavigationListener,
-        OnButtonColourChangedListener {
+        OnButtonColourChangedListener, OnScreenFilterSettingsChangedListener {
 
     private static final String KEY_CURRENTLY_MAIN_FRAG = "CURRENTLY_MAIN_FRAG";
     private static final String KEY_TOP_FRAG = "KEY_TOP_FRAG";
@@ -322,6 +324,14 @@ public class MainActivity extends ThemeActivity implements OnNavigationListener,
     public void onColourChanged(int colour) {
         boolean result = sendMessageToBrightnessService(
                 serviceMessenger, MSG_OVERLAY_BUTTON_COLOUR, colour, 0);
+        if (!result)
+            serviceMessenger = null;
+    }
+
+    @Override
+    public void onScreenFilterEnabledChanged(boolean isEnabled) {
+        boolean result = sendMessageToBrightnessService(
+                serviceMessenger, MSG_SCREEN_DIM_ENABLED, isEnabled ? 1 : -1, 0);
         if (!result)
             serviceMessenger = null;
     }

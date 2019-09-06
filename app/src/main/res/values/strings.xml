@@ -7,7 +7,10 @@
     <string name="sett_main_blacklist">app blacklist</string>
     <string name="sett_main_filter">screen filter</string>
     <string name="sett_main_color">button color</string>
-    <string name="sett_sched_desc">You can have RapidBr automatically start up and shut down depending on the time.</string>
+    <string name="sett_main_screen_filter">screen filter</string>
+    <string name="sett_sched_desc">You can have RapidBr automatically start up and shut down
+        depending on the time.
+    </string>
     <string name="sett_sched_enable">Enable scheduler</string>
     <string name="sett_sched_start_title">Start time</string>
     <string name="sett_sched_start_desc">Start RapidBr every day at this time: %s.</string>
@@ -15,9 +18,16 @@
     <string name="sett_sched_stop_desc">Stop RapidBr every day at this time: %s.</string>
     <string name="sett_br_colour_desc">Set the color of the floating brightness icon.</string>
     <string name="sett_blacklist_desc">Pause RapidBr based on which app is currently open.
-        Use this if you do not use Tasker integration. Swipe an item left or right to delete it.</string>
+        Use this if you do not use Tasker integration. Swipe an item left or right to delete it.
+    </string>
+    <string name="sett_screen_filter_desc">Put a translucent overlay on top of the screen. This can
+        be used to either darken beyond the screen\'s minimum brightness, or to change the colour
+        temperature.
+    </string>
     <string name="sett_blacklist_enable">Enable app blacklist</string>
     <string name="sett_blacklist_pick_prompt">Tap an app below to add it to the blacklist</string>
+    <string name="sett_screen_filter_enable">Enable screen filter</string>
+    <string name="sett_screen_filter_kcal_enable">Use KCAL</string>
     <string name="start_app">Start</string>
     <string name="stop_app">Stop</string>
     <string name="top_status_running">Running</string>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingStart="@dimen/edge_padding"
+    android:paddingEnd="@dimen/edge_padding"
+    tools:context=".settings.bottom.scheduler.SchedulerFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            style="@style/GeneralHeaderText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/edge_padding"
+            android:text="@string/sett_main_screen_filter" />
+
+        <TextView
+            style="@style/GeneralBodyText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/sett_screen_filter_desc" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/edge_padding_internal"
+            android:layout_marginBottom="@dimen/edge_padding"
+            android:background="@drawable/card">
+
+            <com.out386.rapidbr.settings.bottom.views.SwitchItem
+                android:id="@+id/sfilter_enable_switch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:switchText="@string/sett_screen_filter_enable" />
+
+            <View
+                android:id="@+id/sfilter_switch_div"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="@dimen/edge_padding_internal"
+                android:layout_marginEnd="@dimen/edge_padding_internal"
+                android:background="@color/cardStroke"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/sfilter_enable_switch" />
+
+            <com.out386.rapidbr.settings.bottom.views.SwitchItem
+                android:id="@+id/sfilter_enable_kcal_switch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/sfilter_switch_div"
+                app:switchText="@string/sett_screen_filter_kcal_enable" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>
