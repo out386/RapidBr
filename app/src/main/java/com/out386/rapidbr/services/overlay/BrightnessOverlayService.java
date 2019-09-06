@@ -59,6 +59,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     public static final int MSG_UNSET_CLIENT_MESSENGER = 7;
     public static final int MSG_IS_OVERLAY_RUNNING = 8;
     public static final int MSG_DUMMY = 10;
+    public static final int MSG_SCREEN_DIM_STATUS = 11;
     public static final int DEF_OVERLAY_BUTTON_COLOUR = 0x0288D1;
     public static final float DEF_OVERLAY_BUTTON_ALPHA = 0.5f;
     public static final float MAX_SCREEN_DIM_AMOUNT = 0.5f;
@@ -340,7 +341,24 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     private void sendIsRunning() {
         if (clientMessenger != null) {
             Message message = Message.obtain(null, MSG_IS_OVERLAY_RUNNING,
-                    isOverlayRunning ? 1 : 0, 0);
+                    isOverlayRunning ? 1 : 0, (int) (screenDimAmount * 100));
+            try {
+                clientMessenger.send(message);
+            } catch (RemoteException e) {
+                clientMessenger = null;
+            }
+        }
+    }
+
+    private void sendFilterStatus() {
+        if (clientMessenger != null) {
+            int dimPercent;
+            if (screenDimEnabled)
+                dimPercent = (int) (screenDimAmount * 100);
+            else
+                dimPercent = 0;
+            Message message = Message.obtain(null, MSG_SCREEN_DIM_STATUS,
+                    dimPercent, 0);
             try {
                 clientMessenger.send(message);
             } catch (RemoteException e) {
@@ -441,6 +459,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
                 buttonAnim.scaleSlider(false);
             }
 
+            //noinspection IntegerDivisionInFloatingPointContext
             if (xToSnap <= display.widthPixels / 2)
                 params.x = 0;
             else
@@ -516,6 +535,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
                 dimView = null;
             }
         }
+        sendFilterStatus();
     }
 
     private void foregroundify() {

@@ -65,6 +65,7 @@ import java.lang.ref.WeakReference;
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_IS_OVERLAY_RUNNING;
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_OVERLAY_BUTTON_COLOUR;
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_SCREEN_DIM_ENABLED;
+import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_SCREEN_DIM_STATUS;
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_SET_CLIENT_MESSENGER;
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_UNSET_CLIENT_MESSENGER;
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.NOTIF_CHANNEL_ID;
@@ -147,6 +148,10 @@ public class MainActivity extends ThemeActivity implements OnNavigationListener,
         }
         startButton.setText(text);
         startButton.setIcon(icon);
+    }
+
+    private void onScreenFilterChanged(int percent) {
+        topFragment.setFilter(percent);
     }
 
     @Override
@@ -360,8 +365,15 @@ public class MainActivity extends ThemeActivity implements OnNavigationListener,
         public void handleMessage(Message msg) {
             MainActivity mainActivity = activity.get();
             if (mainActivity != null) {
-                if (msg.what == MSG_IS_OVERLAY_RUNNING)
-                    mainActivity.onBrServiceStatusChanged(msg.arg1);
+                switch (msg.what) {
+                    case MSG_IS_OVERLAY_RUNNING:
+                        mainActivity.onBrServiceStatusChanged(msg.arg1);
+                        mainActivity.onScreenFilterChanged(msg.arg2);
+                        break;
+                    case MSG_SCREEN_DIM_STATUS:
+                        mainActivity.onScreenFilterChanged(msg.arg1);
+                        break;
+                }
             }
             super.handleMessage(msg);
         }

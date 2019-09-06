@@ -88,8 +88,13 @@ public class TopFragment extends Fragment {
         scheduledText.setText(scheduled);
     }
 
-    public void setFilter(String filter) {
-        filterText.setText(filter);
+    public void setFilter(int percent) {
+        String status;
+        if (percent == 0)
+            status = getString(R.string.top_filter_disabled);
+        else
+            status = String.format(getString(R.string.top_filter_percent), percent);
+        filterText.setText(status);
     }
 
     public void setBlacklist(String blacklist) {
