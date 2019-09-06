@@ -61,6 +61,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     public static final int MSG_DUMMY = 10;
     public static final int DEF_OVERLAY_BUTTON_COLOUR = 0x0288D1;
     public static final float DEF_OVERLAY_BUTTON_ALPHA = 0.5f;
+    public static final float MAX_SCREEN_DIM_AMOUNT = 0.5f;
     public static final String ACTION_START = BuildConfig.APPLICATION_ID + ".START";
     public static final String ACTION_PAUSE = BuildConfig.APPLICATION_ID + ".PAUSE";
     static final String ACTION_STOP = BuildConfig.APPLICATION_ID + ".STOP";
@@ -606,7 +607,8 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
             int currentBrightness = getBrightness();
             int brightnessChangeDelay;
             int brightnessChangeBy;
-            if (currentBrightness <= 25) {   // Because screen brightness does not change linearly in most devices.
+            if (currentBrightness <= 25) {
+                // Because screen brightness does not change linearly in most devices.
                 brightnessChangeBy = (int) (brightnessMovedBy / BRIGHTNESS_CHANGE_FACTOR_LOW);
                 brightnessChangeDelay = 250;
             } else {
@@ -614,9 +616,29 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
                 brightnessChangeBy = (int) (brightnessMovedBy / BRIGHTNESS_CHANGE_FACTOR);
             }
 
-            brightnessChangeBy = brightnessChangeBy == 0 ? 1 : brightnessChangeBy;  // Because a 0 change makes it look like the slider got stuck
-            int newbr = currentBrightness + (brightnessUp ? brightnessChangeBy : -brightnessChangeBy);
-            setBrightnessCompat(newbr);
+            // Because a 0 change makes it look like the slider got stuck
+            brightnessChangeBy = brightnessChangeBy == 0 ? 1 : brightnessChangeBy;
+
+            if (screenDimEnabled && currentBrightness == 0 &&
+                    (!brightnessUp || screenDimAmount > 0.0f)) {
+                if (brightnessUp) {
+                    screenDimAmount -= brightnessChangeBy / 20f;
+                    screenDimAmount = Math.max(screenDimAmount, 0);
+                } else {
+                    float newDim = screenDimAmount + brightnessChangeBy / 20f;
+                    screenDimAmount = Math.min(newDim, MAX_SCREEN_DIM_AMOUNT);
+                }
+                setDimmerBrightness();
+            } else {
+                int newbr = currentBrightness +
+                        (brightnessUp ? brightnessChangeBy : -brightnessChangeBy);
+                // Make sure that the dimmer is off when screen brightness is > 0
+                if (screenDimAmount > 0) {
+                    screenDimAmount = 0;
+                    setDimmerBrightness();
+                }
+                setBrightnessCompat(newbr);
+            }
             brightnessHandler.postDelayed(this, brightnessChangeDelay);
         }
     }
