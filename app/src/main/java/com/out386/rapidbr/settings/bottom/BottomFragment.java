@@ -21,6 +21,7 @@ package com.out386.rapidbr.settings.bottom;
  */
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,6 +34,7 @@ import androidx.navigation.Navigation;
 
 import com.out386.rapidbr.R;
 import com.out386.rapidbr.settings.OnNavigationListener;
+import com.out386.rapidbr.settings.bottom.blacklist.BlacklistActivity;
 import com.out386.rapidbr.settings.bottom.views.CardLayout;
 
 public class BottomFragment extends Fragment {
@@ -70,8 +72,12 @@ public class BottomFragment extends Fragment {
 
         setClickListener(navController, schedulerCard, R.id.action_bottom_to_scheduler);
         setClickListener(navController, colourCard, R.id.action_bottom_to_buttonColour);
-        setClickListener(navController, blacklistCard, R.id.action_bottom_to_blacklist);
         setClickListener(navController, screenFilterCard, R.id.action_bottom_to_screenFilter);
+
+        blacklistCard.setOnClickListener(view -> {
+            Intent startIntent = new Intent(requireContext(), BlacklistActivity.class);
+            startActivity(startIntent);
+        });
     }
 
     private void setClickListener(NavController navController, View target, int actionRes) {

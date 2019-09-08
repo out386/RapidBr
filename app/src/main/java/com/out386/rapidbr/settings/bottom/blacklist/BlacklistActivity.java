@@ -61,6 +61,7 @@ public class BlacklistActivity extends ThemeActivity implements BlacklistActivit
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        overridePendingTransition(R.anim.slide_in_bottom_activity, R.anim.slide_out_top_activity);
         setContentView(R.layout.activity_blacklist);
 
         if (savedInstanceState == null) {
@@ -96,6 +97,12 @@ public class BlacklistActivity extends ThemeActivity implements BlacklistActivit
         int permissionCode = checkUsagePermission();
         if (permissionCode == 0 || permissionCode == -1)
             showPermissionDialog(permissionCode);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        overridePendingTransition(R.anim.slide_in_top_activity, R.anim.slide_out_bottom_activity);
     }
 
     private void setupToolbarText() {
