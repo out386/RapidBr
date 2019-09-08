@@ -36,6 +36,7 @@ import androidx.core.content.ContextCompat;
 import com.out386.rapidbr.BuildConfig;
 import com.out386.rapidbr.R;
 import com.out386.rapidbr.services.blacklist.AppBlacklistService;
+import com.out386.rapidbr.utils.BoolUtils;
 import com.out386.rapidbr.utils.DimenUtils;
 import com.out386.rapidbr.utils.NotificationActivity;
 
@@ -98,6 +99,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     private int initialSliderY;
     private int buttonColour = DEF_OVERLAY_BUTTON_COLOUR;
     private boolean isOverlayRunning;
+    private boolean isOverlayPaused;
     private Notification notificationPause;
     private Notification notificationResume;
     private NotificationManager notificationManager;
@@ -167,6 +169,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         initialSliderX = prefs.getInt(KEY_OVERLAY_X, 0);
         initialSliderY = prefs.getInt(KEY_OVERLAY_Y, 300);
         isOverlayRunning = true;
+        isOverlayPaused = false;
         setupBrightnessButton(alertType);
         setupReferenceView(alertType);
         setDimmerBrightness();
@@ -199,6 +202,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
 
     private void pauseOverlay(boolean isForPause) {
         isOverlayRunning = false;
+        isOverlayPaused = true;
         if (brightnessSlider != null) {
             int[] location = new int[2];
             brightnessSlider.getLocationOnScreen(location);
@@ -237,6 +241,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
 
     private void stopOverlay() {
         pauseOverlay(false);
+        isOverlayPaused = false;
         stopService(new Intent(this, AppBlacklistService.class));
         stopForeground(true);
         stopSelf();
@@ -340,8 +345,10 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
 
     private void sendIsRunning() {
         if (clientMessenger != null) {
+            int runningStatus = BoolUtils.packBool(isOverlayRunning, isOverlayPaused);
+
             Message message = Message.obtain(null, MSG_IS_OVERLAY_RUNNING,
-                    isOverlayRunning ? 1 : 0, (int) (screenDimAmount * 100));
+                    runningStatus, (int) (screenDimAmount * 100));
             try {
                 clientMessenger.send(message);
             } catch (RemoteException e) {
@@ -370,6 +377,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     @Override
     public void onDestroy() {
         pauseOverlay(false);
+        isOverlayPaused = false;
         stopService(new Intent(this, AppBlacklistService.class));
         super.onDestroy();
     }

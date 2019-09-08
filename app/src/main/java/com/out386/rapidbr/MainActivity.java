@@ -59,6 +59,7 @@ import com.out386.rapidbr.settings.OnNavigationListener;
 import com.out386.rapidbr.settings.bottom.bcolour.OnButtonColourChangedListener;
 import com.out386.rapidbr.settings.bottom.screenfilter.OnScreenFilterSettingsChangedListener;
 import com.out386.rapidbr.settings.top.TopFragment;
+import com.out386.rapidbr.utils.BoolUtils;
 
 import java.lang.ref.WeakReference;
 
@@ -134,8 +135,7 @@ public class MainActivity extends ThemeActivity implements OnNavigationListener,
         return super.onOptionsItemSelected(item);
     }
 
-    private void onBrServiceStatusChanged(int status) {
-        boolean isStarted = status != 0;
+    private void onBrServiceStatusChanged(boolean isStarted) {
         topFragment.setStatus(isStarted);
         String text;
         Drawable icon;
@@ -367,7 +367,8 @@ public class MainActivity extends ThemeActivity implements OnNavigationListener,
             if (mainActivity != null) {
                 switch (msg.what) {
                     case MSG_IS_OVERLAY_RUNNING:
-                        mainActivity.onBrServiceStatusChanged(msg.arg1);
+                        boolean[] arg1 = BoolUtils.unpackBool(msg.arg1);
+                        mainActivity.onBrServiceStatusChanged(arg1[0]);
                         mainActivity.onScreenFilterChanged(msg.arg2);
                         break;
                     case MSG_SCREEN_DIM_STATUS:
