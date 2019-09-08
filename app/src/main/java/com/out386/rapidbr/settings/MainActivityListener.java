@@ -20,9 +20,10 @@ package com.out386.rapidbr.settings;
  *
  */
 
-public interface OnNavigationListener {
+public interface MainActivityListener {
     void onAltFragment();
 
     void onMainFragment();
 
+    boolean getBOSRunning();
 }

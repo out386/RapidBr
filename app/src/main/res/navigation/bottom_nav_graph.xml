@@ -26,13 +26,7 @@
             app:exitAnim="@anim/slide_out_top"
             app:popEnterAnim="@anim/slide_in_top"
             app:popExitAnim="@anim/slide_out_bottom" />
-        <action
-            android:id="@+id/action_bottom_to_blacklist"
-            app:destination="@id/blacklistActivity"
-            app:enterAnim="@anim/slide_in_bottom_activity"
-            app:exitAnim="@anim/slide_out_top_activity"
-            app:popEnterAnim="@anim/slide_in_top_activity"
-            app:popExitAnim="@anim/slide_out_bottom_activity" />
+
         <action
             android:id="@+id/action_bottom_to_screenFilter"
             app:destination="@id/screenFilterFragment"
@@ -54,11 +48,6 @@
         android:name="com.out386.rapidbr.settings.bottom.bcolour.ButtonColourFragment"
         android:label="fragment_button_colour"
         tools:layout="@layout/fragment_button_colour" />
-    <activity
-        android:id="@+id/blacklistActivity"
-        android:name="com.out386.rapidbr.settings.bottom.blacklist.BlacklistActivity"
-        android:label="activity_blacklist"
-        tools:layout="@layout/activity_blacklist" />
     <fragment
         android:id="@+id/screenFilterFragment"
         android:name="com.out386.rapidbr.settings.bottom.screenfilter.ScreenFilterFragment"

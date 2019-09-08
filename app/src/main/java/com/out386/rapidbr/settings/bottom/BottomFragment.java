@@ -33,13 +33,13 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.out386.rapidbr.R;
-import com.out386.rapidbr.settings.OnNavigationListener;
+import com.out386.rapidbr.settings.MainActivityListener;
 import com.out386.rapidbr.settings.bottom.blacklist.BlacklistActivity;
 import com.out386.rapidbr.settings.bottom.views.CardLayout;
 
 public class BottomFragment extends Fragment {
 
-    private OnNavigationListener listener;
+    private MainActivityListener listener;
 
     public BottomFragment() {
     }
@@ -55,8 +55,8 @@ public class BottomFragment extends Fragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        if (context instanceof OnNavigationListener) {
-            listener = (OnNavigationListener) context;
+        if (context instanceof MainActivityListener) {
+            listener = (MainActivityListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnNavigationListener");
@@ -76,6 +76,8 @@ public class BottomFragment extends Fragment {
 
         blacklistCard.setOnClickListener(view -> {
             Intent startIntent = new Intent(requireContext(), BlacklistActivity.class);
+            startIntent.putExtra(BlacklistActivity.KEY_BOS_START_OR_PAUSE_STAT,
+                    listener.getBOSRunning());
             startActivity(startIntent);
         });
     }

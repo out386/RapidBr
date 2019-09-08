@@ -96,6 +96,14 @@ public class BlacklistFragment extends Fragment implements
     public BlacklistFragment() {
     }
 
+    static BlacklistFragment getInstance(boolean isEnabled) {
+        BlacklistFragment frag = new BlacklistFragment();
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(BlacklistActivity.KEY_BOS_START_OR_PAUSE_STAT, isEnabled);
+        frag.setArguments(bundle);
+        return frag;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -132,6 +140,14 @@ public class BlacklistFragment extends Fragment implements
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        Bundle args = getArguments();
+        if (args != null &&
+                !args.getBoolean(BlacklistActivity.KEY_BOS_START_OR_PAUSE_STAT, true)) {
+            setEnabled(false);
+            return;
+        }
+
+        setEnabled(true);
         Context context = requireContext();
         Drawable deleteDrawable = ContextCompat.getDrawable(context, R.drawable.ic_delete);
         int deleteColour = ContextCompat.getColor(context, R.color.blacklistDelete);
@@ -222,9 +238,16 @@ public class BlacklistFragment extends Fragment implements
     /**
      * Hides the RecyclerView and shows a TextView if there are no selected apps
      */
-    private void showNoApps() {
+    private void showNoApps(boolean isEmptyAppsList) {
         recyclerView.setVisibility(View.GONE);
         noApps.setVisibility(View.VISIBLE);
+        if (isEmptyAppsList) {
+            noApps.setText(getString(R.string.sett_blacklist_no_apps));
+        } else {
+            noApps.setText(getString(R.string.sett_blacklist_err_serv_running));
+            enableSwitch.setEnabled(false);
+            addButton.setVisibility(View.GONE);
+        }
     }
 
     /**
@@ -233,6 +256,8 @@ public class BlacklistFragment extends Fragment implements
     private void showApps() {
         recyclerView.setVisibility(View.VISIBLE);
         noApps.setVisibility(View.GONE);
+        addButton.setVisibility(View.VISIBLE);
+        enableSwitch.setEnabled(true);
     }
 
     @Override
@@ -266,8 +291,9 @@ public class BlacklistFragment extends Fragment implements
                 recyclerView.setVisibility(View.VISIBLE);
                 if (layoutManagerState != null)
                     layoutManager.onRestoreInstanceState(layoutManagerState);   // Used to restore scroll position
-            } else
-                showNoApps();
+            } else {
+                showNoApps(true);
+            }
         });
     }
 
@@ -304,6 +330,13 @@ public class BlacklistFragment extends Fragment implements
         prefs.edit()
                 .putInt(KEY_BLACKLIST_APPS_NUMBER, numItems)
                 .apply();
+    }
+
+    private void setEnabled(boolean isEnabled) {
+        if (isEnabled)
+            showApps();
+        else
+            showNoApps(false);
     }
 
     private void setupDialog(int position, String appName, float brightness) {
@@ -394,7 +427,7 @@ public class BlacklistFragment extends Fragment implements
     public void itemSwiped(int position, int direction) {
         itemAdapter.remove(position);
         if (itemAdapter.getAdapterItemCount() == 0)
-            showNoApps();
+            showNoApps(true);
         onSaveNeeded();
     }
 

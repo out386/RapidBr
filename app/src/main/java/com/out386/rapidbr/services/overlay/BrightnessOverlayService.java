@@ -231,17 +231,18 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         if (brightnessHandler != null && brightnessRunnable != null)
             brightnessHandler.removeCallbacksAndMessages(null);
 
-        sendIsRunning();
         if (isForPause) {
             if (notificationResume == null)
                 notificationResume = getResumeNotification();
             sendNotification(notificationResume);
+            sendIsRunning();
         }
     }
 
     private void stopOverlay() {
         pauseOverlay(false);
         isOverlayPaused = false;
+        sendIsRunning();
         stopService(new Intent(this, AppBlacklistService.class));
         stopForeground(true);
         stopSelf();
@@ -377,6 +378,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     @Override
     public void onDestroy() {
         pauseOverlay(false);
+        sendIsRunning();
         isOverlayPaused = false;
         stopService(new Intent(this, AppBlacklistService.class));
         super.onDestroy();

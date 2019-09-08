@@ -33,6 +33,8 @@ import com.out386.rapidbr.R;
 
 public class SwitchItem extends RelativeLayout {
     private Switch itemSwitch;
+    private TextView label;
+    private RelativeLayout root;
     private OnCheckedChangeListener checkedListener;
 
     public SwitchItem(Context context) {
@@ -54,18 +56,18 @@ public class SwitchItem extends RelativeLayout {
 
     public void init(AttributeSet attrs) {
         inflate(getContext(), R.layout.view_switch_item, this);
-        TextView text = findViewById(R.id.settings_switch_text);
-        itemSwitch = findViewById(R.id.swtttings_switch_switch);
+        label = findViewById(R.id.settings_switch_text);
+        itemSwitch = findViewById(R.id.settings_switch_switch);
         TypedArray a = getContext()
                 .obtainStyledAttributes(attrs, R.styleable.SwitchItem, 0, 0);
         String textStr = a.getString(R.styleable.SwitchItem_switchText);
         a.recycle();
-        text.setText(textStr);
+        label.setText(textStr);
         setListeners();
     }
 
     private void setListeners() {
-        RelativeLayout root = findViewById(R.id.settings_switch_root);
+        root = findViewById(R.id.settings_switch_root);
         root.setOnClickListener(view -> itemSwitch.setChecked(!itemSwitch.isChecked()));
         itemSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (checkedListener != null)
@@ -79,6 +81,19 @@ public class SwitchItem extends RelativeLayout {
 
     public void setOnCheckedChangeListener(OnCheckedChangeListener listener) {
         checkedListener = listener;
+    }
+
+    public void setEnabled(boolean isEnabled) {
+        itemSwitch.setEnabled(isEnabled);
+        if (isEnabled) {
+            label.setTextColor(getContext().getColor(R.color.textHeaderSub));
+            setListeners();
+        } else {
+            label.setTextColor(getContext().getColor(R.color.textSub));
+            root.setOnClickListener(null);
+            root.setClickable(false);
+            itemSwitch.setOnClickListener(null);
+        }
     }
 
     public interface OnCheckedChangeListener {

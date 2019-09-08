@@ -55,7 +55,7 @@ import androidx.fragment.app.FragmentManager;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.button.MaterialButton;
 import com.out386.rapidbr.services.overlay.BrightnessOverlayService;
-import com.out386.rapidbr.settings.OnNavigationListener;
+import com.out386.rapidbr.settings.MainActivityListener;
 import com.out386.rapidbr.settings.bottom.bcolour.OnButtonColourChangedListener;
 import com.out386.rapidbr.settings.bottom.screenfilter.OnScreenFilterSettingsChangedListener;
 import com.out386.rapidbr.settings.top.TopFragment;
@@ -74,7 +74,7 @@ import static com.out386.rapidbr.services.overlay.ServiceLauncher.sendMessageToB
 import static com.out386.rapidbr.services.overlay.ServiceLauncher.toggleBrightnessService;
 import static com.out386.rapidbr.utils.DimenUtils.getActionbarHeight;
 
-public class MainActivity extends ThemeActivity implements OnNavigationListener,
+public class MainActivity extends ThemeActivity implements MainActivityListener,
         OnButtonColourChangedListener, OnScreenFilterSettingsChangedListener {
 
     private static final String KEY_CURRENTLY_MAIN_FRAG = "CURRENTLY_MAIN_FRAG";
@@ -88,6 +88,8 @@ public class MainActivity extends ThemeActivity implements OnNavigationListener,
     private Messenger clientMessenger;
     private Messenger serviceMessenger;
     private SharedPreferences prefs;
+    private boolean isBOSStarted;
+    private boolean isBOSPaused;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -326,6 +328,11 @@ public class MainActivity extends ThemeActivity implements OnNavigationListener,
     }
 
     @Override
+    public boolean getBOSRunning() {
+        return isBOSPaused || isBOSStarted;
+    }
+
+    @Override
     public void onColourChanged(int colour) {
         boolean result = sendMessageToBrightnessService(
                 serviceMessenger, MSG_OVERLAY_BUTTON_COLOUR, colour, 0);
@@ -364,17 +371,20 @@ public class MainActivity extends ThemeActivity implements OnNavigationListener,
         @Override
         public void handleMessage(Message msg) {
             MainActivity mainActivity = activity.get();
-            if (mainActivity != null) {
-                switch (msg.what) {
-                    case MSG_IS_OVERLAY_RUNNING:
-                        boolean[] arg1 = BoolUtils.unpackBool(msg.arg1);
-                        mainActivity.onBrServiceStatusChanged(arg1[0]);
-                        mainActivity.onScreenFilterChanged(msg.arg2);
-                        break;
-                    case MSG_SCREEN_DIM_STATUS:
-                        mainActivity.onScreenFilterChanged(msg.arg1);
-                        break;
-                }
+            if (mainActivity == null)
+                return;
+
+            switch (msg.what) {
+                case MSG_IS_OVERLAY_RUNNING:
+                    boolean[] arg1 = BoolUtils.unpackBool(msg.arg1);
+                    mainActivity.isBOSStarted = arg1[0];
+                    mainActivity.isBOSPaused = arg1[1];
+                    mainActivity.onBrServiceStatusChanged(arg1[0]);
+                    mainActivity.onScreenFilterChanged(msg.arg2);
+                    break;
+                case MSG_SCREEN_DIM_STATUS:
+                    mainActivity.onScreenFilterChanged(msg.arg1);
+                    break;
             }
             super.handleMessage(msg);
         }

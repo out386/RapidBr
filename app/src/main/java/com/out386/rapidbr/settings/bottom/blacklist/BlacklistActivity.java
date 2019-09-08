@@ -54,6 +54,7 @@ import static com.out386.rapidbr.utils.DimenUtils.getActionbarHeight;
 public class BlacklistActivity extends ThemeActivity implements BlacklistActivityListener {
 
     private static final String BLACKLIST_FRAGMENT_TAG = "blacklistFragment";
+    public static final String KEY_BOS_START_OR_PAUSE_STAT = "bosSPStat";
 
     private BlacklistFragment blacklistFragment;
     private GenericDialogFragment dialog;
@@ -63,15 +64,17 @@ public class BlacklistActivity extends ThemeActivity implements BlacklistActivit
         super.onCreate(savedInstanceState);
         overridePendingTransition(R.anim.slide_in_bottom_activity, R.anim.slide_out_top_activity);
         setContentView(R.layout.activity_blacklist);
+        boolean isBOSActive = getIntent()
+                .getBooleanExtra(KEY_BOS_START_OR_PAUSE_STAT, false);
 
         if (savedInstanceState == null) {
-            blacklistFragment = new BlacklistFragment();
+            blacklistFragment = BlacklistFragment.getInstance(!isBOSActive);
             changeFragment(blacklistFragment, BLACKLIST_FRAGMENT_TAG, false);
         } else {
             blacklistFragment = (BlacklistFragment) getSupportFragmentManager()
                     .findFragmentByTag(BLACKLIST_FRAGMENT_TAG);
             if (blacklistFragment == null)
-                blacklistFragment = new BlacklistFragment();
+                blacklistFragment = BlacklistFragment.getInstance(!isBOSActive);
         }
 
         setupToolbarText();

@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="sett_blacklist_no_apps">Get started by adding an app from the button below.</string>
+    <string name="sett_blacklist_no_apps">Get started by adding an app using the button below.</string>
+    <string name="sett_blacklist_err_serv_running">Go back, stop RapidBr, and come back to change
+        these settings.
+    </string>
     <string name="sett_blacklist_no_usage_access">This feature needs Usage access.
         You have to enable access for this app through Settings.
         Tap "OK", and allow the permission for this app.
