@@ -25,7 +25,6 @@ import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.Nullable;
@@ -53,7 +52,6 @@ public class ThemeActivity extends AppCompatActivity {
         theme = prefs.getInt(KEY_THEME_TYPE, theme);
 
         AppCompatDelegate.setDefaultNightMode(theme);
-        Log.i("blah", "onCreate: " + theme);
         setSystemUIFlags();
     }
 
