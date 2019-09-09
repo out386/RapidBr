@@ -92,17 +92,27 @@ public class AppBlacklistService extends Service {
                      * Blacklist Entry event, and there will be no Exit event for lastItem. Set the
                      * last app's brightness to whatever the user had set while in the last app.
                      */
-                    if (lastItem.getBrightness() > -1)
+                    if (lastItem.getAppSpecific())
                         lastItem.setAppBrightness(getBrightness(getApplicationContext()));
+                    else
+                        // Save the current screen brightness
+                        prefs.edit()
+                                .putInt(KEY_USER_BRIGHTNESS, getBrightness(getApplicationContext()))
+                                .apply();
 
                     // RapidBr will stay paused, but brightness will be changed
-                    setBrightness(getApplicationContext(), (int) item.getBrightness());
+                    if (item.getAppSpecific())
+                        setBrightness(getApplicationContext(), (int) item.getBrightness());
+                    else
+                        // Restore the screen brightness before the blacklist got triggered
+                        setBrightness(getApplicationContext(),
+                                prefs.getInt(KEY_USER_BRIGHTNESS, -1));
                 } else {
                     // Save the current screen brightness
                     prefs.edit()
                             .putInt(KEY_USER_BRIGHTNESS, getBrightness(getApplicationContext()))
                             .apply();
-                    pauseRapidbr(item.getBrightness());
+                    pauseRapidbr(item.getBrightness(), item.getAppSpecific());
                 }
                 lastItem = item;
                 return;
@@ -114,11 +124,12 @@ public class AppBlacklistService extends Service {
          * Set the last app's brightness to whatever the user had set while in the last app
          */
         if (lastItem != null) {
-            if (lastItem.getBrightness() > -1)
+            if (lastItem.getAppSpecific()) {
                 lastItem.setAppBrightness(getBrightness(getApplicationContext()));
+                // Restore the screen brightness before the blacklist got triggered
+                setBrightness(getApplicationContext(), prefs.getInt(KEY_USER_BRIGHTNESS, -1));
+            }
             startRapidbr();
-            // Restore the screen brightness before the blacklist got triggered
-            setBrightness(getApplicationContext(), prefs.getInt(KEY_USER_BRIGHTNESS, -1));
 
             lastItem = null;
         }
@@ -145,8 +156,9 @@ public class AppBlacklistService extends Service {
                     .setAction(BrightnessOverlayService.ACTION_PAUSE);
     }
 
-    private synchronized void pauseRapidbr(float brightness) {
-        setBrightness(getApplicationContext(), (int) brightness);
+    private synchronized void pauseRapidbr(float brightness, boolean isAppSpecific) {
+        if (isAppSpecific)
+            setBrightness(getApplicationContext(), (int) brightness);
         startService(pauseIntent);
     }
 

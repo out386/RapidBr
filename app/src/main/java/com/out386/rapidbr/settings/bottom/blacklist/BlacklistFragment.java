@@ -34,7 +34,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -66,7 +65,6 @@ import java.util.List;
 
 import static com.out386.rapidbr.settings.bottom.blacklist.PackageUtils.checkUnique;
 import static com.out386.rapidbr.settings.bottom.blacklist.PackageUtils.pickerToAppItem;
-import static com.out386.rapidbr.utils.ViewUtils.animateView;
 
 public class BlacklistFragment extends Fragment implements
         OnClickListener<BlacklistAppsItem>, ItemTouchCallback,
@@ -84,9 +82,7 @@ public class BlacklistFragment extends Fragment implements
     private Button addButton;
     private LinearLayoutManager layoutManager;
     private Parcelable layoutManagerState;
-    private TextView appBrightness;
     private TextView noApps;
-    private SeekBar appBrightnessSeekbar;
     private SwitchItem enableSwitch;
     private BlacklistAppsStore blacklistAppsStore;
     private Handler mainHandler;
@@ -272,7 +268,7 @@ public class BlacklistFragment extends Fragment implements
 
     @Override
     public boolean onClick(View v, IAdapter<BlacklistAppsItem> adapter, BlacklistAppsItem item, int position) {
-        setupDialog(position, item.getAppName(), item.getBrightness());
+        setupDialog(position, item.getAppName(), item.getAppSpecific());
         return true;
     }
 
@@ -339,13 +335,14 @@ public class BlacklistFragment extends Fragment implements
             showNoApps(false);
     }
 
-    private void setupDialog(int position, String appName, float brightness) {
+    private void setupDialog(int position, String appName, boolean isAppSpecific) {
         Context context = getContext();
         if (context == null)
             return;
 
         MaterialDialog dialog = new MaterialDialog.Builder(context)
                 .title(appName)
+                .typeface("kanit.ttf", "open_sans.ttf")
                 .customView(R.layout.blacklist_apps_behaviour_dialog_view, true)
                 .positiveText(R.string.ok)
                 .onPositive((dialog1, which) -> {
@@ -353,27 +350,22 @@ public class BlacklistFragment extends Fragment implements
                     if (v == null)
                         return;
                     CheckBox checkBox = v.findViewById(R.id.app_brightness_checkbox);
-                    updateListItem(position,
-                            checkBox.isChecked() ? appBrightnessSeekbar.getProgress() : -1
-                    );
+                    updateListItem(position, checkBox.isChecked());
                 })
                 .build();
 
-        LinearLayout appBrightnessCheckboxHolder;
         View customView = dialog.getCustomView();
 
         if (customView == null)
             return; // Won't happen
 
         CheckBox appBrightnessCheckbox = customView.findViewById(R.id.app_brightness_checkbox);
-        appBrightness = customView.findViewById(R.id.app_brightness);
-        appBrightnessSeekbar = customView.findViewById(R.id.app_brightness_seekbar);
-        appBrightnessCheckboxHolder = customView.findViewById(R.id.app_brightness_checkbox_holder);
+        LinearLayout appBrightnessCheckboxHolder = customView.findViewById(R.id.app_brightness_checkbox_holder);
+        TextView appBrightness = customView.findViewById(R.id.app_brightness);
 
         appBrightnessCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            animateView(appBrightnessSeekbar, isChecked);
             if (isChecked)
-                appBrightness.setText(String.format(getString(R.string.sett_blacklist_set_brightness), appBrightnessSeekbar.getProgress()));
+                appBrightness.setText(getString(R.string.sett_blacklist_set_brightness));
             else
                 appBrightness.setText(R.string.sett_blacklist_brightness_unchanged);
         });
@@ -382,40 +374,23 @@ public class BlacklistFragment extends Fragment implements
                 appBrightnessCheckbox.setChecked(!appBrightnessCheckbox.isChecked())
         );
 
-        appBrightnessSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (fromUser && appBrightnessCheckbox.isChecked())
-                    appBrightness.setText(String.format(getString(R.string.sett_blacklist_set_brightness), progress));
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-            }
-        });
-
-        if (brightness > -1) {
-            appBrightnessSeekbar.setProgress((int) (brightness / 2.55F));   // The progressbar is in percentages
-            appBrightnessCheckbox.setChecked(true); // The checkbox listener will set the brightness text
-        }
+        if (isAppSpecific)
+            // The checkbox listener will set the brightness text
+            appBrightnessCheckbox.setChecked(true);
 
         dialog.show();
     }
 
-    private void updateListItem(int position, float brightness) {
-        if (brightness > -1)
-            brightness = brightness * 2.55F;    // As the parameter is in percentages
+    private void updateListItem(int position, boolean useAppSpecificBr) {
         BlacklistAppsItem item = itemAdapter.getAdapterItem(position);
-        item.setAppBrightness(brightness);
+        if (useAppSpecificBr)
+            // This "-1" signals BlacklistService to not change brightness the first the this app is launched
+            item.setAppBrightness(-1);
+        item.setAppSpecific(useAppSpecificBr);
         itemAdapter.remove(position);
         itemAdapter.add(position, item);
         onSaveNeeded();
     }
-
 
     // FastAdapter's Swipe to delete
 

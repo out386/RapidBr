@@ -42,6 +42,7 @@ public class BlacklistAppsItem extends AbstractItem<BlacklistAppsItem, Blacklist
     private String appName;
     private transient Bitmap appIcon;
     private float brightness;
+    private boolean isAppSpecific;
 
     private BlacklistAppsItem(BlacklistAppsItem.Builder builder) {
         appName = builder.appName;
@@ -82,6 +83,10 @@ public class BlacklistAppsItem extends AbstractItem<BlacklistAppsItem, Blacklist
         return brightness;
     }
 
+    public boolean getAppSpecific() {
+        return isAppSpecific;
+    }
+
     void setAppIcon(Bitmap appIcon) {
         this.appIcon = appIcon;
     }
@@ -96,6 +101,10 @@ public class BlacklistAppsItem extends AbstractItem<BlacklistAppsItem, Blacklist
         else if (brightness > 255)
             brightness = 255;
         this.brightness = brightness;
+    }
+
+    void setAppSpecific(boolean isAppSpecfic) {
+        this.isAppSpecific = isAppSpecfic;
     }
 
     protected static class ViewHolder extends FastAdapter.ViewHolder<BlacklistAppsItem> {
@@ -116,16 +125,12 @@ public class BlacklistAppsItem extends AbstractItem<BlacklistAppsItem, Blacklist
             brightness.setVisibility(View.VISIBLE);
             Context context = brightness.getContext();
             String text;
-            if (item.brightness == -1.0F)
+            if (item.isAppSpecific)
+                text = context.getString(R.string.sett_blacklist_changed);
+            else
                 text = context.getString(R.string.sett_blacklist_unchanged);
-            else {
-                String message = context.getString(R.string.sett_blacklist_changed);
-                int brightnessPercent = (int) (item.brightness / 2.55F);
-                text = String.format(message, brightnessPercent);
-            }
+
             brightness.setText(text);
-
-
             icon.setImageBitmap(item.appIcon);
         }
 
