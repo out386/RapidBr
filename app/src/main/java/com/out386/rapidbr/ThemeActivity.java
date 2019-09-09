@@ -25,11 +25,14 @@ import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.view.MenuItem;
 import android.view.View;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.widget.Toolbar;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
@@ -95,6 +98,14 @@ public class ThemeActivity extends AppCompatActivity {
                 .apply();
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_theme) {
+            showThemeDialog();
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     void showThemeDialog() {
         String[] options = new String[3];
@@ -145,6 +156,15 @@ public class ThemeActivity extends AppCompatActivity {
             case AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM:
             default:
                 return 2;
+        }
+    }
+
+    public void setupToolbar() {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        ActionBar bar = getSupportActionBar();
+        if (bar != null) {
+            bar.setDisplayShowTitleEnabled(false);
         }
     }
 }

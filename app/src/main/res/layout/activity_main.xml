@@ -26,24 +26,14 @@
                 android:elevation="2dp"
                 app:layout_collapseMode="parallax" />
 
-            <androidx.appcompat.widget.Toolbar
+            <com.out386.rapidbr.CenterToolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:background="@color/colorPrimary"
                 android:elevation="3dp"
                 app:layout_collapseMode="pin"
-                app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
-
-                <TextView
-                    android:id="@+id/toolbarText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/open_sans_semibold"
-                    android:gravity="center_horizontal"
-                    android:textSize="@dimen/toolbar_text_size" />
-
-            </androidx.appcompat.widget.Toolbar>
+                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
 

@@ -50,4 +50,9 @@
         <item name="android:textSize">16sp</item>
     </style>
 
+    <style name="ToolbarText" parent="Widget.AppCompat.TextView">
+        <item name="android:fontFamily">@font/open_sans_semibold</item>
+        <item name="android:textSize">@dimen/toolbar_text_size</item>
+    </style>
+
 </resources>

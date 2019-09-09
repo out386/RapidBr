@@ -27,12 +27,9 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.style.ForegroundColorSpan;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
@@ -77,9 +74,15 @@ public class BlacklistActivity extends ThemeActivity implements BlacklistActivit
                 blacklistFragment = BlacklistFragment.getInstance(!isBOSActive);
         }
 
-        setupToolbarText();
+        setupToolbar();
         setupInsets();
         preloadAllApps();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
     }
 
     @Override
@@ -106,24 +109,6 @@ public class BlacklistActivity extends ThemeActivity implements BlacklistActivit
     protected void onPause() {
         super.onPause();
         overridePendingTransition(R.anim.slide_in_top_activity, R.anim.slide_out_bottom_activity);
-    }
-
-    private void setupToolbarText() {
-        TextView toolbarTV = findViewById(R.id.blacklist_toolbarText);
-        String appName = getString(R.string.app_name);
-        int appName1Length = getString(R.string.app_name1).length();
-        SpannableString toolbarString = new SpannableString(appName);
-        toolbarString.setSpan(
-                new ForegroundColorSpan(getResources().getColor(R.color.colorAccent, getTheme())),
-                0,
-                appName1Length,
-                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        toolbarString.setSpan(
-                new ForegroundColorSpan(getResources().getColor(R.color.toolbarText2, getTheme())),
-                appName1Length,
-                appName.length(),
-                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        toolbarTV.setText(toolbarString);
     }
 
     private void setupInsets() {

@@ -36,15 +36,10 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.style.ForegroundColorSpan;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
@@ -95,8 +90,6 @@ public class MainActivity extends ThemeActivity implements MainActivityListener,
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         createNotifChannel();
         setupViews();
@@ -126,15 +119,6 @@ public class MainActivity extends ThemeActivity implements MainActivityListener,
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
         return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.action_theme) {
-            showThemeDialog();
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     private void onBrServiceStatusChanged(boolean isStarted) {
@@ -196,8 +180,8 @@ public class MainActivity extends ThemeActivity implements MainActivityListener,
                 bindBrService();
             }
         });
+        setupToolbar();
         setupInsets();
-        setupToolbarText();
     }
 
     private void toggleOverlay() {
@@ -279,24 +263,6 @@ public class MainActivity extends ThemeActivity implements MainActivityListener,
                 .postDelayed(() -> appBarLayout.setExpanded(!finallyCollapsed, false),
                         250
                 );
-    }
-
-    private void setupToolbarText() {
-        TextView toolbarTV = findViewById(R.id.toolbarText);
-        String appName = getString(R.string.app_name);
-        int appName1Length = getString(R.string.app_name1).length();
-        SpannableString toolbarString = new SpannableString(appName);
-        toolbarString.setSpan(
-                new ForegroundColorSpan(getResources().getColor(R.color.colorAccent, getTheme())),
-                0,
-                appName1Length,
-                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        toolbarString.setSpan(
-                new ForegroundColorSpan(getResources().getColor(R.color.toolbarText2, getTheme())),
-                appName1Length,
-                appName.length(),
-                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        toolbarTV.setText(toolbarString);
     }
 
     private void setTopFragment() {
