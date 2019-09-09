@@ -112,6 +112,8 @@ public class TopFragment extends Fragment {
         String text;
         if (numBlacklist == 0)
             text = getString(R.string.top_blacklist_disabled);
+        else if (numBlacklist == 1)
+            text = String.format(getString(R.string.top_blacklist_number_single), numBlacklist);
         else
             text = String.format(getString(R.string.top_blacklist_number), numBlacklist);
         blacklistText.setText(text);
