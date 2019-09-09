@@ -23,6 +23,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/edge_padding"
         android:background="@drawable/card"
-        android:padding="@dimen/edge_padding_internal" />
+        android:padding="@dimen/edge_padding_internal"
+        android:layoutAnimation="@anim/layout_anim_slide_in_top" />
 
 </LinearLayout>

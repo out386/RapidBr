@@ -284,6 +284,7 @@ public class BlacklistFragment extends Fragment implements
             if (apps != null && apps.size() > 0) {
                 showApps();
                 itemAdapter.add(apps);
+                recyclerView.scheduleLayoutAnimation();
                 recyclerView.setVisibility(View.VISIBLE);
                 if (layoutManagerState != null)
                     layoutManager.onRestoreInstanceState(layoutManagerState);   // Used to restore scroll position
