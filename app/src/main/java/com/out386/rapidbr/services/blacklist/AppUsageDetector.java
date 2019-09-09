@@ -43,8 +43,9 @@ interface AppUsageListener {
  */
 class AppUsageDetector {
 
-    private final long SCHEDULE_DELAY = 500;
-    private final int STATS_START_TIME = 1000;
+    // TODO: Add an option to let the user pick between long and short delays
+    private final long SCHEDULE_DELAY = 1000;
+    private final int STATS_START_TIME = 4000;
     private ScheduledExecutorService executor;
     private Context context;
     private AppUsageListener listener;
