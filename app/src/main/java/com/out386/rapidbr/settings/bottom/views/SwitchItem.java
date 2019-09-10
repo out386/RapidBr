@@ -61,6 +61,9 @@ public class SwitchItem extends RelativeLayout {
         TypedArray a = getContext()
                 .obtainStyledAttributes(attrs, R.styleable.SwitchItem, 0, 0);
         String textStr = a.getString(R.styleable.SwitchItem_switchText);
+        int textStyle = a.getResourceId(R.styleable.SwitchItem_switchTextStyle, -1);
+        if (textStyle != -1)
+            label.setTextAppearance(textStyle);
         a.recycle();
         label.setText(textStr);
         setListeners();

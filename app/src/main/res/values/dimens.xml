@@ -6,5 +6,6 @@
     <dimen name="edge_padding_huge">25dp</dimen>
     <dimen name="edge_padding_internal">20dp</dimen>
     <dimen name="edge_padding_internal_thin">15dp</dimen>
+    <dimen name="edge_padding_internal_ultra_thin">10dp</dimen>
     <dimen name="button_colour_item_size">80dp</dimen>
 </resources>

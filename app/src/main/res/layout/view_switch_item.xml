@@ -7,7 +7,10 @@
     android:background="@drawable/settings_item_ripple"
     android:focusable="true"
     android:orientation="horizontal"
-    android:padding="@dimen/edge_padding_internal">
+    android:paddingStart="@dimen/edge_padding_internal"
+    android:paddingEnd="@dimen/edge_padding_internal_ultra_thin"
+    android:paddingTop="@dimen/edge_padding_internal"
+    android:paddingBottom="@dimen/edge_padding_internal">
 
     <TextView
         android:id="@+id/settings_switch_text"

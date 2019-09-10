@@ -31,13 +31,10 @@
         android:layout_below="@id/settings_card_divider"
         android:layout_marginTop="15dp"
         android:layout_marginBottom="15dp"
-        android:fontFamily="@font/source_code_pro_semibold"
         android:gravity="center"
         android:paddingStart="@dimen/edge_padding_internal_thin"
         android:paddingEnd="@dimen/edge_padding_internal_thin"
-        android:textAllCaps="true"
-        android:textColor="@color/textWhite"
-        android:textSize="13sp"
+        style="@style/CardText"
         tools:text="@tools:sample/lorem" />
 
 </RelativeLayout>

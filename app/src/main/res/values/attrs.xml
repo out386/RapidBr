@@ -8,5 +8,6 @@
 
     <declare-styleable name="SwitchItem">
         <attr name="switchText" format="string" />
+        <attr name="switchTextStyle" format="reference" />
     </declare-styleable>
 </resources>
