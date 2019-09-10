@@ -23,6 +23,7 @@ package com.out386.rapidbr.services.overlay;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.Messenger;
@@ -114,13 +115,23 @@ public class ServiceLauncher {
         return false;
     }
 
-    public static Intent getBrightnessServiceStartIntent(Context context, int brIconColour,
-                                                         boolean screenDimEnabled, Bundle blacklistBundle) {
+    public static void startBrightnessService(Context context, SharedPreferences prefs) {
+        int overlayButtonColour = prefs.getInt(KEY_BR_ICON_COLOUR, DEF_OVERLAY_BUTTON_COLOUR);
+        int screenDimEnabled = prefs.getBoolean(KEY_SCREEN_FILTER_ENABLED, true) ? 1 : -1;
+        Bundle settings = new Bundle();
+        settings.putBoolean(KEY_BLACKLIST_ENABLED,
+                prefs.getBoolean(KEY_BLACKLIST_ENABLED, false));
+        BlacklistAppsStore blacklistAppsStore = BlacklistAppsStore.getInstance(context);
 
-        // Not using a boolean for screenDimAmount allows BOS to know whether a value was explicitly
-        // set on the Intent or not.
-        return getBrightnessServiceStartIntent(context, brIconColour,
-                screenDimEnabled ? 1 : -1, blacklistBundle);
+        blacklistAppsStore.read(null, apps -> {
+            settings.putSerializable(KEY_BLACKLIST_LIST, apps);
+            Intent startIntent = getBrightnessServiceStartIntent(context, overlayButtonColour,
+                    screenDimEnabled, settings);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                context.startForegroundService(startIntent);
+            else
+                context.startService(startIntent);
+        });
     }
 
     /**
@@ -138,6 +149,8 @@ public class ServiceLauncher {
         intent.setAction(BrightnessOverlayService.ACTION_START);
         intent.putExtra(KEY_BR_ICON_COLOUR, brIconColour);
 
+        // Not using a boolean for screenDimAmount allows BOS to know whether a value was explicitly
+        // set on the Intent or not.
         intent.putExtra(KEY_SCREEN_FILTER_ENABLED, screenDimEnabled);
         if (blacklistBundle != null)
             intent.putExtra(KEY_BLACKLIST_BUNDLE, blacklistBundle);
@@ -148,7 +161,7 @@ public class ServiceLauncher {
      * Returns an Intent to start {@link BrightnessOverlayService} with. Use this only when {@link
      * BrightnessOverlayService} is supposed to already be running, as this method uses default
      * values for {@link BrightnessOverlayService}. If starting the service for the first time, use
-     * {@link #getBrightnessServiceStartIntent(Context, int, boolean, Bundle)}.
+     * {@link #startBrightnessService(Context, SharedPreferences)}.
      *
      * @param context Duh
      * @return An Intent to start {@link BrightnessOverlayService} with

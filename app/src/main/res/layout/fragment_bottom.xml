@@ -71,6 +71,28 @@
             android:orientation="vertical"
             app:layout_constraintGuide_percent="0.5" />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:background="@drawable/card"
+            android:layout_marginTop="@dimen/edge_padding"
+            android:layout_marginBottom="@dimen/edge_padding"
+            app:layout_constraintTop_toBottomOf="@+id/blacklist_card">
+
+            <com.out386.rapidbr.settings.bottom.views.SwitchItem
+                android:id="@+id/boot_start_switch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/blacklist_card"
+                app:switchText="@string/sett_boot_start_enable" />
+
+        </LinearLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.core.widget.NestedScrollView>

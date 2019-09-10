@@ -71,8 +71,8 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
 
     private static final int BRIGHTNESS_CHANGE_FACTOR = 20;
     private static final int BRIGHTNESS_CHANGE_FACTOR_LOW = 40;
-    public static float screenDimAmount = 0.0f;
-    public static boolean screenDimEnabled = true;
+    private static float screenDimAmount = 0.0f;
+    private static boolean screenDimEnabled = true;
     private static int buttonTouchSlop;
     boolean moveWasBrightness = true;
     private View topLeftView;
@@ -110,11 +110,13 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     @Override
     public int onStartCommand(Intent i, int flags, int startId) {
         if (ACTION_START.equals(i.getAction())) {
-            setGlobals(i);
+            if (!isOverlayRunning) {
+                setGlobals(i);
 
-            // See comment in startOverlay
-            Bundle b = i.getBundleExtra(KEY_BLACKLIST_BUNDLE);
-            startOverlay(b);
+                // See comment in startOverlay
+                Bundle b = i.getBundleExtra(KEY_BLACKLIST_BUNDLE);
+                startOverlay(b);
+            }
         } else if (ACTION_PAUSE.equals(i.getAction())) {
             pauseOverlay(true);
         } else if (ACTION_STOP.equals(i.getAction())) {

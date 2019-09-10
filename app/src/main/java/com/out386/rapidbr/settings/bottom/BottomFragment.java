@@ -22,7 +22,9 @@ package com.out386.rapidbr.settings.bottom;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,10 +38,14 @@ import com.out386.rapidbr.R;
 import com.out386.rapidbr.settings.MainActivityListener;
 import com.out386.rapidbr.settings.bottom.blacklist.BlacklistActivity;
 import com.out386.rapidbr.settings.bottom.views.CardLayout;
+import com.out386.rapidbr.settings.bottom.views.SwitchItem;
+
+import static com.out386.rapidbr.settings.bottom.scheduler.BootReceiver.KEY_START_ON_BOOT;
 
 public class BottomFragment extends Fragment {
 
     private MainActivityListener listener;
+    private SharedPreferences prefs;
 
     public BottomFragment() {
     }
@@ -48,6 +54,7 @@ public class BottomFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_bottom, container, false);
+        prefs = PreferenceManager.getDefaultSharedPreferences(requireContext());
         setViewListeners(v);
         return v;
     }
@@ -69,6 +76,7 @@ public class BottomFragment extends Fragment {
         CardLayout colourCard = root.findViewById(R.id.color_card);
         CardLayout blacklistCard = root.findViewById(R.id.blacklist_card);
         CardLayout screenFilterCard = root.findViewById(R.id.filter_card);
+        SwitchItem startOnBoot = root.findViewById(R.id.boot_start_switch);
 
         setClickListener(navController, schedulerCard, R.id.action_bottom_to_scheduler);
         setClickListener(navController, colourCard, R.id.action_bottom_to_buttonColour);
@@ -79,6 +87,13 @@ public class BottomFragment extends Fragment {
             startIntent.putExtra(BlacklistActivity.KEY_BOS_START_OR_PAUSE_STAT,
                     listener.getBOSRunning());
             startActivity(startIntent);
+        });
+
+        startOnBoot.setChecked(prefs.getBoolean(KEY_START_ON_BOOT, false));
+        startOnBoot.setOnCheckedChangeListener(isChecked -> {
+            prefs.edit()
+                    .putBoolean(KEY_START_ON_BOOT, isChecked)
+                    .apply();
         });
     }
 
