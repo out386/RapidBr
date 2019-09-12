@@ -42,10 +42,9 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.button.MaterialButton;
@@ -53,7 +52,7 @@ import com.out386.rapidbr.services.overlay.BrightnessOverlayService;
 import com.out386.rapidbr.settings.MainActivityListener;
 import com.out386.rapidbr.settings.bottom.bcolour.OnButtonColourChangedListener;
 import com.out386.rapidbr.settings.bottom.screenfilter.OnScreenFilterSettingsChangedListener;
-import com.out386.rapidbr.settings.top.TopFragment;
+import com.out386.rapidbr.settings.top.OnTopFragAttachedListener;
 import com.out386.rapidbr.utils.BoolUtils;
 
 import java.lang.ref.WeakReference;
@@ -70,21 +69,22 @@ import static com.out386.rapidbr.services.overlay.ServiceLauncher.toggleBrightne
 import static com.out386.rapidbr.utils.DimenUtils.getActionbarHeight;
 
 public class MainActivity extends ThemeActivity implements MainActivityListener,
-        OnButtonColourChangedListener, OnScreenFilterSettingsChangedListener {
+        OnButtonColourChangedListener, OnScreenFilterSettingsChangedListener,
+        OnTopFragAttachedListener {
 
     private static final String KEY_CURRENTLY_MAIN_FRAG = "CURRENTLY_MAIN_FRAG";
-    private static final String KEY_TOP_FRAG = "KEY_TOP_FRAG";
     private boolean isCurrentlyMainFrag = true;
     private AppBarLayout appBarLayout;
     private MaterialButton startButton;
     private boolean isQueuedToggle;
     private BrightnessConnection brConnection;
-    private TopFragment topFragment;
+    private OnStatusListener topListener;
     private Messenger clientMessenger;
     private Messenger serviceMessenger;
     private SharedPreferences prefs;
     private boolean isBOSStarted;
     private boolean isBOSPaused;
+    private boolean isActivityPaused;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,7 +93,6 @@ public class MainActivity extends ThemeActivity implements MainActivityListener,
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         createNotifChannel();
         setupViews();
-        setTopFragment();
         if (savedInstanceState != null) {
             isCurrentlyMainFrag =
                     savedInstanceState.getBoolean(KEY_CURRENTLY_MAIN_FRAG, true);
@@ -122,7 +121,7 @@ public class MainActivity extends ThemeActivity implements MainActivityListener,
     }
 
     private void onBrServiceStatusChanged(boolean isStarted) {
-        topFragment.setStatus(isStarted);
+        topListener.setStatus(isStarted);
         String text;
         Drawable icon;
         if (isStarted) {
@@ -137,12 +136,13 @@ public class MainActivity extends ThemeActivity implements MainActivityListener,
     }
 
     private void onScreenFilterChanged(int percent) {
-        topFragment.setFilter(percent);
+        topListener.setFilter(percent);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        isActivityPaused = false;
         if (serviceMessenger != null)
             setClientMessenger();
     }
@@ -150,12 +150,18 @@ public class MainActivity extends ThemeActivity implements MainActivityListener,
     @Override
     protected void onPause() {
         super.onPause();
+        isActivityPaused = true;
         if (serviceMessenger != null) {
             boolean result = sendMessageToBrightnessService(
                     serviceMessenger, MSG_UNSET_CLIENT_MESSENGER, 0, 0);
             if (!result)
                 serviceMessenger = null;
         }
+    }
+
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
     }
 
     @Override
@@ -220,7 +226,7 @@ public class MainActivity extends ThemeActivity implements MainActivityListener,
     private void setupInsets() {
         View decorView = getWindow().getDecorView();
         appBarLayout = findViewById(R.id.app_bar_layout);
-        FrameLayout topView = findViewById(R.id.topView);
+        FrameLayout topView = findViewById(R.id.top_view);
         FrameLayout bottomView = findViewById(R.id.bottom_view);
         Toolbar toolbar = findViewById(R.id.toolbar);
         FrameLayout.LayoutParams topViewParams = (FrameLayout.LayoutParams) topView.getLayoutParams();
@@ -265,22 +271,6 @@ public class MainActivity extends ThemeActivity implements MainActivityListener,
                 );
     }
 
-    private void setTopFragment() {
-        if (topFragment == null) {
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            Fragment fragment = fragmentManager.findFragmentByTag(KEY_TOP_FRAG);
-            if (fragment instanceof TopFragment) {
-                topFragment = (TopFragment) fragment;
-            } else {
-                topFragment = new TopFragment();
-                fragmentManager.beginTransaction()
-                        .replace(R.id.topView, topFragment, KEY_TOP_FRAG)
-                        .commit();
-            }
-        }
-
-    }
-
     @Override
     public void onAltFragment() {
         isCurrentlyMainFrag = false;
@@ -314,6 +304,11 @@ public class MainActivity extends ThemeActivity implements MainActivityListener,
             serviceMessenger = null;
     }
 
+    @Override
+    public void onTopFragmentAttached(OnStatusListener topListener) {
+        this.topListener = topListener;
+    }
+
     private void setClientMessenger() {
         if (clientMessenger == null)
             clientMessenger = new Messenger(new ClientHandler(this));
@@ -337,7 +332,7 @@ public class MainActivity extends ThemeActivity implements MainActivityListener,
         @Override
         public void handleMessage(Message msg) {
             MainActivity mainActivity = activity.get();
-            if (mainActivity == null)
+            if (mainActivity == null || mainActivity.isActivityPaused)
                 return;
 
             switch (msg.what) {
@@ -373,4 +368,11 @@ public class MainActivity extends ThemeActivity implements MainActivityListener,
             serviceMessenger = null;
         }
     }
+
+    public interface OnStatusListener {
+        void setStatus(boolean isRunning);
+
+        void setFilter(int percent);
+    }
+
 }

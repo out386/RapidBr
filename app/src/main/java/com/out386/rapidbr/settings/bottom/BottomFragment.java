@@ -30,6 +30,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -46,6 +47,7 @@ public class BottomFragment extends Fragment {
 
     private MainActivityListener listener;
     private SharedPreferences prefs;
+    private SwitchItem startOnBoot;
 
     public BottomFragment() {
     }
@@ -55,8 +57,13 @@ public class BottomFragment extends Fragment {
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_bottom, container, false);
         prefs = PreferenceManager.getDefaultSharedPreferences(requireContext());
-        setViewListeners(v);
         return v;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        setViewListeners(view);
     }
 
     @Override
@@ -76,7 +83,7 @@ public class BottomFragment extends Fragment {
         CardLayout colourCard = root.findViewById(R.id.color_card);
         CardLayout blacklistCard = root.findViewById(R.id.blacklist_card);
         CardLayout screenFilterCard = root.findViewById(R.id.filter_card);
-        SwitchItem startOnBoot = root.findViewById(R.id.boot_start_switch);
+        startOnBoot = root.findViewById(R.id.boot_start_switch);
 
         setClickListener(navController, schedulerCard, R.id.action_bottom_to_scheduler);
         setClickListener(navController, colourCard, R.id.action_bottom_to_buttonColour);
@@ -89,7 +96,6 @@ public class BottomFragment extends Fragment {
             startActivity(startIntent);
         });
 
-        startOnBoot.setChecked(prefs.getBoolean(KEY_START_ON_BOOT, false));
         startOnBoot.setOnCheckedChangeListener(isChecked -> {
             prefs.edit()
                     .putBoolean(KEY_START_ON_BOOT, isChecked)
@@ -107,6 +113,7 @@ public class BottomFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        startOnBoot.setChecked(prefs.getBoolean(KEY_START_ON_BOOT, false));
         listener.onMainFragment();
     }
 

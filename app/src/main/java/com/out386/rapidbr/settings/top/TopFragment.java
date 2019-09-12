@@ -33,11 +33,12 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.out386.rapidbr.MainActivity;
 import com.out386.rapidbr.R;
 
 import static com.out386.rapidbr.settings.bottom.blacklist.BlacklistFragment.KEY_BLACKLIST_APPS_NUMBER;
 
-public class TopFragment extends Fragment {
+public class TopFragment extends Fragment implements MainActivity.OnStatusListener {
 
     private TextView runningText;
     private TextView scheduledText;
@@ -56,6 +57,11 @@ public class TopFragment extends Fragment {
         super.onAttach(context);
         this.context = context;
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        if (context instanceof OnTopFragAttachedListener) {
+            ((OnTopFragAttachedListener) context).onTopFragmentAttached(this);
+        } else
+            throw new RuntimeException(context.toString()
+                    + " must implement OnTopFragAttachedListener");
     }
 
     @Override
@@ -84,6 +90,7 @@ public class TopFragment extends Fragment {
         statusColour[1] = resources.getColor(R.color.textTopNotRunning, context.getTheme());
     }
 
+    @Override
     public void setStatus(boolean isRunning) {
         if (isRunning) {
             runningText.setText(statusMessage[0]);
@@ -98,6 +105,7 @@ public class TopFragment extends Fragment {
         scheduledText.setText(scheduled);
     }
 
+    @Override
     public void setFilter(int percent) {
         String status;
         if (percent == 0)

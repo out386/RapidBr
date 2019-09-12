@@ -36,26 +36,32 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
-public class ThemeActivity extends AppCompatActivity {
+import static com.out386.rapidbr.MainApplication.KEY_THEME_TYPE;
 
-    private static final String KEY_THEME_TYPE = "themeSetting";
+public class ThemeActivity extends AppCompatActivity {
     private SharedPreferences prefs;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        int theme;
-        if (Build.VERSION.SDK_INT > 28)
-            theme = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
-        else
-            theme = AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY;
-
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        theme = prefs.getInt(KEY_THEME_TYPE, theme);
-
-        AppCompatDelegate.setDefaultNightMode(theme);
         setSystemUIFlags();
+    }
+
+    private void setThemeType(int theme) {
+        AppCompatDelegate.setDefaultNightMode(theme);
+        prefs.edit()
+                .putInt(KEY_THEME_TYPE, theme)
+                .apply();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_theme) {
+            showThemeDialog();
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void setSystemUIFlags() {
@@ -82,29 +88,11 @@ public class ThemeActivity extends AppCompatActivity {
                                     View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR |
                                     View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
                 }
-
-
         }
     }
 
     private int getCurrentTheme() {
         return getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-    }
-
-    private void setThemeType(int theme) {
-        AppCompatDelegate.setDefaultNightMode(theme);
-        prefs.edit()
-                .putInt(KEY_THEME_TYPE, theme)
-                .apply();
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.action_theme) {
-            showThemeDialog();
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     void showThemeDialog() {
