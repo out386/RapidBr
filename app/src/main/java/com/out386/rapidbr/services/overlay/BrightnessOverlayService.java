@@ -97,6 +97,8 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     private BrightnessRunnable brightnessRunnable = new BrightnessRunnable();
     private boolean brightnessUp;
     private float brightnessMovedBy;
+    private int origBr;
+    private float origScreenDim;
     private SharedPreferences prefs;
     private int alertType;
     private int initialSliderX;
@@ -110,6 +112,10 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     private Messenger serviceMessenger;
     private Messenger clientMessenger;
     private ButtonAnim buttonAnim;
+    /**
+     * How many pixels the brightness slider has to be moved to change the brightness by 1%
+     */
+    private int pixelsPerPercent = 50;
 
     @Override
     public int onStartCommand(Intent i, int flags, int startId) {
@@ -177,6 +183,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         isOverlayRunning = true;
         isOverlayPaused = false;
         setupBrightnessButton(alertType);
+        setPixelPerPercent();
         setupReferenceView(alertType);
         setDimmerBrightness();
         buttonAnim.hideButtonDelayed();
@@ -204,6 +211,12 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         }
 
         foregroundify();
+    }
+
+    private void setPixelPerPercent() {
+        int screenHeight = DimenUtils.getRealHeight(getApplicationContext());
+        // = ((screen height) / 2) * 1%
+        pixelsPerPercent = (int) ((screenHeight / 200F));
     }
 
     private void pauseOverlay(boolean isForPause) {
@@ -401,6 +414,50 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         super.onDestroy();
     }
 
+    private boolean onSliderMoveNew(MotionEvent event) {
+        int[] topLeftLocationOnScreen = new int[2];
+        topLeftView.getLocationOnScreen(topLeftLocationOnScreen);
+
+        float x = event.getRawX();
+        float y = event.getRawY();
+        WindowManager.LayoutParams params =
+                (WindowManager.LayoutParams) brightnessSlider.getLayoutParams();
+
+        int newX = (int) (offsetX + x);
+        int newY = (int) (offsetY + y);
+
+        if (Math.abs(newX - originalXPos) < 1 && Math.abs(newY - originalYPos) < 1 && !moving) {
+            return false;
+        }
+
+        moving = true;
+
+        float movedBy = Math.abs(lastY - y);
+        if (movedBy > buttonTouchSlop || Math.abs(lastX - x) > buttonTouchSlop) {
+            brightnessMovedBy = movedBy;
+
+            boolean brightnessUpNow = lastY - y >= 0;
+            if (moveWasBrightness) {
+                // Comments are overrated.
+                if (originalXPos <= display.widthPixels / 2) {
+                    brightnessSlider.setRotation(-(originalYPos - newY) / 2f);
+                } else {
+                    brightnessSlider.setRotation((originalYPos - newY) / 2f);
+                }
+                brightnessUp = brightnessUpNow;
+                buttonAnim.cancelScale();
+                setBrightnessOrDimmer(origBr, origScreenDim,
+                        (int) (brightnessMovedBy) / pixelsPerPercent);
+            } else {
+                params.x = newX - (topLeftLocationOnScreen[0]);
+            }
+        }
+        params.y = newY - (topLeftLocationOnScreen[1]);
+
+        wm.updateViewLayout(brightnessSlider, params);
+        return true;
+    }
+
     private boolean onSliderMove(MotionEvent event) {
         int[] topLeftLocationOnScreen = new int[2];
         topLeftView.getLocationOnScreen(topLeftLocationOnScreen);
@@ -445,6 +502,37 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
 
         wm.updateViewLayout(brightnessSlider, params);
         return true;
+    }
+
+    private void onSliderUpNew(MotionEvent event) {
+        float xToSnap;
+        brightnessSlider.setRotation(0);
+        WindowManager.LayoutParams params =
+                (WindowManager.LayoutParams) brightnessSlider.getLayoutParams();
+        buttonAnim.cancelScale();
+
+        if (moveWasBrightness) {
+            xToSnap = originalXPos;
+            int[] topLeftLocationOnScreen = new int[2];
+            topLeftView.getLocationOnScreen(topLeftLocationOnScreen);
+            isBrightnessHandlerActive = false;
+            params.y = originalYPos - topLeftLocationOnScreen[1];
+        } else {
+            xToSnap = event.getRawX();
+            moveWasBrightness = true;
+            buttonAnim.scaleSlider(false);
+        }
+
+        //noinspection IntegerDivisionInFloatingPointContext
+        if (xToSnap <= display.widthPixels / 2)
+            params.x = 0;
+        else
+            params.x = display.widthPixels - brightnessSlider.getWidth();
+
+        buttonAnim.hideButtonDelayed();
+
+        wm.updateViewLayout(brightnessSlider, params);
+        optOutSystemGetures();
     }
 
     private void onSliderUp(MotionEvent event) {
@@ -492,6 +580,9 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
             originalXPos = location[0];
             originalYPos = location[1];
 
+            origBr = getBrightness();
+            origScreenDim = screenDimAmount;
+
             offsetX = originalXPos - x;
             lastX = x;
             lastY = y;
@@ -501,9 +592,9 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
             buttonAnim.scaleUpButtonDelayed();
             return true;
         } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-            return onSliderMove(event);
+            return onSliderMoveNew(event);
         } else if (event.getAction() == MotionEvent.ACTION_UP) {
-            onSliderUp(event);
+            onSliderUpNew(event);
             return true;
         }
         return false;
@@ -533,6 +624,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     }
 
     private int getBrightness() {
+        // TODO: reuse this
         ContentResolver cResolver = getApplicationContext().getContentResolver();
         int brightness;
         try {
@@ -546,6 +638,30 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     private void setBrightness(int brightness) {
         ContentResolver cResolver = getApplicationContext().getContentResolver();
         Settings.System.putInt(cResolver, Settings.System.SCREEN_BRIGHTNESS, brightness);
+    }
+
+    private void setBrightnessOrDimmer(int origBr, float origScreenDim, int brChangeToPercent) {
+        int brChangeTo = 255 * brChangeToPercent / 100;
+        if (screenDimEnabled && origBr == 0 &&
+                (!brightnessUp || screenDimAmount > 0.0f)) {
+            if (brightnessUp) {
+                float newDim = origScreenDim - brChangeTo / 20f;
+                screenDimAmount = Math.max(newDim, 0);
+            } else {
+                float newDim = origScreenDim + brChangeTo / 20f;
+                screenDimAmount = Math.min(newDim, MAX_SCREEN_DIM_AMOUNT);
+            }
+            setDimmerBrightness();
+        } else {
+            int newbr = origBr +
+                    (brightnessUp ? brChangeTo : -brChangeTo);
+            // Make sure that the dimmer is off when screen brightness is > 0
+            if (screenDimAmount > 0) {
+                screenDimAmount = 0;
+                setDimmerBrightness();
+            }
+            setBrightnessCompat(newbr);
+        }
     }
 
     private void setDimmerBrightness() {
@@ -691,6 +807,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
                 }
                 setBrightnessCompat(newbr);
             }
+
             brightnessHandler.postDelayed(this, brightnessChangeDelay);
         }
     }
