@@ -401,6 +401,84 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         super.onDestroy();
     }
 
+    private boolean onSliderMove(MotionEvent event) {
+        int[] topLeftLocationOnScreen = new int[2];
+        topLeftView.getLocationOnScreen(topLeftLocationOnScreen);
+
+        float x = event.getRawX();
+        float y = event.getRawY();
+        WindowManager.LayoutParams params =
+                (WindowManager.LayoutParams) brightnessSlider.getLayoutParams();
+
+        int newX = (int) (offsetX + x);
+        int newY = (int) (offsetY + y);
+
+        if (Math.abs(newX - originalXPos) < 1 && Math.abs(newY - originalYPos) < 1 && !moving) {
+            return false;
+        }
+
+        moving = true;
+
+        float movedBy = Math.abs(lastY - y);
+        if (movedBy > buttonTouchSlop || Math.abs(lastX - x) > buttonTouchSlop) {
+            brightnessMovedBy = movedBy;
+
+            boolean brightnessUpNow = lastY - y >= 0;
+            if (moveWasBrightness) {
+                // Comments are overrated.
+                if (originalXPos <= display.widthPixels / 2) {
+                    brightnessSlider.setRotation(-(originalYPos - newY) / 2f);
+                } else {
+                    brightnessSlider.setRotation((originalYPos - newY) / 2f);
+                }
+                brightnessUp = brightnessUpNow;
+                buttonAnim.cancelScale();
+                if (!isBrightnessHandlerActive) {
+                    isBrightnessHandlerActive = true;
+                    brightnessHandler.post(brightnessRunnable);
+                }
+            } else {
+                params.x = newX - (topLeftLocationOnScreen[0]);
+            }
+        }
+        params.y = newY - (topLeftLocationOnScreen[1]);
+
+        wm.updateViewLayout(brightnessSlider, params);
+        return true;
+    }
+
+    private void onSliderUp(MotionEvent event) {
+        float xToSnap;
+        brightnessSlider.setRotation(0);
+        WindowManager.LayoutParams params =
+                (WindowManager.LayoutParams) brightnessSlider.getLayoutParams();
+        buttonAnim.cancelScale();
+
+        if (moveWasBrightness) {
+            xToSnap = originalXPos;
+            int[] topLeftLocationOnScreen = new int[2];
+            topLeftView.getLocationOnScreen(topLeftLocationOnScreen);
+            isBrightnessHandlerActive = false;
+            brightnessHandler.removeCallbacks(brightnessRunnable);
+            params.y = originalYPos - topLeftLocationOnScreen[1];
+        } else {
+            xToSnap = event.getRawX();
+            moveWasBrightness = true;
+            buttonAnim.scaleSlider(false);
+        }
+
+        //noinspection IntegerDivisionInFloatingPointContext
+        if (xToSnap <= display.widthPixels / 2)
+            params.x = 0;
+        else
+            params.x = display.widthPixels - brightnessSlider.getWidth();
+
+        buttonAnim.hideButtonDelayed();
+
+        wm.updateViewLayout(brightnessSlider, params);
+        optOutSystemGetures();
+    }
+
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -421,87 +499,13 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
 
             buttonAnim.showButton();
             buttonAnim.scaleUpButtonDelayed();
-
-
+            return true;
         } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-            int[] topLeftLocationOnScreen = new int[2];
-            topLeftView.getLocationOnScreen(topLeftLocationOnScreen);
-
-            float x = event.getRawX();
-            float y = event.getRawY();
-            WindowManager.LayoutParams params =
-                    (WindowManager.LayoutParams) brightnessSlider.getLayoutParams();
-
-            int newX = (int) (offsetX + x);
-            int newY = (int) (offsetY + y);
-
-            if (Math.abs(newX - originalXPos) < 1 && Math.abs(newY - originalYPos) < 1 && !moving) {
-                return false;
-            }
-
-            moving = true;
-
-            float movedBy = Math.abs(lastY - y);
-            if (movedBy > buttonTouchSlop || Math.abs(lastX - x) > buttonTouchSlop) {
-                brightnessMovedBy = movedBy;
-
-                boolean brightnessUpNow = lastY - y >= 0;
-                if (moveWasBrightness) {
-                    // Comments are overrated.
-                    if (originalXPos <= display.widthPixels / 2) {
-                        brightnessSlider.setRotation(-(originalYPos - newY) / 2f);
-                    } else {
-                        brightnessSlider.setRotation((originalYPos - newY) / 2f);
-                    }
-                    brightnessUp = brightnessUpNow;
-                    buttonAnim.cancelScale();
-                    if (!isBrightnessHandlerActive) {
-                        isBrightnessHandlerActive = true;
-                        brightnessHandler.post(brightnessRunnable);
-                    }
-                } else {
-                    params.x = newX - (topLeftLocationOnScreen[0]);
-                }
-            }
-            params.y = newY - (topLeftLocationOnScreen[1]);
-
-            wm.updateViewLayout(brightnessSlider, params);
+            return onSliderMove(event);
         } else if (event.getAction() == MotionEvent.ACTION_UP) {
-            float xToSnap;
-            brightnessSlider.setRotation(0);
-            WindowManager.LayoutParams params =
-                    (WindowManager.LayoutParams) brightnessSlider.getLayoutParams();
-            buttonAnim.cancelScale();
-
-            if (moveWasBrightness) {
-                xToSnap = originalXPos;
-                int[] topLeftLocationOnScreen = new int[2];
-                topLeftView.getLocationOnScreen(topLeftLocationOnScreen);
-                isBrightnessHandlerActive = false;
-                brightnessHandler.removeCallbacks(brightnessRunnable);
-                params.y = originalYPos - topLeftLocationOnScreen[1];
-            } else {
-                xToSnap = event.getRawX();
-                moveWasBrightness = true;
-                buttonAnim.scaleSlider(false);
-            }
-
-            //noinspection IntegerDivisionInFloatingPointContext
-            if (xToSnap <= display.widthPixels / 2)
-                params.x = 0;
-            else
-                params.x = display.widthPixels - brightnessSlider.getWidth();
-
-            buttonAnim.hideButtonDelayed();
-
-            if (moving) {
-                wm.updateViewLayout(brightnessSlider, params);
-                return true;
-            }
-            wm.updateViewLayout(brightnessSlider, params);
-            optOutSystemGetures();
+            onSliderUp(event);
+            return true;
         }
-
         return false;
     }
 
