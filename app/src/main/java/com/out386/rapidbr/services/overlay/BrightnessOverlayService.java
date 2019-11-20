@@ -215,8 +215,8 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
 
     private void setPixelPerPercent() {
         int screenHeight = DimenUtils.getRealHeight(getApplicationContext());
-        // = ((screen height) / 2) * 1%
-        pixelsPerPercent = (int) ((screenHeight / 200F));
+        // = screen height * 1%
+        pixelsPerPercent = (int) ((screenHeight / 100F));
     }
 
     private void pauseOverlay(boolean isForPause) {
@@ -641,18 +641,22 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     }
 
     private void setBrightnessOrDimmer(int origBr, float origScreenDim, int brChangeToPercent) {
-        int brChangeTo = 255 * brChangeToPercent / 100;
         if (screenDimEnabled && origBr == 0 &&
                 (!brightnessUp || screenDimAmount > 0.0f)) {
+            // Rounding up to the next multiple of 20, because smaller changes
+            // makes no sense for the filter
+            brChangeToPercent = (brChangeToPercent / 20 + 1) * 20;
+            float brChangeTo = 0.5f * brChangeToPercent / 100;
             if (brightnessUp) {
-                float newDim = origScreenDim - brChangeTo / 20f;
+                float newDim = origScreenDim - brChangeTo;
                 screenDimAmount = Math.max(newDim, 0);
             } else {
-                float newDim = origScreenDim + brChangeTo / 20f;
+                float newDim = origScreenDim + brChangeTo;
                 screenDimAmount = Math.min(newDim, MAX_SCREEN_DIM_AMOUNT);
             }
             setDimmerBrightness();
         } else {
+            int brChangeTo = 255 * brChangeToPercent / 100;
             int newbr = origBr +
                     (brightnessUp ? brChangeTo : -brChangeTo);
             // Make sure that the dimmer is off when screen brightness is > 0
