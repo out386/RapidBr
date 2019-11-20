@@ -13,6 +13,7 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -39,6 +40,9 @@ import com.out386.rapidbr.services.blacklist.AppBlacklistService;
 import com.out386.rapidbr.utils.BoolUtils;
 import com.out386.rapidbr.utils.DimenUtils;
 import com.out386.rapidbr.utils.NotificationActivity;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.out386.rapidbr.services.blacklist.AppBlacklistService.KEY_BLACKLIST_LIST;
 import static com.out386.rapidbr.settings.bottom.blacklist.BlacklistFragment.KEY_BLACKLIST_BUNDLE;
@@ -261,6 +265,16 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
             buttonAnim.peekButton();
     }
 
+    private void optOutSystemGetures() {
+        if (Build.VERSION.SDK_INT > 28) {
+            Rect rect = new Rect(0, 0, brightnessSlider.getWidth(),
+                    brightnessSlider.getHeight());
+            List<Rect> list = new ArrayList<>();
+            list.add(rect);
+            brightnessSlider.setSystemGestureExclusionRects(list);
+        }
+    }
+
     private void setupBrightnessButton(int alertType) {
         final float scale = getResources().getDisplayMetrics().density;
         int pixels = (int) (64 * scale + 0.5f);
@@ -284,6 +298,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         params.x = initialSliderX;
         params.y = initialSliderY;
         wm.addView(brightnessSlider, params);
+        optOutSystemGetures();
         buttonAnim = new ButtonAnim(brightnessSlider, display,
                 (Vibrator) getSystemService(Context.VIBRATOR_SERVICE), this);
     }
@@ -484,6 +499,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
                 return true;
             }
             wm.updateViewLayout(brightnessSlider, params);
+            optOutSystemGetures();
         }
 
         return false;
