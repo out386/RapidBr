@@ -42,7 +42,7 @@
             android:process=":overlayProcess" />
 
         <receiver
-            android:name=".settings.bottom.scheduler.BootReceiver"
+            android:name=".settings.bottom.scheduler.BootAlarmReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>

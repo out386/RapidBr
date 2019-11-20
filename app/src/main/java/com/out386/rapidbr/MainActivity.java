@@ -51,6 +51,7 @@ import com.google.android.material.button.MaterialButton;
 import com.out386.rapidbr.services.overlay.BrightnessOverlayService;
 import com.out386.rapidbr.settings.MainActivityListener;
 import com.out386.rapidbr.settings.bottom.bcolour.OnButtonColourChangedListener;
+import com.out386.rapidbr.settings.bottom.scheduler.AlarmHelper;
 import com.out386.rapidbr.settings.bottom.screenfilter.OnScreenFilterSettingsChangedListener;
 import com.out386.rapidbr.settings.top.OnTopFragAttachedListener;
 import com.out386.rapidbr.utils.BoolUtils;
@@ -91,6 +92,10 @@ public class MainActivity extends ThemeActivity implements MainActivityListener,
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+        // In case there were alarms that should have been set but somehow weren't
+        new AlarmHelper(this).setUnsetAlarms(prefs);
+
         createNotifChannel();
         setupViews();
         if (savedInstanceState != null) {

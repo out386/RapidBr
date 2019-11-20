@@ -134,6 +134,15 @@ public class ServiceLauncher {
         });
     }
 
+    public static void stopBrightnessService(Context context) {
+        Intent intent = new Intent(context, BrightnessOverlayService.class);
+        intent.setAction(BrightnessOverlayService.ACTION_STOP);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            context.startForegroundService(intent);
+        else
+            context.startService(intent);
+    }
+
     /**
      * Returns an Intent to start {@link BrightnessOverlayService} with.
      *

@@ -41,7 +41,7 @@ import com.out386.rapidbr.settings.bottom.blacklist.BlacklistActivity;
 import com.out386.rapidbr.settings.bottom.views.CardLayout;
 import com.out386.rapidbr.settings.bottom.views.SwitchItem;
 
-import static com.out386.rapidbr.settings.bottom.scheduler.BootReceiver.KEY_START_ON_BOOT;
+import static com.out386.rapidbr.settings.bottom.scheduler.BootAlarmReceiver.KEY_START_ON_BOOT;
 
 public class BottomFragment extends Fragment {
 

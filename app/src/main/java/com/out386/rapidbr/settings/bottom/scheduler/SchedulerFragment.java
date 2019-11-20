@@ -32,6 +32,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
@@ -46,7 +47,7 @@ import static com.out386.rapidbr.settings.bottom.scheduler.TimePickerFragment.KE
 import static com.out386.rapidbr.settings.bottom.scheduler.TimePickerFragment.KEY_SCHEDULER_STOP_MINUTE;
 
 public class SchedulerFragment extends Fragment {
-    private static final String KEY_SCHED_ENABLE = "KEY_SCHED_ENABLE";
+    static final String KEY_SCHED_ENABLE = "KEY_SCHED_ENABLE";
 
     private LinearLayout schedStart;
     private LinearLayout schedStop;
@@ -55,6 +56,7 @@ public class SchedulerFragment extends Fragment {
     private SwitchItem schedEnable;
     private SharedPreferences prefs;
     private PrefsListener prefsListener;
+    private AlarmHelper alarmHelper;
 
     public SchedulerFragment() {
     }
@@ -69,17 +71,15 @@ public class SchedulerFragment extends Fragment {
         schedStart = v.findViewById(R.id.sched_start);
         schedStop = v.findViewById(R.id.sched_stop);
         schedEnable = v.findViewById(R.id.sched_enable_switch);
+        alarmHelper = new AlarmHelper(requireContext());
 
         return v;
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        setupViews();
-    }
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-    private void setupViews() {
         boolean isEnabled = prefs.getBoolean(KEY_SCHED_ENABLE, false);
         int startHour = prefs.getInt(KEY_SCHEDULER_START_HOUR, 0);
         int startMin = prefs.getInt(KEY_SCHEDULER_START_MINUTE, 0);
@@ -87,13 +87,19 @@ public class SchedulerFragment extends Fragment {
         int stopMin = prefs.getInt(KEY_SCHEDULER_STOP_MINUTE, 0);
 
         schedEnable.setChecked(isEnabled);
-
-        setTimeText(startHour, startMin, stopHour, stopMin);
-        setTimeTextChanged();
+        setTimeText(true, startHour, startMin);
+        setTimeText(false, stopHour, stopMin);
         setupListeners();
     }
 
-    private void setTimeTextChanged() {
+    @Override
+    public void onResume() {
+        super.onResume();
+        setPrefsListener();
+    }
+
+
+    private void setPrefsListener() {
         if (prefsListener != null)
             prefs.unregisterOnSharedPreferenceChangeListener(prefsListener);
 
@@ -101,31 +107,34 @@ public class SchedulerFragment extends Fragment {
         prefs.registerOnSharedPreferenceChangeListener(prefsListener);
     }
 
-    private void setTimeText(int startHour, int startMin, int stopHour, int stopMin) {
-        String startText = getResources().getString(R.string.sett_sched_start_desc);
-        String stopText = getResources().getString(R.string.sett_sched_stop_desc);
-        String startStr;
-        String stopStr;
+    private void setTimeText(boolean startChanged, int hour, int min) {
+        String messageTemplate;
+        String message;
         java.text.DateFormat format = DateFormat.getTimeFormat(getActivity());
+        TextView target;
         Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.HOUR_OF_DAY, startHour);
-        cal.set(Calendar.MINUTE, startMin);
+        cal.set(Calendar.HOUR_OF_DAY, hour);
+        cal.set(Calendar.MINUTE, min);
 
-        startStr = String.format(startText, format.format(cal.getTime()));
+        if (startChanged) {
+            messageTemplate = getResources().getString(R.string.sett_sched_start_desc);
+            target = schedStartDesc;
+        } else {
+            messageTemplate = getResources().getString(R.string.sett_sched_stop_desc);
+            target = schedStopDesc;
+        }
 
-        cal.set(Calendar.HOUR_OF_DAY, stopHour);
-        cal.set(Calendar.MINUTE, stopMin);
-
-        stopStr = String.format(stopText, format.format(cal.getTime()));
-        schedStartDesc.setText(startStr);
-        schedStopDesc.setText(stopStr);
+        message = String.format(messageTemplate, format.format(cal.getTime()));
+        target.setText(message);
     }
 
     private void setupListeners() {
-        schedEnable.setOnCheckedChangeListener(isChecked ->
-                prefs.edit()
-                        .putBoolean(KEY_SCHED_ENABLE, isChecked)
-                        .apply());
+        schedEnable.setOnCheckedChangeListener(isChecked -> {
+            prefs.edit()
+                    .putBoolean(KEY_SCHED_ENABLE, isChecked)
+                    .apply();
+            alarmHelper.setUnsetAlarms(prefs);
+        });
 
         FragmentManager fragmentManager = getFragmentManager();
         if (fragmentManager == null)
@@ -148,18 +157,19 @@ public class SchedulerFragment extends Fragment {
 
     private class PrefsListener implements SharedPreferences.OnSharedPreferenceChangeListener {
         @Override
-        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
 
-            if (KEY_SCHEDULER_START_HOUR.equals(key) ||
-                    KEY_SCHEDULER_START_MINUTE.equals(key) ||
-                    KEY_SCHEDULER_STOP_HOUR.equals(key) ||
-                    KEY_SCHEDULER_STOP_MINUTE.equals(key)) {
+            if (KEY_SCHEDULER_START_HOUR.equals(key) || KEY_SCHEDULER_START_MINUTE.equals(key)) {
+                int hour = prefs.getInt(KEY_SCHEDULER_START_HOUR, 0);
+                int min = prefs.getInt(KEY_SCHEDULER_START_MINUTE, 0);
+                setTimeText(true, hour, min);
+                alarmHelper.setUnsetAlarms(prefs);
 
-                int startHour = prefs.getInt(KEY_SCHEDULER_START_HOUR, 0);
-                int startMin = prefs.getInt(KEY_SCHEDULER_START_MINUTE, 0);
-                int stopHour = prefs.getInt(KEY_SCHEDULER_STOP_HOUR, 0);
-                int stopMin = prefs.getInt(KEY_SCHEDULER_STOP_MINUTE, 0);
-                setTimeText(startHour, startMin, stopHour, stopMin);
+            } else if (KEY_SCHEDULER_STOP_HOUR.equals(key) || KEY_SCHEDULER_STOP_MINUTE.equals(key)) {
+                int hour = prefs.getInt(KEY_SCHEDULER_STOP_HOUR, 0);
+                int min = prefs.getInt(KEY_SCHEDULER_STOP_MINUTE, 0);
+                setTimeText(false, hour, min);
+                alarmHelper.setUnsetAlarms(prefs);
             }
         }
     }

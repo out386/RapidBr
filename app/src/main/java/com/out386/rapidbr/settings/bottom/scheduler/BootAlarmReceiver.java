@@ -28,15 +28,23 @@ import android.preference.PreferenceManager;
 
 import com.out386.rapidbr.services.overlay.ServiceLauncher;
 
-public class BootReceiver extends BroadcastReceiver {
+public class BootAlarmReceiver extends BroadcastReceiver {
     public static final String KEY_START_ON_BOOT = "startOnBoot";
 
     @Override
     public void onReceive(Context context, Intent i) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+
         if (Intent.ACTION_BOOT_COMPLETED.equals(i.getAction())) {
             if (prefs.getBoolean(KEY_START_ON_BOOT, false))
                 ServiceLauncher.startBrightnessService(context, prefs);
+
+            AlarmHelper alarmHelper = new AlarmHelper(context);
+            alarmHelper.setUnsetAlarms(prefs);
+        } else if (AlarmHelper.ACTION_SCHEDULER_START.equals(i.getAction())) {
+            ServiceLauncher.startBrightnessService(context, prefs);
+        } else if (AlarmHelper.ACTION_SCHEDULER_STOP.equals(i.getAction())) {
+            ServiceLauncher.stopBrightnessService(context);
         }
     }
 }
