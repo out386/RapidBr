@@ -592,9 +592,9 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
             buttonAnim.scaleUpButtonDelayed();
             return true;
         } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-            return onSliderMoveNew(event);
+            return onSliderMove(event);
         } else if (event.getAction() == MotionEvent.ACTION_UP) {
-            onSliderUpNew(event);
+            onSliderUp(event);
             return true;
         }
         return false;
