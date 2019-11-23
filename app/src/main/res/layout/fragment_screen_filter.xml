@@ -26,7 +26,8 @@
             android:layout_height="wrap_content"
             android:text="@string/sett_screen_filter_desc" />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/edge_padding_internal"
@@ -37,32 +38,17 @@
                 android:id="@+id/sfilter_enable_switch"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
                 app:switchText="@string/sett_screen_filter_enable" />
 
-            <View
-                android:id="@+id/sfilter_switch_div"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginStart="@dimen/edge_padding_internal"
-                android:layout_marginEnd="@dimen/edge_padding_internal"
-                android:background="@color/cardStroke"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/sfilter_enable_switch" />
+            <View style="@style/Divider" />
 
             <com.out386.rapidbr.settings.bottom.views.SwitchItem
                 android:id="@+id/sfilter_enable_kcal_switch"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@id/sfilter_switch_div"
                 app:switchText="@string/sett_screen_filter_kcal_enable" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
 
     </LinearLayout>
 

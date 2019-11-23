@@ -28,11 +28,10 @@
 
         <View
             android:id="@+id/blacklist_divider_1"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
             android:layout_below="@id/blacklist_enable_switch"
-            android:layout_alignParentStart="true"
-            android:background="@color/cardStroke" />
+            style="@style/Divider"
+            android:layout_marginStart="0dp"
+            android:layout_marginEnd="0dp" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/blacklist_recycler"
@@ -40,7 +39,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/blacklist_divider_1"
             android:padding="@dimen/edge_padding_internal"
-            android:layoutAnimation="@anim/layout_anim_slide_in_top"/>
+            android:layoutAnimation="@anim/layout_anim_slide_in_top" />
 
         <com.out386.rapidbr.settings.bottom.views.SwitchItem
             android:id="@+id/blacklist_enable_switch"

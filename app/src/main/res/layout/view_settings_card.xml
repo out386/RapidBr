@@ -17,12 +17,10 @@
 
     <View
         android:id="@+id/settings_card_divider"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
+        style="@style/Divider"
         android:layout_below="@id/settings_card_image"
         android:layout_marginStart="@dimen/edge_padding_internal_thin"
-        android:layout_marginEnd="@dimen/edge_padding_internal_thin"
-        android:background="@color/cardStroke" />
+        android:layout_marginEnd="@dimen/edge_padding_internal_thin" />
 
     <TextView
         android:id="@+id/settings_card_text"
