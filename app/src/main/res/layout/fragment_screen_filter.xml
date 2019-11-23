@@ -31,16 +31,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/edge_padding_internal"
-            android:layout_marginBottom="@dimen/edge_padding"
             android:background="@drawable/card">
-
-            <com.out386.rapidbr.settings.bottom.views.SwitchItem
-                android:id="@+id/sfilter_enable_switch"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:switchText="@string/sett_screen_filter_enable" />
-
-            <View style="@style/Divider" />
 
             <com.out386.rapidbr.settings.bottom.views.SwitchItem
                 android:id="@+id/sfilter_enable_kcal_switch"
@@ -48,7 +39,105 @@
                 android:layout_height="wrap_content"
                 app:switchText="@string/sett_screen_filter_kcal_enable" />
 
+            <View style="@style/Divider" />
+
+            <com.out386.rapidbr.settings.bottom.views.SwitchItem
+                android:id="@+id/sfilter_enable_switch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:switchText="@string/sett_screen_filter_enable" />
+
         </LinearLayout>
+
+        <RelativeLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/edge_padding_huge"
+            android:layout_marginBottom="@dimen/edge_padding"
+            android:background="@drawable/card">
+
+            <com.out386.rapidbr.settings.bottom.views.SwitchItem
+                android:id="@+id/sfilter_temperature_switch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:switchText="@string/sett_screen_filter_temperature_enable" />
+
+            <com.ramotion.fluidslider.FluidSlider
+                android:layout_below="@id/sfilter_temp_title"
+                android:id="@+id/sfilter_temp_slider"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:size="small"
+                app:start_text="Cool"
+                app:end_text="Warm"
+                android:layout_marginTop="-60dp"
+                android:layout_marginStart="@dimen/edge_padding_internal"
+                android:layout_marginEnd="@dimen/edge_padding_internal"
+                android:layout_marginBottom="@dimen/edge_padding_huge" />
+
+            <com.ramotion.fluidslider.FluidSlider
+                android:layout_below="@id/sfilter_temp_inten_title"
+                android:id="@+id/sfilter_temp_inten_slider"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:start_text="1%"
+                app:end_text="80%"
+                app:size="small"
+                android:layout_marginTop="-60dp"
+                android:layout_marginStart="@dimen/edge_padding_internal"
+                android:layout_marginEnd="@dimen/edge_padding_internal"
+                android:layout_marginBottom="@dimen/edge_padding_huge" />
+
+            <LinearLayout
+                android:visibility="gone"
+                android:layout_marginStart="2dp"
+                android:layout_marginEnd="2dp"
+                android:id="@+id/sfilter_disable_temp"
+                android:orientation="vertical"
+                android:focusable="true"
+                android:clickable="true"
+                android:layout_width="match_parent"
+                android:layout_height="500dp"
+                android:layout_alignTop="@id/div1"
+                android:layout_alignBottom="@id/sfilter_temp_inten_slider"
+                android:background="@color/disabledView" />
+
+            <View
+                style="@style/Divider"
+                android:id="@+id/div1"
+                android:layout_below="@id/sfilter_temperature_switch" />
+
+            <TextView
+                android:layout_below="@id/div1"
+                android:id="@+id/sfilter_temp_title"
+                style="@style/GeneralSubHeaderText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/edge_padding_internal"
+                android:layout_marginEnd="@dimen/edge_padding_internal_ultra_thin"
+                android:layout_marginTop="@dimen/edge_padding_internal"
+                android:layout_marginBottom="@dimen/edge_padding_internal"
+                android:text="@string/sett_screen_filter_temperature" />
+
+            <View
+                style="@style/Divider"
+                android:layout_below="@id/sfilter_temp_slider"
+                android:id="@+id/div2" />
+
+            <TextView
+                android:layout_below="@id/div2"
+                android:id="@+id/sfilter_temp_inten_title"
+                style="@style/GeneralSubHeaderText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/edge_padding_internal"
+                android:layout_marginEnd="@dimen/edge_padding_internal_ultra_thin"
+                android:layout_marginTop="@dimen/edge_padding_internal"
+                android:layout_marginBottom="@dimen/edge_padding_internal"
+                android:text="@string/sett_screen_filter_temperature_intensity" />
+
+        </RelativeLayout>
 
     </LinearLayout>
 

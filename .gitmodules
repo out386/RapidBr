@@ -1,0 +1,3 @@
+[submodule "fluid-slider-android"]
+	path = fluid-slider-android
+	url = git@github.com:out386/fluid-slider-android.git

@@ -2,6 +2,8 @@ package com.out386.rapidbr.utils;
 
 import android.animation.Animator;
 import android.view.View;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.Interpolator;
 
 /*
  * Copyright (C) 2019 Ritayan Chakraborty <ritayanout@gmail.com>
@@ -25,43 +27,24 @@ import android.view.View;
 
 public class ViewUtils {
 
-    public static void animateView(View view, boolean show) {
-        if (!show) {
-            view.animate()
-                    .alpha(0)
-                    .translationY(-view.getHeight())
-                    .setDuration(100)
-                    .setListener(new Animator.AnimatorListener() {
-                        @Override
-                        public void onAnimationStart(Animator animation) {
-
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            view.setVisibility(View.GONE);
-                        }
-
-                        @Override
-                        public void onAnimationCancel(Animator animation) {
-
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animator animation) {
-
-                        }
-                    })
-                    .start();
-        } else {
+    public static void animateView(View view, boolean show, Interpolator showInterpolator,
+                                   Interpolator hideInterpolator, long showDuration,
+                                   long hideDuration) {
+        if (show) {
             view.setAlpha(0);
             view.setTranslationY(-view.getHeight());
-            view.setVisibility(View.VISIBLE);
             view.animate()
                     .alpha(1)
                     .translationY(0)
-                    .setDuration(100)
-                    .setListener(null)  // Needed, else the previously set listener for !show sticks around
+                    .setDuration(showDuration)
+                    .setInterpolator(showInterpolator)
+                    .start();
+        } else {
+            view.animate()
+                    .alpha(0)
+                    .translationY(-view.getHeight())
+                    .setDuration(hideDuration)
+                    .setInterpolator(hideInterpolator)
                     .start();
         }
     }

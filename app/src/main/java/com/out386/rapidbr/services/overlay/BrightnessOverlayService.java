@@ -55,6 +55,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     public static final String KEY_OVERLAY_X = "overlayX";
     public static final String KEY_OVERLAY_Y = "overlayY";
     public static final String KEY_SCREEN_FILTER_ENABLED = "screenDimEnabled";
+    public static final String KEY_TEMP_FILTER_ENABLED = "tempFilterEnabled";
     public static final String KEY_BR_ICON_COLOUR = "br_icon_colour";
 
     public static final int MSG_OVERLAY_BUTTON_COLOUR = 1;

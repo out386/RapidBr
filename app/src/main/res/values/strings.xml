@@ -28,6 +28,9 @@
     <string name="sett_blacklist_pick_prompt">Tap an app below to add it to the blacklist</string>
     <string name="sett_screen_filter_enable">Enable screen filter</string>
     <string name="sett_screen_filter_kcal_enable">Use KCAL</string>
+    <string name="sett_screen_filter_temperature_enable">Change color temperature</string>
+    <string name="sett_screen_filter_temperature">Colour temperature</string>
+    <string name="sett_screen_filter_temperature_intensity">Colour temperature intensity</string>
     <string name="sett_boot_start_enable">Start on boot</string>
     <string name="start_app">Start</string>
     <string name="stop_app">Stop</string>

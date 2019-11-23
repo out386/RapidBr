@@ -24,5 +24,7 @@
     <color name="icYellow">#B9AD3B</color>
     <color name="icPink">#EC407A</color>
     <color name="white">#FFFFFF</color>
+    <color name="disabledView">#80FFFFFF</color>
+    <color name="colorSlider">#23B7F7</color>
     <color name="blacklistDelete">#FFB71C1C</color>
 </resources>

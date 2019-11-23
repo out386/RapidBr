@@ -1,1 +1,2 @@
-include ':app'
+include ':app', ':fluid-slider'
+project(':fluid-slider').projectDir = new File('fluid-slider-android/fluid-slider')

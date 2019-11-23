@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion rootProject.ext.sdkVersion
@@ -30,8 +32,14 @@ dependencies {
     implementation 'androidx.navigation:navigation-fragment:2.1.0'
     implementation 'androidx.navigation:navigation-ui:2.1.0'
     implementation 'androidx.recyclerview:recyclerview:1.0.0'
-    implementation "com.mikepenz:fastadapter:3.3.1"
+    implementation 'com.mikepenz:fastadapter:3.3.1'
     implementation 'com.mikepenz:fastadapter-commons:3.3.1'
     implementation 'com.mikepenz:fastadapter-extensions:3.3.1'
     implementation 'com.afollestad.material-dialogs:core:0.9.6.0'
+    implementation 'androidx.core:core-ktx:1.1.0'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation project(path: ':fluid-slider')
+}
+repositories {
+    mavenCentral()
 }
