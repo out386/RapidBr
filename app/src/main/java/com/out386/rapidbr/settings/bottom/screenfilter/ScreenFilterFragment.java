@@ -61,7 +61,6 @@ public class ScreenFilterFragment extends Fragment {
     private int colourAccent;
     private float tempPerc;
     private float tempAlphaPerc;
-    private int tempColour;
 
     public static final String KEY_FILTER_TEMPERATURE = "scrFilterTemp";
     private static final String KEY_FILTER_TEMPERATURE_PERC = "scrFilterTemp%";
@@ -139,15 +138,11 @@ public class ScreenFilterFragment extends Fragment {
             prefs.edit()
                     .putBoolean(KEY_TEMP_FILTER_ENABLED, isChecked)
                     .apply();
-            if (isChecked) {
+            if (isChecked)
                 disableView.setVisibility(View.GONE);
-                if (listener != null)
-                    listener.onColourTemperatureChanged(tempColour);
-            } else {
+            else
                 disableView.setVisibility(View.VISIBLE);
-                if (listener != null)
-                    listener.onColourTemperatureChanged(0x0);
-            }
+            saveTemp(null);
         });
 
         tempSlider.setPositionListener(pos -> {
@@ -181,21 +176,26 @@ public class ScreenFilterFragment extends Fragment {
     }
 
     private void saveTemp(@Nullable SharedPreferences.Editor editor) {
-        // Range = 1% - 80% of 255 (0xFF)
-        int alpha = (int) Math.round(tempAlphaPerc * 201.45 + 2.55);
+        boolean isEnabled = prefs.getBoolean(KEY_TEMP_FILTER_ENABLED, false);
+        if (isEnabled) {
+            // Range = 1% - 80% of 255 (0xFF)
+            int alpha = (int) Math.round(tempAlphaPerc * 201.45 + 2.55);
 
-        // Low temp percentages in the slider is cool, high is warm
-        float tempPerc = 1 - this.tempPerc;
+            // Low temp percentages in the slider is cool, high is warm
+            float tempPerc = 1 - this.tempPerc;
 
-        // 4000 kelvin to 10,000 kelvin
-        int temp = (int) (tempPerc * 6000 + 4000);
-        tempColour = 0x1000000 * alpha + TemperatureCalc.getTemperatureRGB(temp);
-        if (editor != null) {
-            editor.putInt(KEY_FILTER_TEMPERATURE, tempColour)
-                    .apply();
-
+            // 4000 kelvin to 10,000 kelvin
+            int temp = (int) (tempPerc * 6000 + 4000);
+            int tempColour = 0x1000000 * alpha + TemperatureCalc.getTemperatureRGB(temp);
+            if (editor != null) {
+                editor.putInt(KEY_FILTER_TEMPERATURE, tempColour)
+                        .apply();
+            }
             if (listener != null)
                 listener.onColourTemperatureChanged(tempColour);
+        } else {
+            if (listener != null)
+                listener.onColourTemperatureChanged(0x0);
         }
     }
 
