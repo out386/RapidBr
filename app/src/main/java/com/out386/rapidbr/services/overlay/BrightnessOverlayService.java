@@ -93,6 +93,8 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     private float offsetY;
     private int originalXPos;
     private int originalYPos;
+    private int screenHeight;
+    private int screenWidth;
     private boolean moving;
     private WindowManager wm;
     private DisplayMetrics display;
@@ -185,12 +187,19 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
 
     private void startOverlay(Bundle settings) {
         // TODO: Check whether adaptive brightness was enabled
+        DisplayMetrics metrics = DimenUtils.getRealDisplayMetrics(getApplicationContext());
+        if (metrics == null) {
+            screenWidth = screenHeight = 0;
+        } else {
+            screenWidth = metrics.widthPixels;
+            screenHeight = metrics.heightPixels;
+        }
         initialSliderX = prefs.getInt(KEY_OVERLAY_X, 0);
-        initialSliderY = prefs.getInt(KEY_OVERLAY_Y, 300);
+        initialSliderY = prefs.getInt(KEY_OVERLAY_Y, screenHeight / 2);
         isOverlayRunning = true;
         isOverlayPaused = false;
         setupBrightnessButton(alertType);
-        setPixelPerPercent();
+        //setPixelPerPercent();
         setupReferenceView(alertType);
         setDimmerBrightness();
         buttonAnim.hideButtonDelayed();
@@ -223,7 +232,6 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     }
 
     private void setPixelPerPercent() {
-        int screenHeight = DimenUtils.getRealHeight(getApplicationContext());
         // = screen height * 1%
         pixelsPerPercent = (int) ((screenHeight / 100F));
     }
@@ -332,8 +340,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     private void setupDimmerView() {
         dimView = new View(this);
         dimView.setBackgroundColor(Color.BLACK);
-        int max = Math.max(DimenUtils.getRealWidth(this),
-                DimenUtils.getRealHeight(this)) + 200;
+        int max = Math.max(screenWidth, screenHeight) + 200;
         dimViewParams = new WindowManager
                 .LayoutParams(max, max, alertType,
                 (WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
@@ -350,8 +357,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         Log.i("Filter", "setupTempFilterView: ");
         temperatureView = new View(this);
         temperatureView.setBackgroundColor(tempFilterColour);
-        int max = Math.max(DimenUtils.getRealWidth(this),
-                DimenUtils.getRealHeight(this)) + 200;
+        int max = Math.max(screenWidth, screenHeight) + 200;
         temperatureViewParams = new WindowManager
                 .LayoutParams(max, max, alertType,
                 (WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE

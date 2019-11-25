@@ -33,7 +33,7 @@ public class DimenUtils {
      * @param context Context
      * @return The real metrics of default display
      */
-    private static DisplayMetrics getRealDisplayMetrics(Context context) {
+    public static DisplayMetrics getRealDisplayMetrics(Context context) {
         WindowManager windowManager =
                 (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         Display display;
