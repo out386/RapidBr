@@ -28,6 +28,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -36,6 +37,7 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
@@ -112,6 +114,8 @@ public class MainActivity extends ThemeActivity implements MainActivityListener,
             fixScrolling(false);
         else
             fixScrolling(true);
+
+        askOverlayPermission();
     }
 
     @Override
@@ -333,6 +337,16 @@ public class MainActivity extends ThemeActivity implements MainActivityListener,
             serviceMessenger.send(message);
         } catch (RemoteException ignored) {
             // Dammit.
+        }
+    }
+
+
+    private void askOverlayPermission() {
+        if (!Settings.canDrawOverlays(this)) {
+            int REQUEST_CODE = 101;
+            Intent myIntent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
+            myIntent.setData(Uri.parse("package:" + getPackageName()));
+            startActivityForResult(myIntent, REQUEST_CODE);
         }
     }
 
