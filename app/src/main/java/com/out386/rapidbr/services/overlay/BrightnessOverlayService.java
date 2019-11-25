@@ -180,7 +180,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             alertType = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
         else
-            alertType = WindowManager.LayoutParams.TYPE_SYSTEM_ERROR;
+            alertType = WindowManager.LayoutParams.TYPE_PHONE;
     }
 
     private void startOverlay(Bundle settings) {
@@ -332,30 +332,16 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     private void setupDimmerView() {
         dimView = new View(this);
         dimView.setBackgroundColor(Color.BLACK);
-        if (alertType == WindowManager.LayoutParams.TYPE_SYSTEM_ERROR) {
-            dimViewParams = new WindowManager
-                    .LayoutParams(0, 0, alertType,
-                    (WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
-                            | WindowManager.LayoutParams.FLAG_DIM_BEHIND
-                            | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-                            | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
-                            | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
-                            & 0xFFFFFF7F
-                            & 0xFFDFFFFF,
-                    PixelFormat.OPAQUE);
-            dimViewParams.dimAmount = screenDimAmount;
-        } else {
-            int max = Math.max(DimenUtils.getRealWidth(this),
-                    DimenUtils.getRealHeight(this)) + 200;
-            dimViewParams = new WindowManager
-                    .LayoutParams(max, max, alertType,
-                    (WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
-                            | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-                            | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
-                            | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS),
-                    PixelFormat.TRANSPARENT);
-            dimView.setAlpha(screenDimAmount);
-        }
+        int max = Math.max(DimenUtils.getRealWidth(this),
+                DimenUtils.getRealHeight(this)) + 200;
+        dimViewParams = new WindowManager
+                .LayoutParams(max, max, alertType,
+                (WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+                        | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                        | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+                        | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS),
+                PixelFormat.TRANSPARENT);
+        dimView.setAlpha(screenDimAmount);
 
         wm.addView(dimView, dimViewParams);
     }
@@ -364,31 +350,16 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         Log.i("Filter", "setupTempFilterView: ");
         temperatureView = new View(this);
         temperatureView.setBackgroundColor(tempFilterColour);
-        /*if (alertType == WindowManager.LayoutParams.TYPE_SYSTEM_ERROR) {
-            temperatureViewParams = new WindowManager
-                    .LayoutParams(0, 0, alertType,
-                    (WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
-                            | WindowManager.LayoutParams.FLAG_DIM_BEHIND
-                            | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-                            | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
-                            | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
-                            & 0xFFFFFF7F
-                            & 0xFFDFFFFF,
-                    PixelFormat.OPAQUE);
-            dimViewParams.dimAmount = screenDimAmount;
-        } else */
-        {
-            int max = Math.max(DimenUtils.getRealWidth(this),
-                    DimenUtils.getRealHeight(this)) + 200;
-            temperatureViewParams = new WindowManager
-                    .LayoutParams(max, max, WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-                    (WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
-                            | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-                            | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
-                            | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS),
-                    PixelFormat.TRANSPARENT);
-            //temperatureView.setAlpha(screenDimAmount);
-        }
+        int max = Math.max(DimenUtils.getRealWidth(this),
+                DimenUtils.getRealHeight(this)) + 200;
+        temperatureViewParams = new WindowManager
+                .LayoutParams(max, max, alertType,
+                (WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+                        | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                        | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+                        | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS),
+                PixelFormat.TRANSPARENT);
+
 
         wm.addView(temperatureView, temperatureViewParams);
     }
@@ -720,10 +691,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
 
         if (screenDimEnabled && screenDimAmount > 0) {
             if (dimView != null) {
-                if (alertType == WindowManager.LayoutParams.TYPE_SYSTEM_ERROR)
-                    dimViewParams.dimAmount = screenDimAmount;
-                else
-                    dimView.setAlpha(screenDimAmount);
+                dimView.setAlpha(screenDimAmount);
                 wm.updateViewLayout(dimView, dimViewParams);
             } else
                 setupDimmerView();
@@ -741,10 +709,6 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
             return;
         if (tempFilterColour != 0x0) {
             if (temperatureView != null) {
-                Log.i("Filter", "setScreenTempFilter: " + Integer.toHexString(tempFilterColour));
-                //if (alertType == WindowManager.LayoutParams.TYPE_SYSTEM_ERROR)
-                //    dimViewParams.dimAmount = screenDimAmount;
-                //else
                 temperatureView.setBackgroundColor(tempFilterColour);
                 wm.updateViewLayout(temperatureView, temperatureViewParams);
             } else
