@@ -172,20 +172,20 @@ public class ScreenFilterFragment extends Fragment {
         if (temperature)
             return (int) (percent * 100);
         else
-            return (int) (percent * 79 + 1);
+            return (int) (percent * 49 + 1);
     }
 
     private void saveTemp(@Nullable SharedPreferences.Editor editor) {
         boolean isEnabled = prefs.getBoolean(KEY_TEMP_FILTER_ENABLED, false);
         if (isEnabled) {
-            // Range = 1% - 80% of 255 (0xFF)
-            int alpha = (int) Math.round(tempAlphaPerc * 201.45 + 2.55);
+            // Range = 1% - 50% of 255 (0xFF)
+            int alpha = (int) Math.round(tempAlphaPerc * 124.95 + 2.55);
 
             // Low temp percentages in the slider is cool, high is warm
             float tempPerc = 1 - this.tempPerc;
 
-            // 4000 kelvin to 10,000 kelvin
-            int temp = (int) (tempPerc * 6000 + 4000);
+            // 2000 kelvin to 10,000 kelvin
+            int temp = (int) (tempPerc * 8000 + 2000);
             int tempColour = 0x1000000 * alpha + TemperatureCalc.getTemperatureRGB(temp);
             if (editor != null) {
                 editor.putInt(KEY_FILTER_TEMPERATURE, tempColour)
