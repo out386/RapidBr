@@ -63,6 +63,7 @@ import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_O
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_SCREEN_DIM_ENABLED;
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_SCREEN_DIM_STATUS;
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_SET_CLIENT_MESSENGER;
+import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_TEMPERATURE_FILTER_COLOUR;
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_UNSET_CLIENT_MESSENGER;
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.NOTIF_CHANNEL_ID;
 import static com.out386.rapidbr.services.overlay.ServiceLauncher.sendMessageToBrightnessService;
@@ -305,6 +306,14 @@ public class MainActivity extends ThemeActivity implements MainActivityListener,
     public void onScreenFilterEnabledChanged(boolean isEnabled) {
         boolean result = sendMessageToBrightnessService(
                 serviceMessenger, MSG_SCREEN_DIM_ENABLED, isEnabled ? 1 : -1, 0);
+        if (!result)
+            serviceMessenger = null;
+    }
+
+    @Override
+    public void onColourTemperatureChanged(int colour) {
+        boolean result = sendMessageToBrightnessService(
+                serviceMessenger, MSG_TEMPERATURE_FILTER_COLOUR, colour, 0);
         if (!result)
             serviceMessenger = null;
     }

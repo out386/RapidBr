@@ -25,6 +25,7 @@ import android.os.RemoteException;
 import android.os.Vibrator;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -47,6 +48,7 @@ import java.util.List;
 import static com.out386.rapidbr.services.blacklist.AppBlacklistService.KEY_BLACKLIST_LIST;
 import static com.out386.rapidbr.settings.bottom.blacklist.BlacklistFragment.KEY_BLACKLIST_BUNDLE;
 import static com.out386.rapidbr.settings.bottom.blacklist.BlacklistFragment.KEY_BLACKLIST_ENABLED;
+import static com.out386.rapidbr.settings.bottom.screenfilter.ScreenFilterFragment.KEY_FILTER_TEMPERATURE;
 import static com.out386.rapidbr.utils.SizeUtils.dpToPx;
 
 public class BrightnessOverlayService extends Service implements View.OnTouchListener {
@@ -64,6 +66,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     public static final int MSG_SET_CLIENT_MESSENGER = 6;
     public static final int MSG_UNSET_CLIENT_MESSENGER = 7;
     public static final int MSG_IS_OVERLAY_RUNNING = 8;
+    public static final int MSG_TEMPERATURE_FILTER_COLOUR = 9;
     public static final int MSG_DUMMY = 10;
     public static final int MSG_SCREEN_DIM_STATUS = 11;
     public static final int DEF_OVERLAY_BUTTON_COLOUR = 0x0288D1;
@@ -83,7 +86,9 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     private View topLeftView;
     private ImageView brightnessSlider;
     private View dimView;
+    private View temperatureView;
     private WindowManager.LayoutParams dimViewParams;
+    private WindowManager.LayoutParams temperatureViewParams;
     private float offsetX;
     private float offsetY;
     private int originalXPos;
@@ -105,6 +110,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     private int initialSliderX;
     private int initialSliderY;
     private int buttonColour = DEF_OVERLAY_BUTTON_COLOUR;
+    private int tempFilterColour = 0x0;
     private boolean isOverlayRunning;
     private boolean isOverlayPaused;
     private Notification notificationPause;
@@ -209,8 +215,10 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
                         .putExtra(KEY_BLACKLIST_LIST, settings.getSerializable(KEY_BLACKLIST_LIST));
                 startService(startIntent);
             }
+            tempFilterColour = settings.getInt(KEY_FILTER_TEMPERATURE, 0x0);
         }
 
+        setScreenTempFilter();
         foregroundify();
     }
 
@@ -247,6 +255,10 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         if (dimView != null) {
             wm.removeView(dimView);
             dimView = null;
+        }
+        if (temperatureView != null) {
+            wm.removeView(temperatureView);
+            temperatureView = null;
         }
         if (brightnessHandler != null && brightnessRunnable != null)
             brightnessHandler.removeCallbacksAndMessages(null);
@@ -346,6 +358,39 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         }
 
         wm.addView(dimView, dimViewParams);
+    }
+
+    private void setupTempFilterView() {
+        Log.i("Filter", "setupTempFilterView: ");
+        temperatureView = new View(this);
+        temperatureView.setBackgroundColor(tempFilterColour);
+        /*if (alertType == WindowManager.LayoutParams.TYPE_SYSTEM_ERROR) {
+            temperatureViewParams = new WindowManager
+                    .LayoutParams(0, 0, alertType,
+                    (WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+                            | WindowManager.LayoutParams.FLAG_DIM_BEHIND
+                            | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                            | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+                            | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
+                            & 0xFFFFFF7F
+                            & 0xFFDFFFFF,
+                    PixelFormat.OPAQUE);
+            dimViewParams.dimAmount = screenDimAmount;
+        } else */
+        {
+            int max = Math.max(DimenUtils.getRealWidth(this),
+                    DimenUtils.getRealHeight(this)) + 200;
+            temperatureViewParams = new WindowManager
+                    .LayoutParams(max, max, WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+                    (WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+                            | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                            | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+                            | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS),
+                    PixelFormat.TRANSPARENT);
+            //temperatureView.setAlpha(screenDimAmount);
+        }
+
+        wm.addView(temperatureView, temperatureViewParams);
     }
 
     private void setupReferenceView(int alertType) {
@@ -691,6 +736,27 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         sendFilterStatus();
     }
 
+    private void setScreenTempFilter() {
+        if (!isOverlayRunning)
+            return;
+        if (tempFilterColour != 0x0) {
+            if (temperatureView != null) {
+                Log.i("Filter", "setScreenTempFilter: " + Integer.toHexString(tempFilterColour));
+                //if (alertType == WindowManager.LayoutParams.TYPE_SYSTEM_ERROR)
+                //    dimViewParams.dimAmount = screenDimAmount;
+                //else
+                temperatureView.setBackgroundColor(tempFilterColour);
+                wm.updateViewLayout(temperatureView, temperatureViewParams);
+            } else
+                setupTempFilterView();
+        } else {
+            if (temperatureView != null) {
+                wm.removeView(temperatureView);
+                temperatureView = null;
+            }
+        }
+    }
+
     private void foregroundify() {
         if (notificationPause == null)
             notificationPause = getPauseNotification();
@@ -844,6 +910,10 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
                     break;
                 case MSG_IS_OVERLAY_RUNNING:
                     sendIsRunning();
+                    break;
+                case MSG_TEMPERATURE_FILTER_COLOUR:
+                    tempFilterColour = msg.arg1;
+                    setScreenTempFilter();
                     break;
             }
             super.handleMessage(msg);

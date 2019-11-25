@@ -22,4 +22,5 @@ package com.out386.rapidbr.settings.bottom.screenfilter;
 
 public interface OnScreenFilterSettingsChangedListener {
     void onScreenFilterEnabledChanged(boolean isEnabled);
+    void onColourTemperatureChanged(int colour);
 }

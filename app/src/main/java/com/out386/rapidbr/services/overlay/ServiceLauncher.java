@@ -36,10 +36,12 @@ import static com.out386.rapidbr.services.blacklist.AppBlacklistService.KEY_BLAC
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.DEF_OVERLAY_BUTTON_COLOUR;
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.KEY_BR_ICON_COLOUR;
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.KEY_SCREEN_FILTER_ENABLED;
+import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.KEY_TEMP_FILTER_ENABLED;
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_DUMMY;
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.MSG_TOGGLE_OVERLAY;
 import static com.out386.rapidbr.settings.bottom.blacklist.BlacklistFragment.KEY_BLACKLIST_BUNDLE;
 import static com.out386.rapidbr.settings.bottom.blacklist.BlacklistFragment.KEY_BLACKLIST_ENABLED;
+import static com.out386.rapidbr.settings.bottom.screenfilter.ScreenFilterFragment.KEY_FILTER_TEMPERATURE;
 
 public class ServiceLauncher {
     public static boolean toggleBrightnessService(Context context, Messenger serviceMessenger,
@@ -49,9 +51,13 @@ public class ServiceLauncher {
 
         int overlayButtonColour = prefs.getInt(KEY_BR_ICON_COLOUR, DEF_OVERLAY_BUTTON_COLOUR);
         int screenDimEnabled = prefs.getBoolean(KEY_SCREEN_FILTER_ENABLED, true) ? 1 : -1;
+        int temperatureColour = prefs.getBoolean(KEY_TEMP_FILTER_ENABLED, false) ?
+                prefs.getInt(KEY_FILTER_TEMPERATURE, 0x0) : 0x0;
+
         Bundle settings = new Bundle();
         settings.putBoolean(KEY_BLACKLIST_ENABLED,
                 prefs.getBoolean(KEY_BLACKLIST_ENABLED, false));
+        settings.putInt(KEY_FILTER_TEMPERATURE, temperatureColour);
         BlacklistAppsStore blacklistAppsStore = BlacklistAppsStore.getInstance(context);
 
         blacklistAppsStore.read(null, apps -> {
@@ -118,9 +124,13 @@ public class ServiceLauncher {
     public static void startBrightnessService(Context context, SharedPreferences prefs) {
         int overlayButtonColour = prefs.getInt(KEY_BR_ICON_COLOUR, DEF_OVERLAY_BUTTON_COLOUR);
         int screenDimEnabled = prefs.getBoolean(KEY_SCREEN_FILTER_ENABLED, true) ? 1 : -1;
+        int temperatureColour = prefs.getBoolean(KEY_TEMP_FILTER_ENABLED, false) ?
+                prefs.getInt(KEY_FILTER_TEMPERATURE, 0x0) : 0x0;
+
         Bundle settings = new Bundle();
         settings.putBoolean(KEY_BLACKLIST_ENABLED,
                 prefs.getBoolean(KEY_BLACKLIST_ENABLED, false));
+        settings.putInt(KEY_FILTER_TEMPERATURE, temperatureColour);
         BlacklistAppsStore blacklistAppsStore = BlacklistAppsStore.getInstance(context);
 
         blacklistAppsStore.read(null, apps -> {

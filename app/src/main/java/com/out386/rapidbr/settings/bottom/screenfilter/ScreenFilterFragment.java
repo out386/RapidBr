@@ -34,6 +34,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.out386.rapidbr.R;
@@ -60,10 +61,11 @@ public class ScreenFilterFragment extends Fragment {
     private int colourAccent;
     private float tempPerc;
     private float tempAlphaPerc;
+    private int tempColour;
 
     public static final String KEY_FILTER_TEMPERATURE = "scrFilterTemp";
     private static final String KEY_FILTER_TEMPERATURE_PERC = "scrFilterTemp%";
-    public static final String KEY_FILTER_TEMPERATURE_ALPHA = "scrFilterTempIntensity";
+    private static final String KEY_FILTER_TEMPERATURE_ALPHA = "scrFilterTempIntensity";
 
     public ScreenFilterFragment() {
     }
@@ -102,6 +104,7 @@ public class ScreenFilterFragment extends Fragment {
         boolean isTempEnabled = prefs.getBoolean(KEY_TEMP_FILTER_ENABLED, false);
         tempPerc = prefs.getFloat(KEY_FILTER_TEMPERATURE_PERC, 0F);
         tempAlphaPerc = prefs.getFloat(KEY_FILTER_TEMPERATURE_ALPHA, 0F);
+        saveTemp(null);
 
         String tempText = percentToDisplay(true, tempPerc) + "%";
         String alphaText = percentToDisplay(false, tempAlphaPerc) + "%";
@@ -136,12 +139,15 @@ public class ScreenFilterFragment extends Fragment {
             prefs.edit()
                     .putBoolean(KEY_TEMP_FILTER_ENABLED, isChecked)
                     .apply();
-            //if (listener != null)
-            //    listener.onScreenFilterEnabledChanged(isChecked);
-            if (isChecked)
+            if (isChecked) {
                 disableView.setVisibility(View.GONE);
-            else
+                if (listener != null)
+                    listener.onColourTemperatureChanged(tempColour);
+            } else {
                 disableView.setVisibility(View.VISIBLE);
+                if (listener != null)
+                    listener.onColourTemperatureChanged(0x0);
+            }
         });
 
         tempSlider.setPositionListener(pos -> {
@@ -174,7 +180,7 @@ public class ScreenFilterFragment extends Fragment {
             return (int) (percent * 79 + 1);
     }
 
-    private void saveTemp(SharedPreferences.Editor editor) {
+    private void saveTemp(@Nullable SharedPreferences.Editor editor) {
         // Range = 1% - 80% of 255 (0xFF)
         int alpha = (int) Math.round(tempAlphaPerc * 201.45 + 2.55);
 
@@ -183,9 +189,14 @@ public class ScreenFilterFragment extends Fragment {
 
         // 4000 kelvin to 10,000 kelvin
         int temp = (int) (tempPerc * 6000 + 4000);
-        int colour = 0x1000000 * alpha + TemperatureCalc.getTemperatureRGB(temp);
-        editor.putInt(KEY_FILTER_TEMPERATURE, colour)
-                .apply();
+        tempColour = 0x1000000 * alpha + TemperatureCalc.getTemperatureRGB(temp);
+        if (editor != null) {
+            editor.putInt(KEY_FILTER_TEMPERATURE, tempColour)
+                    .apply();
+
+            if (listener != null)
+                listener.onColourTemperatureChanged(tempColour);
+        }
     }
 
     private void setViewHideListeners() {
