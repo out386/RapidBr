@@ -112,11 +112,11 @@ public class BlacklistActivity extends ThemeActivity implements BlacklistActivit
     }
 
     private void setupInsets() {
-        View decorView = getWindow().getDecorView();
+        View rootView = findViewById(R.id.blacklist_root);
         Toolbar toolbar = findViewById(R.id.toolbar);
         ViewGroup.LayoutParams toolbarParams = toolbar.getLayoutParams();
 
-        decorView.setOnApplyWindowInsetsListener((view, insets) -> {
+        rootView.setOnApplyWindowInsetsListener((view, insets) -> {
             int topInset = insets.getSystemWindowInsetTop();
             int leftInset = insets.getSystemWindowInsetLeft();
             int rightInset = insets.getSystemWindowInsetRight();
@@ -128,7 +128,7 @@ public class BlacklistActivity extends ThemeActivity implements BlacklistActivit
 
             toolbar.setLayoutParams(toolbarParams);
             toolbar.setPadding(leftInset, topInset, rightInset, 0);
-            decorView.setPadding(leftInset, 0, rightInset, bottomInset);
+            rootView.setPadding(leftInset, 0, rightInset, bottomInset);
 
             return insets.consumeSystemWindowInsets();
         });

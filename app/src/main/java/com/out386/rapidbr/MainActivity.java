@@ -230,7 +230,7 @@ public class MainActivity extends ThemeActivity implements MainActivityListener,
     }
 
     private void setupInsets() {
-        View decorView = getWindow().getDecorView();
+        View rootView = findViewById(R.id.main_root);
         appBarLayout = findViewById(R.id.app_bar_layout);
         FrameLayout topView = findViewById(R.id.top_view);
         FrameLayout bottomView = findViewById(R.id.bottom_view);
@@ -240,7 +240,7 @@ public class MainActivity extends ThemeActivity implements MainActivityListener,
         CoordinatorLayout.LayoutParams appBarParams =
                 (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
 
-        decorView.setOnApplyWindowInsetsListener((view, insets) -> {
+        rootView.setOnApplyWindowInsetsListener((view, insets) -> {
             int topInset = insets.getSystemWindowInsetTop();
             int leftInset = insets.getSystemWindowInsetLeft();
             int rightInset = insets.getSystemWindowInsetRight();
@@ -262,7 +262,7 @@ public class MainActivity extends ThemeActivity implements MainActivityListener,
             toolbar.setPadding(leftInset, topInset, rightInset, 0);
             topView.setPadding(leftInset, 0, rightInset, 0);
             bottomView.setPadding(leftInset, 0, rightInset, 0);
-            decorView.setPadding(0, 0, 0, bottomInset);
+            rootView.setPadding(0, 0, 0, bottomInset);
 
             return insets.consumeSystemWindowInsets();
         });

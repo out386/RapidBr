@@ -27,4 +27,5 @@
     <color name="disabledView">#80FFFFFF</color>
     <color name="colorSlider">#23B7F7</color>
     <color name="blacklistDelete">#FFB71C1C</color>
+    <color name="navBar">#80000000</color>
 </resources>
