@@ -1,8 +1,6 @@
 package com.out386.rapidbr.utils;
 
-import android.animation.Animator;
 import android.view.View;
-import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 
 /*

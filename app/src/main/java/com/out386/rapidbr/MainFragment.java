@@ -35,9 +35,9 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
-import com.google.android.material.appbar.AppBarLayout;
 import com.out386.rapidbr.settings.MainActivityListener;
 import com.out386.rapidbr.settings.bottom.blacklist.BlacklistActivity;
+import com.out386.rapidbr.settings.bottom.views.ButtonHideNestedScrollView;
 import com.out386.rapidbr.settings.bottom.views.CardLayout;
 import com.out386.rapidbr.settings.bottom.views.SwitchItem;
 
@@ -48,6 +48,7 @@ public class MainFragment extends Fragment {
     private MainActivityListener listener;
     private SharedPreferences prefs;
     private SwitchItem startOnBoot;
+    private ButtonHideNestedScrollView scrollView;
 
     public MainFragment() {
     }
@@ -101,6 +102,10 @@ public class MainFragment extends Fragment {
                     .putBoolean(KEY_START_ON_BOOT, isChecked)
                     .apply();
         });
+
+
+        scrollView = root.findViewById(R.id.scroll_view);
+        scrollView.setupButtonHideListener(requireActivity());
     }
 
     private void setClickListener(NavController navController, View target, int actionRes) {
@@ -112,6 +117,8 @@ public class MainFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        //Delay, because the top view scrolls and triggers a button hide
+        scrollView.forceButtonShowDelayed(10);
         startOnBoot.setChecked(prefs.getBoolean(KEY_START_ON_BOOT, false));
     }
 

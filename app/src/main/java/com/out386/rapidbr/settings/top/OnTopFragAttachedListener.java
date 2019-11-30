@@ -25,5 +25,6 @@ import com.out386.rapidbr.MainActivity;
 
 public interface OnTopFragAttachedListener {
     void onTopFragmentAvailable(MainActivity.OnStatusListener topListener);
+
     void onTopFragmentUnavailable();
 }

@@ -53,6 +53,7 @@ import com.out386.rapidbr.settings.MainActivityListener;
 import com.out386.rapidbr.settings.bottom.bcolour.OnButtonColourChangedListener;
 import com.out386.rapidbr.settings.bottom.scheduler.AlarmHelper;
 import com.out386.rapidbr.settings.bottom.screenfilter.OnScreenFilterSettingsChangedListener;
+import com.out386.rapidbr.settings.bottom.views.ButtonHideNestedScrollView.OnButtonVisibilityEventListener;
 import com.out386.rapidbr.settings.top.OnTopFragAttachedListener;
 import com.out386.rapidbr.utils.BoolUtils;
 
@@ -72,7 +73,7 @@ import static com.out386.rapidbr.utils.DimenUtils.getActionbarHeight;
 
 public class MainActivity extends ThemeActivity implements MainActivityListener,
         OnButtonColourChangedListener, OnScreenFilterSettingsChangedListener,
-        OnTopFragAttachedListener {
+        OnTopFragAttachedListener, OnButtonVisibilityEventListener {
 
     private MaterialButton startButton;
     private boolean isQueuedToggle;
@@ -287,6 +288,18 @@ public class MainActivity extends ThemeActivity implements MainActivityListener,
                 serviceMessenger, MSG_IS_OVERLAY_RUNNING, 0, 0);
         if (!result)
             serviceMessenger = null;
+    }
+
+    @Override
+    public void onButtonVisibilityChanged(boolean isShow) {
+        if (isShow)
+            startButton.animate()
+                    .setDuration(400)
+                    .translationY(0);
+        else
+            startButton.animate()
+                    .setDuration(400)
+                    .translationY(startButton.getHeight() << 1);
     }
 
     private void setClientMessenger() {

@@ -38,6 +38,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.out386.rapidbr.R;
+import com.out386.rapidbr.settings.bottom.views.ButtonHideNestedScrollView;
 import com.out386.rapidbr.settings.bottom.views.SwitchItem;
 import com.out386.rapidbr.utils.ViewUtils;
 import com.ramotion.fluidslider.FluidSlider;
@@ -54,6 +55,7 @@ public class ScreenFilterFragment extends Fragment {
     private SwitchItem tempEnable;
     private FluidSlider tempSlider;
     private TextView tempTitle;
+    private ButtonHideNestedScrollView scrollView;
     private FluidSlider tempIntenSlider;
     private TextView tempIntenTitle;
     private LinearLayout disableView;
@@ -88,6 +90,8 @@ public class ScreenFilterFragment extends Fragment {
         tempIntenTitle = v.findViewById(R.id.sfilter_temp_inten_title);
         disableView = v.findViewById(R.id.sfilter_disable_temp);
         prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        scrollView = v.findViewById(R.id.scroll_view);
+        scrollView.setupButtonHideListener(requireActivity());
 
         return v;
     }
@@ -95,6 +99,7 @@ public class ScreenFilterFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        scrollView.forceButtonShow();
         setupViews();
     }
 

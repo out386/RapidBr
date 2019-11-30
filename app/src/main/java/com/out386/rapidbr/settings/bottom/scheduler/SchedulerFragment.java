@@ -37,6 +37,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.out386.rapidbr.R;
+import com.out386.rapidbr.settings.bottom.views.ButtonHideNestedScrollView;
 import com.out386.rapidbr.settings.bottom.views.SwitchItem;
 
 import java.util.Calendar;
@@ -57,6 +58,7 @@ public class SchedulerFragment extends Fragment {
     private SharedPreferences prefs;
     private PrefsListener prefsListener;
     private AlarmHelper alarmHelper;
+    private ButtonHideNestedScrollView scrollView;
 
     public SchedulerFragment() {
     }
@@ -73,6 +75,8 @@ public class SchedulerFragment extends Fragment {
         schedEnable = v.findViewById(R.id.sched_enable_switch);
         alarmHelper = new AlarmHelper(requireContext());
 
+        scrollView = v.findViewById(R.id.scroll_view);
+        scrollView.setupButtonHideListener(requireActivity());
         return v;
     }
 
@@ -95,6 +99,7 @@ public class SchedulerFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        scrollView.forceButtonShow();
         setPrefsListener();
     }
 

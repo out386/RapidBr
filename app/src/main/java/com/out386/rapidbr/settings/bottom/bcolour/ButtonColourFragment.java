@@ -31,18 +31,19 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.out386.rapidbr.R;
+import com.out386.rapidbr.settings.bottom.views.ButtonHideNestedScrollView;
 
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.KEY_BR_ICON_COLOUR;
 
 public class ButtonColourFragment extends Fragment {
     private SharedPreferences prefs;
     private OnButtonColourChangedListener colourListener;
+    private ButtonHideNestedScrollView scrollView;
 
     public ButtonColourFragment() {
     }
@@ -68,11 +69,13 @@ public class ButtonColourFragment extends Fragment {
         Context context = requireContext();
 
         prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        NestedScrollView recyclerRoot = v.findViewById(R.id.button_recycler_parent);
+        scrollView = v.findViewById(R.id.button_recycler_parent);
         RecyclerView recyclerView = v.findViewById(R.id.button_recycler);
 
+        scrollView.setupButtonHideListener(requireActivity());
+
         float itemSize = getResources().getDimension(R.dimen.button_colour_item_size);
-        int columnCount = getRecyclerColumnCount(context, recyclerRoot, recyclerRoot, itemSize);
+        int columnCount = getRecyclerColumnCount(context, scrollView, scrollView, itemSize);
         GridLayoutManager layoutManager = new GridLayoutManager(getContext(), columnCount);
 
         int[] colours = getResources().getIntArray(R.array.obutton_colours);
@@ -89,6 +92,12 @@ public class ButtonColourFragment extends Fragment {
         );
 
         return v;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        scrollView.forceButtonShow();
     }
 
     private int getRecyclerColumnCount(Context context, View parent, View child, float pxWidth) {

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.out386.rapidbr.settings.bottom.views.ButtonHideNestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/scroll_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingStart="@dimen/edge_padding"
@@ -118,4 +119,4 @@
 
     </LinearLayout>
 
-</androidx.core.widget.NestedScrollView>
+</com.out386.rapidbr.settings.bottom.views.ButtonHideNestedScrollView>
