@@ -21,9 +21,9 @@ package com.out386.rapidbr.settings;
  */
 
 public interface MainActivityListener {
-    void onAltFragment();
+    //void onAltFragment();
 
-    void onMainFragment();
+    //void onMainFragment();
 
     boolean getBOSRunning();
 }

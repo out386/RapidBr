@@ -48,6 +48,7 @@ public class TopFragment extends Fragment implements MainActivity.OnStatusListen
     private String[] statusMessage = new String[2];
     private int[] statusColour = new int[2];
     private SharedPreferences prefs;
+    private OnTopFragAttachedListener listener;
 
     public TopFragment() {
     }
@@ -58,10 +59,16 @@ public class TopFragment extends Fragment implements MainActivity.OnStatusListen
         this.context = context;
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
         if (context instanceof OnTopFragAttachedListener) {
-            ((OnTopFragAttachedListener) context).onTopFragmentAttached(this);
+            listener = (OnTopFragAttachedListener) context;
         } else
             throw new RuntimeException(context.toString()
                     + " must implement OnTopFragAttachedListener");
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        listener = null;
     }
 
     @Override
@@ -79,7 +86,14 @@ public class TopFragment extends Fragment implements MainActivity.OnStatusListen
     @Override
     public void onResume() {
         super.onResume();
+        listener.onTopFragmentAvailable(this);
         setBlacklist();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        listener.onTopFragmentUnavailable();
     }
 
     private void getStatusRes() {
@@ -127,8 +141,4 @@ public class TopFragment extends Fragment implements MainActivity.OnStatusListen
         blacklistText.setText(text);
     }
 
-    private void setSecondaryStatus() {
-        SharedPreferences preferences = PreferenceManager
-                .getDefaultSharedPreferences(context);
-    }
 }

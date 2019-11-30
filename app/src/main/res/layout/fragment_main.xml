@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity"
+    android:id="@+id/main_root">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/top_view_height"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:contentScrim="@color/windowBackground"
+            android:background="@color/windowBackground"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed">
+
+            <fragment
+                android:id="@+id/top_view"
+                android:name="androidx.navigation.fragment.NavHostFragment"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/top_view_height"
+                android:elevation="2dp"
+                app:navGraph="@navigation/top_nav_graph"
+                app:layout_collapseMode="parallax" />
+
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/edge_padding"
+            android:layout_marginBottom="@dimen/edge_padding">
+
+            <!--Why use a Recycler for just 4-5 items?-->
+
+            <com.out386.rapidbr.settings.bottom.views.CardLayout
+                android:id="@+id/scheduler_card"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                app:image="@drawable/ic_sett_schedule"
+                app:image_tint="@color/icGreen"
+                app:layout_constraintEnd_toStartOf="@+id/guideline"
+                app:layout_constraintStart_toStartOf="@+id/guidelineStart"
+                app:layout_constraintTop_toTopOf="parent"
+                app:text="@string/sett_main_scheduler" />
+
+            <com.out386.rapidbr.settings.bottom.views.CardLayout
+                android:id="@+id/color_card"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                app:image="@drawable/ic_sett_color"
+                app:image_tint="@color/icBlue"
+                app:layout_constraintEnd_toEndOf="@+id/guidelineEnd"
+                app:layout_constraintStart_toEndOf="@+id/guideline"
+                app:layout_constraintTop_toTopOf="parent"
+                app:text="@string/sett_main_color" />
+
+            <com.out386.rapidbr.settings.bottom.views.CardLayout
+                android:id="@+id/blacklist_card"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="8dp"
+                app:image="@drawable/ic_sett_blacklist"
+                app:image_tint="@color/icYellow"
+                app:layout_constraintEnd_toStartOf="@+id/guideline"
+                app:layout_constraintStart_toStartOf="@+id/guidelineStart"
+                app:layout_constraintTop_toBottomOf="@+id/scheduler_card"
+                app:text="@string/sett_main_blacklist" />
+
+            <com.out386.rapidbr.settings.bottom.views.CardLayout
+                android:id="@+id/filter_card"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
+                app:image="@drawable/ic_sett_filter"
+                app:image_tint="@color/icPink"
+                app:layout_constraintEnd_toEndOf="@+id/guidelineEnd"
+                app:layout_constraintStart_toEndOf="@+id/guideline"
+                app:layout_constraintTop_toBottomOf="@+id/color_card"
+                app:text="@string/sett_main_filter" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.5" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guidelineStart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_begin="@dimen/edge_padding" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guidelineEnd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_end="@dimen/edge_padding" />
+
+            <View
+                android:id="@+id/blacklist_divider_1"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/cardStroke"
+                android:layout_marginTop="@dimen/edge_padding_huge"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/blacklist_card" />
+
+            <com.out386.rapidbr.settings.bottom.views.SwitchItem
+                android:id="@+id/boot_start_switch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:switchText="@string/sett_boot_start_enable"
+                app:switchTextStyle="@style/SwitchTextAlt"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/blacklist_divider_1" />
+
+            <View
+                android:id="@+id/blacklist_divider_2"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/cardStroke"
+                android:layout_marginStart="@dimen/edge_padding_internal"
+                android:layout_marginEnd="@dimen/edge_padding_internal"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/boot_start_switch" />
+
+            <com.out386.rapidbr.settings.bottom.views.SwitchItem
+                android:id="@+id/tasker_enable_switch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:switchText="Enable Tasker support"
+                app:switchTextStyle="@style/SwitchTextAlt"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/blacklist_divider_2" />
+
+            <View
+                android:id="@+id/blacklist_divider_3"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/cardStroke"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tasker_enable_switch" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

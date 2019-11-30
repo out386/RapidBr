@@ -46,9 +46,7 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
-import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.button.MaterialButton;
 import com.out386.rapidbr.services.overlay.BrightnessOverlayService;
 import com.out386.rapidbr.settings.MainActivityListener;
@@ -76,9 +74,6 @@ public class MainActivity extends ThemeActivity implements MainActivityListener,
         OnButtonColourChangedListener, OnScreenFilterSettingsChangedListener,
         OnTopFragAttachedListener {
 
-    private static final String KEY_CURRENTLY_MAIN_FRAG = "CURRENTLY_MAIN_FRAG";
-    private boolean isCurrentlyMainFrag = true;
-    private AppBarLayout appBarLayout;
     private MaterialButton startButton;
     private boolean isQueuedToggle;
     private BrightnessConnection brConnection;
@@ -101,26 +96,12 @@ public class MainActivity extends ThemeActivity implements MainActivityListener,
 
         createNotifChannel();
         setupViews();
-        if (savedInstanceState != null) {
-            isCurrentlyMainFrag =
-                    savedInstanceState.getBoolean(KEY_CURRENTLY_MAIN_FRAG, true);
-            if (isCurrentlyMainFrag)
-                onMainFragment();
-            else
-                onAltFragment();
-        }
-
-        if (isCurrentlyMainFrag)
-            fixScrolling(false);
-        else
-            fixScrolling(true);
 
         askOverlayPermission();
     }
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
-        outState.putBoolean(KEY_CURRENTLY_MAIN_FRAG, isCurrentlyMainFrag);
         super.onSaveInstanceState(outState);
     }
 
@@ -131,7 +112,9 @@ public class MainActivity extends ThemeActivity implements MainActivityListener,
     }
 
     private void onBrServiceStatusChanged(boolean isStarted) {
-        topListener.setStatus(isStarted);
+        if (topListener != null)
+            topListener.setStatus(isStarted);
+
         String text;
         Drawable icon;
         if (isStarted) {
@@ -146,7 +129,8 @@ public class MainActivity extends ThemeActivity implements MainActivityListener,
     }
 
     private void onScreenFilterChanged(int percent) {
-        topListener.setFilter(percent);
+        if (topListener != null)
+            topListener.setFilter(percent);
     }
 
     @Override
@@ -235,14 +219,9 @@ public class MainActivity extends ThemeActivity implements MainActivityListener,
 
     private void setupInsets() {
         View rootView = findViewById(R.id.main_root);
-        appBarLayout = findViewById(R.id.app_bar_layout);
-        FrameLayout topView = findViewById(R.id.top_view);
         FrameLayout bottomView = findViewById(R.id.bottom_view);
         Toolbar toolbar = findViewById(R.id.toolbar);
-        FrameLayout.LayoutParams topViewParams = (FrameLayout.LayoutParams) topView.getLayoutParams();
         ViewGroup.LayoutParams toolbarParams = toolbar.getLayoutParams();
-        CoordinatorLayout.LayoutParams appBarParams =
-                (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
 
         rootView.setOnApplyWindowInsetsListener((view, insets) -> {
             int topInset = insets.getSystemWindowInsetTop();
@@ -253,44 +232,14 @@ public class MainActivity extends ThemeActivity implements MainActivityListener,
 
             toolbarParams.height = (actionbarHeight > -1 ? actionbarHeight : toolbarParams.height) +
                     topInset;
-
-            CoordinatorLayout.LayoutParams appBarParamsNew =
-                    new CoordinatorLayout.LayoutParams(appBarParams.width,
-                            appBarParams.height + toolbarParams.height);
-            topViewParams.setMargins(0, toolbarParams.height, 0, 0);
-
-            appBarLayout.setLayoutParams(appBarParamsNew);
             toolbar.setLayoutParams(toolbarParams);
-            topView.setLayoutParams(topViewParams);
 
             toolbar.setPadding(leftInset, topInset, rightInset, 0);
-            topView.setPadding(leftInset, 0, rightInset, 0);
             bottomView.setPadding(leftInset, 0, rightInset, 0);
             rootView.setPadding(0, 0, 0, bottomInset);
 
             return insets.consumeSystemWindowInsets();
         });
-    }
-
-    private void fixScrolling(boolean finallyCollapsed) {
-        // Without this, the bottom fragment won't scroll fully.
-        appBarLayout.setExpanded(finallyCollapsed, false);
-        new Handler()
-                .postDelayed(() -> appBarLayout.setExpanded(!finallyCollapsed, false),
-                        250
-                );
-    }
-
-    @Override
-    public void onAltFragment() {
-        isCurrentlyMainFrag = false;
-        appBarLayout.setExpanded(false);
-    }
-
-    @Override
-    public void onMainFragment() {
-        isCurrentlyMainFrag = true;
-        appBarLayout.setExpanded(true);
     }
 
     @Override
@@ -323,8 +272,21 @@ public class MainActivity extends ThemeActivity implements MainActivityListener,
     }
 
     @Override
-    public void onTopFragmentAttached(OnStatusListener topListener) {
+    public void onTopFragmentAvailable(OnStatusListener topListener) {
         this.topListener = topListener;
+        requestStatusUpdate();
+    }
+
+    @Override
+    public void onTopFragmentUnavailable() {
+        topListener = null;
+    }
+
+    private void requestStatusUpdate() {
+        boolean result = sendMessageToBrightnessService(
+                serviceMessenger, MSG_IS_OVERLAY_RUNNING, 0, 0);
+        if (!result)
+            serviceMessenger = null;
     }
 
     private void setClientMessenger() {

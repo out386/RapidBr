@@ -1,4 +1,4 @@
-package com.out386.rapidbr.settings.bottom;
+package com.out386.rapidbr;
 
 /*
  * Copyright (C) 2019 Ritayan Chakraborty <ritayanout@gmail.com>
@@ -35,7 +35,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
-import com.out386.rapidbr.R;
+import com.google.android.material.appbar.AppBarLayout;
 import com.out386.rapidbr.settings.MainActivityListener;
 import com.out386.rapidbr.settings.bottom.blacklist.BlacklistActivity;
 import com.out386.rapidbr.settings.bottom.views.CardLayout;
@@ -43,19 +43,19 @@ import com.out386.rapidbr.settings.bottom.views.SwitchItem;
 
 import static com.out386.rapidbr.settings.bottom.scheduler.BootAlarmReceiver.KEY_START_ON_BOOT;
 
-public class BottomFragment extends Fragment {
+public class MainFragment extends Fragment {
 
     private MainActivityListener listener;
     private SharedPreferences prefs;
     private SwitchItem startOnBoot;
 
-    public BottomFragment() {
+    public MainFragment() {
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_bottom, container, false);
+        View v = inflater.inflate(R.layout.fragment_main, container, false);
         prefs = PreferenceManager.getDefaultSharedPreferences(requireContext());
         return v;
     }
@@ -105,7 +105,6 @@ public class BottomFragment extends Fragment {
 
     private void setClickListener(NavController navController, View target, int actionRes) {
         target.setOnClickListener(view -> {
-            listener.onAltFragment();
             navController.navigate(actionRes);
         });
     }
@@ -114,7 +113,6 @@ public class BottomFragment extends Fragment {
     public void onResume() {
         super.onResume();
         startOnBoot.setChecked(prefs.getBoolean(KEY_START_ON_BOOT, false));
-        listener.onMainFragment();
     }
 
     @Override

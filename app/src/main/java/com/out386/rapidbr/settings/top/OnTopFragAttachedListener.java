@@ -24,5 +24,6 @@ package com.out386.rapidbr.settings.top;
 import com.out386.rapidbr.MainActivity;
 
 public interface OnTopFragAttachedListener {
-    void onTopFragmentAttached(MainActivity.OnStatusListener topListener);
+    void onTopFragmentAvailable(MainActivity.OnStatusListener topListener);
+    void onTopFragmentUnavailable();
 }

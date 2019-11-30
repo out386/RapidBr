@@ -7,9 +7,9 @@
 
     <fragment
         android:id="@+id/bottomFragment"
-        android:name="com.out386.rapidbr.settings.bottom.BottomFragment"
+        android:name="com.out386.rapidbr.MainFragment"
         android:label="fragment_bottom"
-        tools:layout="@layout/fragment_bottom">
+        tools:layout="@layout/fragment_main">
 
         <action
             android:id="@+id/action_bottom_to_scheduler"
