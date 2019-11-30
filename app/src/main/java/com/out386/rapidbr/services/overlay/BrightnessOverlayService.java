@@ -25,7 +25,6 @@ import android.os.RemoteException;
 import android.os.Vibrator;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -84,7 +83,9 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     private static int buttonTouchSlop;
     boolean moveWasBrightness = true;
     private View topLeftView;
+    private int[] topLeftLocationOnScreen = new int[2];
     private ImageView brightnessSlider;
+    private WindowManager.LayoutParams brightnessSliderLayoutParams;
     private View dimView;
     private View temperatureView;
     private WindowManager.LayoutParams dimViewParams;
@@ -242,8 +243,6 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         if (brightnessSlider != null) {
             int[] location = new int[2];
             brightnessSlider.getLocationOnScreen(location);
-            int[] topLeftLocationOnScreen = new int[2];
-            topLeftView.getLocationOnScreen(topLeftLocationOnScreen);
             int xPos = location[0];
             int yPos = location[1];
             // TODO: yPos will get changed in action down, but if service is shut down before action up, it will not be what it should. Fix this.
@@ -254,6 +253,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
             wm.removeView(brightnessSlider);
             wm.removeView(topLeftView);
             brightnessSlider = null;
+            brightnessSliderLayoutParams = null;
             topLeftView = null;
             if (buttonAnim != null) {
                 buttonAnim.shutdown();
@@ -318,6 +318,10 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         brightnessSlider.setImageResource(R.drawable.ic_overlay_brightness);
         brightnessSlider.setImageTintMode(PorterDuff.Mode.SRC_ATOP);
         brightnessSlider.setOnTouchListener(this);
+        brightnessSlider.post(() ->
+                brightnessSliderLayoutParams =
+                        (WindowManager.LayoutParams) brightnessSlider.getLayoutParams()
+        );
         setButtonColour();
 
         WindowManager.LayoutParams params = new WindowManager
@@ -354,7 +358,6 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     }
 
     private void setupTempFilterView() {
-        Log.i("Filter", "setupTempFilterView: ");
         temperatureView = new View(this);
         temperatureView.setBackgroundColor(tempFilterColour);
         int max = Math.max(screenWidth, screenHeight) + 200;
@@ -372,6 +375,8 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
 
     private void setupReferenceView(int alertType) {
         topLeftView = new View(this);
+        topLeftView.post(() ->
+                topLeftView.getLocationOnScreen(topLeftLocationOnScreen));
         WindowManager.LayoutParams topLeftParams = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
@@ -438,13 +443,8 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     }
 
     private boolean onSliderMoveNew(MotionEvent event) {
-        int[] topLeftLocationOnScreen = new int[2];
-        topLeftView.getLocationOnScreen(topLeftLocationOnScreen);
-
         float x = event.getRawX();
         float y = event.getRawY();
-        WindowManager.LayoutParams params =
-                (WindowManager.LayoutParams) brightnessSlider.getLayoutParams();
 
         int newX = (int) (offsetX + x);
         int newY = (int) (offsetY + y);
@@ -472,23 +472,18 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
                 setBrightnessOrDimmer(origBr, origScreenDim,
                         (int) (brightnessMovedBy) / pixelsPerPercent);
             } else {
-                params.x = newX - (topLeftLocationOnScreen[0]);
+                brightnessSliderLayoutParams.x = newX - (topLeftLocationOnScreen[0]);
             }
         }
-        params.y = newY - (topLeftLocationOnScreen[1]);
+        brightnessSliderLayoutParams.y = newY - (topLeftLocationOnScreen[1]);
 
-        wm.updateViewLayout(brightnessSlider, params);
+        wm.updateViewLayout(brightnessSlider, brightnessSliderLayoutParams);
         return true;
     }
 
     private boolean onSliderMove(MotionEvent event) {
-        int[] topLeftLocationOnScreen = new int[2];
-        topLeftView.getLocationOnScreen(topLeftLocationOnScreen);
-
         float x = event.getRawX();
         float y = event.getRawY();
-        WindowManager.LayoutParams params =
-                (WindowManager.LayoutParams) brightnessSlider.getLayoutParams();
 
         int newX = (int) (offsetX + x);
         int newY = (int) (offsetY + y);
@@ -518,28 +513,24 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
                     brightnessHandler.post(brightnessRunnable);
                 }
             } else {
-                params.x = newX - (topLeftLocationOnScreen[0]);
+                brightnessSliderLayoutParams.x = newX - (topLeftLocationOnScreen[0]);
             }
         }
-        params.y = newY - (topLeftLocationOnScreen[1]);
+        brightnessSliderLayoutParams.y = newY - (topLeftLocationOnScreen[1]);
 
-        wm.updateViewLayout(brightnessSlider, params);
+        wm.updateViewLayout(brightnessSlider, brightnessSliderLayoutParams);
         return true;
     }
 
     private void onSliderUpNew(MotionEvent event) {
         float xToSnap;
         brightnessSlider.setRotation(0);
-        WindowManager.LayoutParams params =
-                (WindowManager.LayoutParams) brightnessSlider.getLayoutParams();
         buttonAnim.cancelScale();
 
         if (moveWasBrightness) {
             xToSnap = originalXPos;
-            int[] topLeftLocationOnScreen = new int[2];
-            topLeftView.getLocationOnScreen(topLeftLocationOnScreen);
             isBrightnessHandlerActive = false;
-            params.y = originalYPos - topLeftLocationOnScreen[1];
+            brightnessSliderLayoutParams.y = originalYPos - topLeftLocationOnScreen[1];
         } else {
             xToSnap = event.getRawX();
             moveWasBrightness = true;
@@ -548,30 +539,26 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
 
         //noinspection IntegerDivisionInFloatingPointContext
         if (xToSnap <= display.widthPixels / 2)
-            params.x = 0;
+            brightnessSliderLayoutParams.x = 0;
         else
-            params.x = display.widthPixels - brightnessSlider.getWidth();
+            brightnessSliderLayoutParams.x = display.widthPixels - brightnessSlider.getWidth();
 
         buttonAnim.hideButtonDelayed();
 
-        wm.updateViewLayout(brightnessSlider, params);
+        wm.updateViewLayout(brightnessSlider, brightnessSliderLayoutParams);
         optOutSystemGetures();
     }
 
     private void onSliderUp(MotionEvent event) {
         float xToSnap;
         brightnessSlider.setRotation(0);
-        WindowManager.LayoutParams params =
-                (WindowManager.LayoutParams) brightnessSlider.getLayoutParams();
         buttonAnim.cancelScale();
 
         if (moveWasBrightness) {
             xToSnap = originalXPos;
-            int[] topLeftLocationOnScreen = new int[2];
-            topLeftView.getLocationOnScreen(topLeftLocationOnScreen);
             isBrightnessHandlerActive = false;
             brightnessHandler.removeCallbacks(brightnessRunnable);
-            params.y = originalYPos - topLeftLocationOnScreen[1];
+            brightnessSliderLayoutParams.y = originalYPos - topLeftLocationOnScreen[1];
         } else {
             xToSnap = event.getRawX();
             moveWasBrightness = true;
@@ -580,13 +567,13 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
 
         //noinspection IntegerDivisionInFloatingPointContext
         if (xToSnap <= display.widthPixels / 2)
-            params.x = 0;
+            brightnessSliderLayoutParams.x = 0;
         else
-            params.x = display.widthPixels - brightnessSlider.getWidth();
+            brightnessSliderLayoutParams.x = display.widthPixels - brightnessSlider.getWidth();
 
         buttonAnim.hideButtonDelayed();
 
-        wm.updateViewLayout(brightnessSlider, params);
+        wm.updateViewLayout(brightnessSlider, brightnessSliderLayoutParams);
         optOutSystemGetures();
     }
 
