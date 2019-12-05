@@ -245,6 +245,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
             brightnessSlider.getLocationOnScreen(location);
             int xPos = location[0];
             int yPos = location[1];
+            topLeftView.getLocationOnScreen(topLeftLocationOnScreen);
             // TODO: yPos will get changed in action down, but if service is shut down before action up, it will not be what it should. Fix this.
             prefs.edit()
                     .putInt(KEY_OVERLAY_X, xPos)
@@ -526,6 +527,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         float xToSnap;
         brightnessSlider.setRotation(0);
         buttonAnim.cancelScale();
+        topLeftView.getLocationOnScreen(topLeftLocationOnScreen);
 
         if (moveWasBrightness) {
             xToSnap = originalXPos;
@@ -553,6 +555,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         float xToSnap;
         brightnessSlider.setRotation(0);
         buttonAnim.cancelScale();
+        topLeftView.getLocationOnScreen(topLeftLocationOnScreen);
 
         if (moveWasBrightness) {
             xToSnap = originalXPos;
@@ -582,6 +585,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             float x = event.getRawX();
             float y = event.getRawY();
+            topLeftView.getLocationOnScreen(topLeftLocationOnScreen);
 
             moving = false;
 
