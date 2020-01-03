@@ -154,6 +154,7 @@ public class MainActivity extends ThemeActivity implements MainActivityListener,
         }
     }
 
+
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);

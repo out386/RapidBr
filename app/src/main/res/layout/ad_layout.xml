@@ -1,0 +1,150 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/card"
+    android:padding="@dimen/edge_padding"
+    android:orientation="vertical">
+
+    <com.google.android.gms.ads.formats.UnifiedNativeAdView
+        android:id="@+id/ad_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/ad_attribution"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:background="#F1B53C"
+                android:text="Ad"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:includeFontPadding="false"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/ad_advertiser"
+                style="@style/GeneralBodyText"
+                android:includeFontPadding="false"
+                android:textColor="@color/adTextAdvertiser"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLength="25"
+                android:layout_toEndOf="@id/ad_attribution"
+                android:layout_alignBaseline="@id/ad_attribution"
+                android:paddingStart="8dp"
+                android:textSize="12sp"
+                tools:text="Some long advertiser name ghrh htrhrth thr gtgr" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_below="@id/ad_attribution"
+                android:id="@+id/ad_icon_holder"
+                android:layout_marginTop="@dimen/padding_internal_ads"
+                android:layout_marginEnd="@dimen/padding_internal_ads_large">
+
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/padding_internal_ads_large">
+
+                    <com.google.android.gms.ads.formats.MediaView
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        tools:background="@color/colorAccent"
+                        android:id="@+id/ad_media"
+                        android:visibility="gone" />
+
+                    <ImageView
+                        android:id="@+id/ad_icon"
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:adjustViewBounds="true"
+                        tools:src="@drawable/ic_launcher_background"
+                        android:layout_marginBottom="@dimen/padding_internal_ads" />
+
+                </FrameLayout>
+
+                <RatingBar
+                    android:id="@+id/ad_stars"
+                    style="?android:attr/ratingBarStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:isIndicator="true"
+                    android:numStars="5"
+                    android:stepSize="0.5" />
+
+                <TextView
+                    android:id="@+id/ad_price"
+                    style="@style/GeneralBodyText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:includeFontPadding="false"
+                    android:maxLength="15"
+                    tools:text="$33" />
+
+            </LinearLayout>
+
+
+            <TextView
+                android:id="@+id/ad_headline"
+                style="@style/GeneralHeaderText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLength="25"
+                android:includeFontPadding="false"
+                android:layout_toEndOf="@id/ad_icon_holder"
+                android:layout_alignTop="@id/ad_icon_holder"
+                tools:text="Test Ad: Some very long name etc etc" />
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/ad_icon_holder"
+                android:layout_below="@id/ad_headline">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/ad_call_to_action"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:textColor="@color/buttonText"
+                    android:textSize="12sp"
+                    app:cornerRadius="100dp"
+                    app:strokeColor="@color/buttonStroke"
+                    app:strokeWidth="1dp"
+                    app:rippleColor="@color/buttonFill"
+                    tools:text="Open"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentEnd="true" />
+
+                <TextView
+                    android:id="@+id/ad_body"
+                    style="@style/GeneralBodyText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:maxLength="100"
+                    android:layout_alignParentStart="true"
+                    android:layout_toStartOf="@id/ad_call_to_action"
+                    android:layout_marginEnd="@dimen/padding_internal_ads_large"
+                    tools:text="@tools:sample/lorem/random"
+                    android:textAlignment="viewStart"
+                    android:includeFontPadding="false" />
+
+            </RelativeLayout>
+
+        </RelativeLayout>
+
+    </com.google.android.gms.ads.formats.UnifiedNativeAdView>
+</RelativeLayout>

@@ -1,4 +1,9 @@
 <resources>
+    <!--<string name="app_ad_id">ca-app-pub-1128272413623536/7355164461</string>-->
+
+    <!--Test ID-->
+    <string name="app_ad_id">ca-app-pub-3940256099942544/2247696110</string>
+
     <string name="app_name">RapidBr</string>
     <string name="app_name1">Rapid</string>
     <string name="app_name2">Br</string>
