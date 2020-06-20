@@ -76,8 +76,8 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     static final String ACTION_STOP = BuildConfig.APPLICATION_ID + ".STOP";
     private static final int NOTIFY_ID = 9906;
 
-    private static final int BRIGHTNESS_CHANGE_FACTOR = 20;
-    private static final int BRIGHTNESS_CHANGE_FACTOR_LOW = 40;
+    private static final int BRIGHTNESS_CHANGE_FACTOR = 2;
+    private static final int BRIGHTNESS_CHANGE_FACTOR_LOW = 4;
     private static float screenDimAmount = 0.0f;
     private static boolean screenDimEnabled = true;
     private static int buttonTouchSlop;
@@ -822,10 +822,10 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
             if (screenDimEnabled && currentBrightness == 0 &&
                     (!brightnessUp || screenDimAmount > 0.0f)) {
                 if (brightnessUp) {
-                    screenDimAmount -= brightnessChangeBy / 20f;
+                    screenDimAmount -= brightnessChangeBy / 200f;
                     screenDimAmount = Math.max(screenDimAmount, 0);
                 } else {
-                    float newDim = screenDimAmount + brightnessChangeBy / 20f;
+                    float newDim = screenDimAmount + brightnessChangeBy / 200f;
                     screenDimAmount = Math.min(newDim, MAX_SCREEN_DIM_AMOUNT);
                 }
                 setDimmerBrightness();
