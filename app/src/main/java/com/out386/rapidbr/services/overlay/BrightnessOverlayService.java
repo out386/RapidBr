@@ -660,7 +660,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
             // Rounding up to the next multiple of 20, because smaller changes
             // makes no sense for the filter
             brChangeToPercent = (brChangeToPercent / 20 + 1) * 20;
-            float brChangeTo = 0.5f * brChangeToPercent / 100;
+            float brChangeTo = 0.8f * brChangeToPercent / 100;
             if (brightnessUp) {
                 float newDim = origScreenDim - brChangeTo;
                 screenDimAmount = Math.max(newDim, 0);
