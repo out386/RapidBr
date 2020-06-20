@@ -70,7 +70,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     public static final int MSG_SCREEN_DIM_STATUS = 11;
     public static final int DEF_OVERLAY_BUTTON_COLOUR = 0x0288D1;
     public static final float DEF_OVERLAY_BUTTON_ALPHA = 0.5f;
-    public static final float MAX_SCREEN_DIM_AMOUNT = 0.5f;
+    public static final float MAX_SCREEN_DIM_AMOUNT = 0.8f;
     public static final String ACTION_START = BuildConfig.APPLICATION_ID + ".START";
     public static final String ACTION_PAUSE = BuildConfig.APPLICATION_ID + ".PAUSE";
     static final String ACTION_STOP = BuildConfig.APPLICATION_ID + ".STOP";
