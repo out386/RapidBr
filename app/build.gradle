@@ -18,7 +18,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
-            /*buildConfigField('String', 'AD_TEST_DEVICE_ID', adTestDeviceId)*/
+            buildConfigField('String', 'AD_TEST_DEVICE_ID', adTestDeviceId)
         }
     }
     compileOptions {
