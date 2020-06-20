@@ -63,9 +63,9 @@ public class AdManager {
                 .build();
 
         AdRequest.Builder adBuilder = new AdRequest.Builder();
-        if (BuildConfig.DEBUG) {
+        /*if (BuildConfig.DEBUG) {
             adBuilder.addTestDevice(BuildConfig.AD_TEST_DEVICE_ID);
-        }
+        }*/
         adLoader.loadAds(adBuilder.build(), NUM_ADS);
     }
 
