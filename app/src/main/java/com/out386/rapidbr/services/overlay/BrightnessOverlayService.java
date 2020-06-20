@@ -618,8 +618,8 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
     private void setBrightnessCompat(int brightness) {
         if (brightness < 0)
             setBrightnessCompat(0);
-        else if (brightness > 255)
-            setBrightnessCompat(255);
+        else if (brightness > 4096)
+            setBrightnessCompat(4096);
         else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (Settings.System.canWrite(getApplicationContext())) {
                 setBrightness(brightness);
@@ -670,7 +670,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
             }
             setDimmerBrightness();
         } else {
-            int brChangeTo = 255 * brChangeToPercent / 100;
+            int brChangeTo = 4096 * brChangeToPercent / 100;
             int newbr = origBr +
                     (brightnessUp ? brChangeTo : -brChangeTo);
             // Make sure that the dimmer is off when screen brightness is > 0

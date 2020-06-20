@@ -37,7 +37,7 @@ import java.util.List;
 
 public class BlacklistAppsItem extends AbstractItem<BlacklistAppsItem, BlacklistAppsItem.ViewHolder> implements Serializable {
 
-    private static final float DEFAULT_BRIGHTNESS = 178.5f;     // 70% of 255
+    private static final float DEFAULT_BRIGHTNESS = 2867.2f;     // 70% of 4096
     private String packageName;
     private String appName;
     private transient Bitmap appIcon;
@@ -76,7 +76,7 @@ public class BlacklistAppsItem extends AbstractItem<BlacklistAppsItem, Blacklist
     }
 
     /**
-     * @return The brightness to be used for this app, between -1F to 255F. -1F means brightness
+     * @return The brightness to be used for this app, between -1F to 4096F. -1F means brightness
      * will be unchanged
      */
     public float getBrightness() {
@@ -92,14 +92,14 @@ public class BlacklistAppsItem extends AbstractItem<BlacklistAppsItem, Blacklist
     }
 
     /**
-     * Set the brightness to be used for this app, between -1 to 255. -1 means brightness will be
+     * Set the brightness to be used for this app, between -1 to 4096. -1 means brightness will be
      * unchanged
      */
     public void setAppBrightness(float brightness) {
         if (brightness < -1)
             brightness = -1;
-        else if (brightness > 255)
-            brightness = 255;
+        else if (brightness > 4096)
+            brightness = 4096;
         this.brightness = brightness;
     }
 
