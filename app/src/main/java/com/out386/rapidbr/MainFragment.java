@@ -56,7 +56,7 @@ public class MainFragment extends Fragment implements OnAdLoadedListener {
     private ButtonHideNestedScrollView scrollView;
     private View rootView;
     private boolean isFragmentStopped = true;
-    //private AdManager adManager;
+    private AdManager adManager;
     private UnifiedNativeAdView currentAd;
 
     public MainFragment() {
@@ -86,7 +86,7 @@ public class MainFragment extends Fragment implements OnAdLoadedListener {
             throw new RuntimeException(context.toString()
                     + " must implement OnNavigationListener and OnAdRequestListener");
         }
-        //adManager = AdManager.getInstance(context);
+        adManager = AdManager.getInstance(context);
     }
 
     private void setViewListeners(View root) {
@@ -129,7 +129,7 @@ public class MainFragment extends Fragment implements OnAdLoadedListener {
     public void onStart() {
         super.onStart();
         isFragmentStopped = false;
-        //adManager.getAd(this, AD_REQUESTER_ID);
+        adManager.getAd(this, AD_REQUESTER_ID);
     }
 
     @Override
@@ -152,7 +152,7 @@ public class MainFragment extends Fragment implements OnAdLoadedListener {
     public void onDetach() {
         super.onDetach();
         listener = null;
-        //adManager = null;
+        adManager = null;
     }
 
     @Override
