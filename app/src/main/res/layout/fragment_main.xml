@@ -159,6 +159,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/boot_start_switch" />
 
             <com.out386.rapidbr.settings.bottom.views.SwitchItem
+                android:visibility="gone"
                 android:id="@+id/tasker_enable_switch"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

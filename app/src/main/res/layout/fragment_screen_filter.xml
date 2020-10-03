@@ -43,6 +43,7 @@
             android:background="@drawable/card">
 
             <com.out386.rapidbr.settings.bottom.views.SwitchItem
+                android:visibility="gone"
                 android:id="@+id/sfilter_enable_kcal_switch"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

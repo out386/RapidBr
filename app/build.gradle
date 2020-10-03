@@ -8,8 +8,8 @@ android {
         applicationId "com.out386.rapidbr"
         minSdkVersion 23
         targetSdkVersion rootProject.ext.sdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode 10
+        versionName "2.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
