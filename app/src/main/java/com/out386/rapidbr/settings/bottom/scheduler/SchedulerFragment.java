@@ -67,7 +67,7 @@ public class SchedulerFragment extends Fragment implements OnAdLoadedListener {
     private ButtonHideNestedScrollView scrollView;
     private View rootView;
     private boolean isFragmentStopped = true;
-    private AdManager adManager;
+    //private AdManager adManager;
     private UnifiedNativeAdView currentAd;
 
     public SchedulerFragment() {
@@ -109,14 +109,14 @@ public class SchedulerFragment extends Fragment implements OnAdLoadedListener {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        adManager = AdManager.getInstance(context);
+        //adManager = AdManager.getInstance(context);
     }
 
     @Override
     public void onStart() {
         super.onStart();
         isFragmentStopped = false;
-        adManager.getAd(this, AD_REQUESTER_ID);
+        //adManager.getAd(this, AD_REQUESTER_ID);
     }
 
     @Override
@@ -137,7 +137,7 @@ public class SchedulerFragment extends Fragment implements OnAdLoadedListener {
     @Override
     public void onDetach() {
         super.onDetach();
-        adManager = null;
+        //adManager = null;
     }
 
     private void setPrefsListener() {

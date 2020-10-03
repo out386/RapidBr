@@ -53,7 +53,7 @@ public class ButtonColourFragment extends Fragment implements OnAdLoadedListener
     private ButtonHideNestedScrollView scrollView;
     private View rootView;
     private boolean isFragmentStopped = true;
-    private AdManager adManager;
+    //private AdManager adManager;
     private UnifiedNativeAdView currentAd;
 
     public ButtonColourFragment() {
@@ -65,14 +65,14 @@ public class ButtonColourFragment extends Fragment implements OnAdLoadedListener
         if (context instanceof OnButtonColourChangedListener) {
             colourListener = (OnButtonColourChangedListener) context;
         }
-        adManager = AdManager.getInstance(context);
+        //adManager = AdManager.getInstance(context);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         colourListener = null;
-        adManager = null;
+        //adManager = null;
     }
 
 
@@ -80,7 +80,7 @@ public class ButtonColourFragment extends Fragment implements OnAdLoadedListener
     public void onStart() {
         super.onStart();
         isFragmentStopped = false;
-        adManager.getAd(this, AD_REQUESTER_ID);
+        //adManager.getAd(this, AD_REQUESTER_ID);
     }
 
     @Override
