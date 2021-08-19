@@ -1,3 +1,6 @@
+[Prebuilt APK](https://github.com/out386/RapidBr/raw/master/prebuilt/com.out386.rapidbr.apk)
+  
+  
 <img src="https://github.com/out386/RapidBr/raw/master/images/1.png" width="300">
 <img src="https://github.com/out386/RapidBr/raw/master/images/2.png" width="300">  
 <img src="https://github.com/out386/RapidBr/raw/master/images/3.png" width="300">
