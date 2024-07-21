@@ -17,7 +17,7 @@ buildscript {
 }
 
 ext {
-    sdkVersion = 29
+    sdkVersion = 34
 }
 
 allprojects {

@@ -731,7 +731,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         Intent notificationIntent =
                 new Intent(getApplicationContext(), NotificationActivity.class);
         PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(),
-                0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+                0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         notificationBuilderPause
                 .setSound(null)
@@ -760,7 +760,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
         Intent notificationIntent =
                 new Intent(getApplicationContext(), NotificationActivity.class);
         PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(),
-                0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+                0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         notificationBuilderPause
                 .setSound(null)
@@ -798,7 +798,7 @@ public class BrightnessOverlayService extends Service implements View.OnTouchLis
             i = new Intent(this, getClass());
             i.setAction(action);
         }
-        return PendingIntent.getService(this, 0, i, 0);
+        return PendingIntent.getService(this, 0, i, PendingIntent.FLAG_IMMUTABLE);
     }
 
     private class BrightnessRunnable implements Runnable {

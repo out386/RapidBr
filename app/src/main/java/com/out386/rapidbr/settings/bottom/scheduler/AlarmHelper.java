@@ -66,11 +66,11 @@ public class AlarmHelper {
         if (isStart) {
             intent.setAction(ACTION_SCHEDULER_START);
             alarmIntent = PendingIntent.getBroadcast(context, REQUEST_CODE_START,
-                    intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                    intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         } else {
             intent.setAction(ACTION_SCHEDULER_STOP);
             alarmIntent = PendingIntent.getBroadcast(context, REQUEST_CODE_STOP,
-                    intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                    intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         }
 
         if (millis > -1) {
