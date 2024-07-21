@@ -7,7 +7,5 @@
     <dimen name="edge_padding_internal">20dp</dimen>
     <dimen name="edge_padding_internal_thin">15dp</dimen>
     <dimen name="edge_padding_internal_ultra_thin">10dp</dimen>
-    <dimen name="padding_internal_ads">4dp</dimen>
-    <dimen name="padding_internal_ads_large">6dp</dimen>
     <dimen name="button_colour_item_size">80dp</dimen>
 </resources>

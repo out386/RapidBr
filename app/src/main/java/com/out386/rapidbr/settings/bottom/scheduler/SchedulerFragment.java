@@ -21,7 +21,6 @@ package com.out386.rapidbr.settings.bottom.scheduler;
  */
 
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -37,11 +36,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
-import com.google.android.gms.ads.formats.UnifiedNativeAd;
-import com.google.android.gms.ads.formats.UnifiedNativeAdView;
 import com.out386.rapidbr.R;
-import com.out386.rapidbr.ads.AdManager;
-import com.out386.rapidbr.ads.OnAdLoadedListener;
 import com.out386.rapidbr.settings.bottom.views.ButtonHideNestedScrollView;
 import com.out386.rapidbr.settings.bottom.views.SwitchItem;
 
@@ -52,9 +47,8 @@ import static com.out386.rapidbr.settings.bottom.scheduler.TimePickerFragment.KE
 import static com.out386.rapidbr.settings.bottom.scheduler.TimePickerFragment.KEY_SCHEDULER_STOP_HOUR;
 import static com.out386.rapidbr.settings.bottom.scheduler.TimePickerFragment.KEY_SCHEDULER_STOP_MINUTE;
 
-public class SchedulerFragment extends Fragment implements OnAdLoadedListener {
+public class SchedulerFragment extends Fragment {
     static final String KEY_SCHED_ENABLE = "KEY_SCHED_ENABLE";
-    private static final int AD_REQUESTER_ID = 1;
 
     private LinearLayout schedStart;
     private LinearLayout schedStop;
@@ -65,10 +59,6 @@ public class SchedulerFragment extends Fragment implements OnAdLoadedListener {
     private PrefsListener prefsListener;
     private AlarmHelper alarmHelper;
     private ButtonHideNestedScrollView scrollView;
-    private View rootView;
-    private boolean isFragmentStopped = true;
-    private AdManager adManager;
-    private UnifiedNativeAdView currentAd;
 
     public SchedulerFragment() {
     }
@@ -76,18 +66,18 @@ public class SchedulerFragment extends Fragment implements OnAdLoadedListener {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        rootView = inflater.inflate(R.layout.fragment_scheduler, container, false);
+        View v = inflater.inflate(R.layout.fragment_scheduler, container, false);
         prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        schedStartDesc = rootView.findViewById(R.id.sched_start_desc);
-        schedStopDesc = rootView.findViewById(R.id.sched_stop_desc);
-        schedStart = rootView.findViewById(R.id.sched_start);
-        schedStop = rootView.findViewById(R.id.sched_stop);
-        schedEnable = rootView.findViewById(R.id.sched_enable_switch);
+        schedStartDesc = v.findViewById(R.id.sched_start_desc);
+        schedStopDesc = v.findViewById(R.id.sched_stop_desc);
+        schedStart = v.findViewById(R.id.sched_start);
+        schedStop = v.findViewById(R.id.sched_stop);
+        schedEnable = v.findViewById(R.id.sched_enable_switch);
         alarmHelper = new AlarmHelper(requireContext());
 
-        scrollView = rootView.findViewById(R.id.scroll_view);
+        scrollView = v.findViewById(R.id.scroll_view);
         scrollView.setupButtonHideListener(requireActivity());
-        return rootView;
+        return v;
     }
 
     @Override
@@ -107,38 +97,12 @@ public class SchedulerFragment extends Fragment implements OnAdLoadedListener {
     }
 
     @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        adManager = AdManager.getInstance(context);
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        isFragmentStopped = false;
-        adManager.getAd(this, AD_REQUESTER_ID);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        isFragmentStopped = true;
-        if (currentAd != null)
-            currentAd.destroy();
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
         scrollView.forceButtonShow();
         setPrefsListener();
     }
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        adManager = null;
-    }
 
     private void setPrefsListener() {
         if (prefsListener != null)
@@ -194,15 +158,6 @@ public class SchedulerFragment extends Fragment implements OnAdLoadedListener {
     public void onPause() {
         super.onPause();
         prefs.unregisterOnSharedPreferenceChangeListener(prefsListener);
-    }
-
-    @Override
-    public void onAdLoaded(@Nullable UnifiedNativeAd ad) {
-        if (isFragmentStopped)
-            return;
-
-        LinearLayout adViewRoot = rootView.findViewById(R.id.ad_view);
-        currentAd = AdManager.inflateAd(adViewRoot, ad);
     }
 
     private class PrefsListener implements SharedPreferences.OnSharedPreferenceChangeListener {

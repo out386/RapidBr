@@ -28,7 +28,6 @@ import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -36,10 +35,6 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
-import com.google.android.gms.ads.formats.UnifiedNativeAd;
-import com.google.android.gms.ads.formats.UnifiedNativeAdView;
-import com.out386.rapidbr.ads.AdManager;
-import com.out386.rapidbr.ads.OnAdLoadedListener;
 import com.out386.rapidbr.settings.MainActivityListener;
 import com.out386.rapidbr.settings.bottom.blacklist.BlacklistActivity;
 import com.out386.rapidbr.settings.bottom.views.ButtonHideNestedScrollView;
@@ -48,16 +43,12 @@ import com.out386.rapidbr.settings.bottom.views.SwitchItem;
 
 import static com.out386.rapidbr.settings.bottom.scheduler.BootAlarmReceiver.KEY_START_ON_BOOT;
 
-public class MainFragment extends Fragment implements OnAdLoadedListener {
-    private static final int AD_REQUESTER_ID = 0;
+public class MainFragment extends Fragment {
+
     private MainActivityListener listener;
     private SharedPreferences prefs;
     private SwitchItem startOnBoot;
     private ButtonHideNestedScrollView scrollView;
-    private View rootView;
-    private boolean isFragmentStopped = true;
-    private AdManager adManager;
-    private UnifiedNativeAdView currentAd;
 
     public MainFragment() {
     }
@@ -73,7 +64,6 @@ public class MainFragment extends Fragment implements OnAdLoadedListener {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        rootView = view;
         setViewListeners(view);
     }
 
@@ -84,9 +74,8 @@ public class MainFragment extends Fragment implements OnAdLoadedListener {
             listener = (MainActivityListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnNavigationListener and OnAdRequestListener");
+                    + " must implement OnNavigationListener");
         }
-        adManager = AdManager.getInstance(context);
     }
 
     private void setViewListeners(View root) {
@@ -126,21 +115,6 @@ public class MainFragment extends Fragment implements OnAdLoadedListener {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        isFragmentStopped = false;
-        adManager.getAd(this, AD_REQUESTER_ID);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        isFragmentStopped = true;
-        if (currentAd != null)
-            currentAd.destroy();
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
         //Delay, because the top view scrolls and triggers a button hide
@@ -152,15 +126,5 @@ public class MainFragment extends Fragment implements OnAdLoadedListener {
     public void onDetach() {
         super.onDetach();
         listener = null;
-        adManager = null;
-    }
-
-    @Override
-    public void onAdLoaded(@Nullable UnifiedNativeAd ad) {
-        if (isFragmentStopped)
-            return;
-
-        LinearLayout adViewRoot = rootView.findViewById(R.id.ad_view);
-        currentAd = AdManager.inflateAd(adViewRoot, ad);
     }
 }

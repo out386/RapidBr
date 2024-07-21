@@ -27,8 +27,6 @@ import android.preference.PreferenceManager;
 
 import androidx.appcompat.app.AppCompatDelegate;
 
-import com.google.android.gms.ads.MobileAds;
-
 public class MainApplication extends Application {
     static final String KEY_THEME_TYPE = "themeSetting";
 
@@ -46,8 +44,6 @@ public class MainApplication extends Application {
         theme = prefs.getInt(KEY_THEME_TYPE, theme);
 
         AppCompatDelegate.setDefaultNightMode(theme);
-
-        MobileAds.initialize(this, getString(R.string.app_ad_id));
     }
 
 }

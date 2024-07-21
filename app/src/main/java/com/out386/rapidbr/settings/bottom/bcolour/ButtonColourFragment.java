@@ -29,32 +29,21 @@ import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.ads.formats.UnifiedNativeAd;
-import com.google.android.gms.ads.formats.UnifiedNativeAdView;
 import com.out386.rapidbr.R;
-import com.out386.rapidbr.ads.AdManager;
-import com.out386.rapidbr.ads.OnAdLoadedListener;
 import com.out386.rapidbr.settings.bottom.views.ButtonHideNestedScrollView;
 
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.KEY_BR_ICON_COLOUR;
 
-public class ButtonColourFragment extends Fragment implements OnAdLoadedListener {
-    private static final int AD_REQUESTER_ID = 2;
+public class ButtonColourFragment extends Fragment {
     private SharedPreferences prefs;
     private OnButtonColourChangedListener colourListener;
     private ButtonHideNestedScrollView scrollView;
-    private View rootView;
-    private boolean isFragmentStopped = true;
-    private AdManager adManager;
-    private UnifiedNativeAdView currentAd;
 
     public ButtonColourFragment() {
     }
@@ -65,41 +54,23 @@ public class ButtonColourFragment extends Fragment implements OnAdLoadedListener
         if (context instanceof OnButtonColourChangedListener) {
             colourListener = (OnButtonColourChangedListener) context;
         }
-        adManager = AdManager.getInstance(context);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         colourListener = null;
-        adManager = null;
-    }
-
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        isFragmentStopped = false;
-        adManager.getAd(this, AD_REQUESTER_ID);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        isFragmentStopped = true;
-        if (currentAd != null)
-            currentAd.destroy();
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        rootView = inflater.inflate(R.layout.fragment_button_colour, container, false);
+        View v = inflater.inflate(R.layout.fragment_button_colour, container, false);
         Context context = requireContext();
 
         prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        scrollView = rootView.findViewById(R.id.button_recycler_parent);
-        RecyclerView recyclerView = rootView.findViewById(R.id.button_recycler);
+        scrollView = v.findViewById(R.id.button_recycler_parent);
+        RecyclerView recyclerView = v.findViewById(R.id.button_recycler);
 
         scrollView.setupButtonHideListener(requireActivity());
 
@@ -120,7 +91,7 @@ public class ButtonColourFragment extends Fragment implements OnAdLoadedListener
                         defColour)
         );
 
-        return rootView;
+        return v;
     }
 
     @Override
@@ -135,16 +106,6 @@ public class ButtonColourFragment extends Fragment implements OnAdLoadedListener
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
         int screenWidth = displayMetrics.widthPixels - totalPadding;
         return Math.round(screenWidth / pxWidth);
-    }
-
-
-    @Override
-    public void onAdLoaded(@Nullable UnifiedNativeAd ad) {
-        if (isFragmentStopped)
-            return;
-
-        LinearLayout adViewRoot = rootView.findViewById(R.id.ad_view);
-        currentAd = AdManager.inflateAd(adViewRoot, ad);
     }
 
     private class OnColourChangedListener implements ColourRecyclerAdapter.OnItemChangedListener {

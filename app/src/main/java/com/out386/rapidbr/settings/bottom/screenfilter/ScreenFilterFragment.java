@@ -37,11 +37,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.gms.ads.formats.UnifiedNativeAd;
-import com.google.android.gms.ads.formats.UnifiedNativeAdView;
 import com.out386.rapidbr.R;
-import com.out386.rapidbr.ads.AdManager;
-import com.out386.rapidbr.ads.OnAdLoadedListener;
 import com.out386.rapidbr.settings.bottom.views.ButtonHideNestedScrollView;
 import com.out386.rapidbr.settings.bottom.views.SwitchItem;
 import com.out386.rapidbr.utils.ViewUtils;
@@ -52,11 +48,7 @@ import kotlin.Unit;
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.KEY_SCREEN_FILTER_ENABLED;
 import static com.out386.rapidbr.services.overlay.BrightnessOverlayService.KEY_TEMP_FILTER_ENABLED;
 
-public class ScreenFilterFragment extends Fragment implements OnAdLoadedListener {
-    public static final String KEY_FILTER_TEMPERATURE = "scrFilterTemp";
-    private static final int AD_REQUESTER_ID = 4;
-    private static final String KEY_FILTER_TEMPERATURE_PERC = "scrFilterTemp%";
-    private static final String KEY_FILTER_TEMPERATURE_ALPHA = "scrFilterTempIntensity";
+public class ScreenFilterFragment extends Fragment {
 
     private SharedPreferences prefs;
     private SwitchItem filterEnable;
@@ -71,10 +63,10 @@ public class ScreenFilterFragment extends Fragment implements OnAdLoadedListener
     private int colourAccent;
     private float tempPerc;
     private float tempAlphaPerc;
-    private View rootView;
-    private boolean isFragmentStopped = true;
-    private AdManager adManager;
-    private UnifiedNativeAdView currentAd;
+
+    public static final String KEY_FILTER_TEMPERATURE = "scrFilterTemp";
+    private static final String KEY_FILTER_TEMPERATURE_PERC = "scrFilterTemp%";
+    private static final String KEY_FILTER_TEMPERATURE_ALPHA = "scrFilterTempIntensity";
 
     public ScreenFilterFragment() {
     }
@@ -84,40 +76,24 @@ public class ScreenFilterFragment extends Fragment implements OnAdLoadedListener
         super.onAttach(context);
         if (context instanceof OnScreenFilterSettingsChangedListener)
             listener = (OnScreenFilterSettingsChangedListener) context;
-        adManager = AdManager.getInstance(context);
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        rootView = inflater.inflate(R.layout.fragment_screen_filter, container, false);
-        filterEnable = rootView.findViewById(R.id.sfilter_enable_switch);
-        tempEnable = rootView.findViewById(R.id.sfilter_temperature_switch);
-        tempSlider = rootView.findViewById(R.id.sfilter_temp_slider);
-        tempTitle = rootView.findViewById(R.id.sfilter_temp_title);
-        tempIntenSlider = rootView.findViewById(R.id.sfilter_temp_inten_slider);
-        tempIntenTitle = rootView.findViewById(R.id.sfilter_temp_inten_title);
-        disableView = rootView.findViewById(R.id.sfilter_disable_temp);
+        View v = inflater.inflate(R.layout.fragment_screen_filter, container, false);
+        filterEnable = v.findViewById(R.id.sfilter_enable_switch);
+        tempEnable = v.findViewById(R.id.sfilter_temperature_switch);
+        tempSlider = v.findViewById(R.id.sfilter_temp_slider);
+        tempTitle = v.findViewById(R.id.sfilter_temp_title);
+        tempIntenSlider = v.findViewById(R.id.sfilter_temp_inten_slider);
+        tempIntenTitle = v.findViewById(R.id.sfilter_temp_inten_title);
+        disableView = v.findViewById(R.id.sfilter_disable_temp);
         prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        scrollView = rootView.findViewById(R.id.scroll_view);
+        scrollView = v.findViewById(R.id.scroll_view);
         scrollView.setupButtonHideListener(requireActivity());
 
-        return rootView;
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        isFragmentStopped = false;
-        adManager.getAd(this, AD_REQUESTER_ID);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        isFragmentStopped = true;
-        if (currentAd != null)
-            currentAd.destroy();
+        return v;
     }
 
     @Override
@@ -125,12 +101,6 @@ public class ScreenFilterFragment extends Fragment implements OnAdLoadedListener
         super.onResume();
         scrollView.forceButtonShow();
         setupViews();
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        adManager = null;
     }
 
     private void setupViews() {
@@ -264,15 +234,6 @@ public class ScreenFilterFragment extends Fragment implements OnAdLoadedListener
     @Override
     public void onPause() {
         super.onPause();
-    }
-
-    @Override
-    public void onAdLoaded(@Nullable UnifiedNativeAd ad) {
-        if (isFragmentStopped)
-            return;
-
-        LinearLayout adViewRoot = rootView.findViewById(R.id.ad_view);
-        currentAd = AdManager.inflateAd(adViewRoot, ad);
     }
 
 }

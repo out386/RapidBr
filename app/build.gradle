@@ -17,9 +17,6 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
-        debug {
-            buildConfigField('String', 'AD_TEST_DEVICE_ID', adTestDeviceId)
-        }
     }
     compileOptions {
         sourceCompatibility = '1.8'
@@ -41,7 +38,6 @@ dependencies {
     implementation 'com.afollestad.material-dialogs:core:0.9.6.0'
     implementation 'androidx.core:core-ktx:1.3.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'com.google.android.gms:play-services-ads:19.2.0'
     implementation project(path: ':fluid-slider')
 }
 repositories {

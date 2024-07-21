@@ -28,14 +28,6 @@
             android:text="@string/sett_screen_filter_desc" />
 
         <LinearLayout
-            android:id="@+id/ad_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/edge_padding_internal"
-            android:orientation="vertical"
-            android:visibility="gone" />
-
-        <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

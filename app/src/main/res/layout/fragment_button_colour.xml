@@ -27,14 +27,6 @@
             android:layout_marginBottom="@dimen/edge_padding_internal"
             android:text="@string/sett_br_colour_desc" />
 
-        <LinearLayout
-            android:id="@+id/ad_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/edge_padding_internal"
-            android:orientation="vertical"
-            android:visibility="gone" />
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/button_recycler"
             android:layout_width="match_parent"
